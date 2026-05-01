@@ -1,0 +1,1623 @@
+Storage is the team's core estate, so this batch is the heaviest. Six files below — copy each fenced block into its own `.md` file in the repo.
+
+---
+
+## 📁 File 8 of N — `step-06-storage-accounts.md`
+
+````markdown
+# Step 06 — Storage accounts deep-dive
+
+_The "I understand every storage account in DSR" lab._ 🗄️
+
+> [!NOTE]
+> **Duration:** 90 minutes
+> **Lab cost:** < NZD $1
+> **Pairs with:** Module 6 of the training plan
+
+---
+
+## 📖 Session overview
+
+Storage is the heart of the Preservation Team's responsibility. DSR has four production storage accounts, each chosen carefully for redundancy, performance, and access pattern. This session walks through what makes each account different — kind, tier, redundancy, endpoints, firewall — and how to read those settings safely. By the end, you'll be able to look at any DSR storage account and immediately understand its role in the system.
+
+## 🎯 What you'll learn
+
+- The difference between **StorageV2**, **BlockBlobStorage**, **FileStorage** account kinds
+- The four **redundancy options** — LRS, ZRS, GRS, RA-GRS — and why DSR uses ZRS
+- The three **performance tiers** — Standard, Premium (FileStorage), Premium (BlockBlob)
+- How **access tiers** (Hot, Cool, Cold) work at the account vs blob level
+- How **storage account firewall**, **service endpoints**, and **private endpoints** combine
+- How DSR's four storage accounts map to the team's responsibilities
+
+## 📚 Before this session — MS Learn pre-work
+
+| Module | Time | Why this matters |
+|---|---|---|
+| [Introduction to Azure Storage](https://learn.microsoft.com/training/modules/intro-to-azure-storage/) | 30 min | Account types, tiers, redundancy |
+| [Configure Azure Storage redundancy](https://learn.microsoft.com/training/modules/configure-storage-redundancy/) | 30 min | Why ZRS for DSR |
+| [Secure Azure Storage](https://learn.microsoft.com/training/modules/secure-azure-storage-account/) | 45 min | Firewall, encryption, access keys |
+
+## 🔤 Acronyms used
+
+- **ADLS Gen2** = Azure Data Lake Storage v2 (StorageV2 with hierarchical namespace)
+- **GRS / GZRS** = Geo / Geo-Zone Redundant Storage (cross-region)
+- **HNS** = Hierarchical Namespace (ADLS Gen2 feature)
+- **LRS** = Locally Redundant Storage (3 copies in one datacentre)
+- **RA-** = Read-Access prefix (RA-GRS = read access to secondary)
+- **SAS** = Shared Access Signature (token-based access)
+- **ZRS** = Zone-Redundant Storage (3 copies across 3 AZs)
+
+## ⏱️ EDE accounting
+
+- Trainee self-paced: 90 min
+- Instructor-led delivery: 1.5h
+- Prep work: 1.75h
+- Q&A: 30 min
+- **Total EDE per trainee: ~5h**
+
+## 💰 Cost note
+
+- Three test storage accounts at Standard LRS: ~NZD $0.10/day total
+- Tear down at end — total < NZD $1.
+
+---
+
+## 🧱 Foundational primer
+
+### Account kinds
+
+| Kind | Holds | Use in DSR |
+|---|---|---|
+| **StorageV2** (general purpose v2) | Blob, File, Queue, Table | Default for everything; all 4 DSR accounts use this |
+| **BlockBlobStorage** | Block blobs only, premium SSD | Not used in DSR |
+| **FileStorage** | Files only, premium SSD | Could be used for Rosetta NFS — design uses StorageV2 with Premium Files instead |
+
+### Redundancy (cost vs durability tradeoff)
+
+| Option | Copies | Where | Cost | Use |
+|---|---|---|---|---|
+| **LRS** | 3 | One datacentre | $ | Lab/dev only |
+| **ZRS** | 3 | 3 AZs in region | $$ | **All DSR PRD accounts** — chosen because NZ North has no paired region |
+| **GRS** | 6 | Primary region + 1 secondary | $$$ | Not available in NZ North (no pair) |
+| **RA-GRS** | 6 | GRS + read access to secondary | $$$$ | Not available in NZ North |
+
+### Access tiers (block blob only)
+
+| Tier | Storage cost | Read cost | Min retention |
+|---|---|---|---|
+| **Hot** | High | Low | None |
+| **Cool** | Lower | Higher | 30 days |
+| **Cold** | Lowest of online | Highest of online | 90 days |
+| **Archive** | Lowest of all | Hours-long rehydration | 180 days |
+
+DSR uses Hot → Cool → Cold automatically via lifecycle policies. **Archive is not used** (per design).
+
+### DSR's four production storage accounts
+
+| Account | Kind | Redundancy | Holds | Used by |
+|---|---|---|---|---|
+| `stanlnznfileprdrosi01` | StorageV2 | ZRS | Premium Files (NFS) | Rosetta delivery/repository |
+| `stanlnznfileprdrosi02` | StorageV2 | ZRS | Standard Files (SMB) | Rosetta admin shares |
+| `stanlnznblobprdrosi01` | StorageV2 | ZRS | Blob (Hot/Cool/Cold) | Rosetta storage groups (NLNZ_IE, NLNZ_File, Metadata, SIP, ANZ_IE) |
+| `stanlnznblobprdwod01` | StorageV2 | ZRS | Blob with Legal Hold | WOD archive |
+
+---
+
+## ⌨️ Activity 1 — Inspect each DSR storage account (read-only)
+
+If you have Reader on DSR DEV / UAT:
+
+1. Portal → search the four account names listed above (DEV/UAT equivalents).
+2. For each, in **Overview**, note:
+   - Performance, Redundancy, Account kind
+   - Primary endpoints (Blob, File, Queue, Table)
+   - Status
+
+## ⌨️ Activity 2 — Compare accounts side-by-side using Resource Graph
+
+```kusto
+Resources
+| where type == "microsoft.storage/storageaccounts"
+| where name startswith "stanlnzn"
+| project name,
+          kind,
+          sku=sku.name,
+          tier=sku.tier,
+          accessTier=tostring(properties.accessTier),
+          httpsOnly=tostring(properties.supportsHttpsTrafficOnly),
+          publicNetwork=tostring(properties.publicNetworkAccess)
+| order by name asc
+```
+
+✅ One screen, all DSR accounts, with the key settings.
+
+## ⌨️ Activity 3 — Deploy your own three accounts to compare
+
+```bash
+RG=rg-training-storage-<your-initials>
+az group create -n $RG -l australiaeast --tags purpose=dsr-training
+
+# 1. Standard LRS — cheap, 1 datacentre
+az storage account create -n sttrainlrs<your-initials>$RANDOM \
+  -g $RG -l australiaeast --sku Standard_LRS --kind StorageV2
+
+# 2. Standard ZRS — like DSR
+az storage account create -n sttrainzrs<your-initials>$RANDOM \
+  -g $RG -l australiaeast --sku Standard_ZRS --kind StorageV2
+
+# 3. Premium FileStorage (NFS-capable) — like stanlnznfileprdrosi01
+az storage account create -n sttrainpfs<your-initials>$RANDOM \
+  -g $RG -l australiaeast --sku Premium_ZRS --kind FileStorage
+```
+
+Compare them in the portal. Note the differences in:
+- Available services (only Premium FileStorage shows the **File shares** blade prominently)
+- Configurable access tier (only StorageV2 has Hot/Cool/Cold)
+- Cost preview
+
+## ⌨️ Activity 4 — Endpoints, firewall, and Private Endpoint config
+
+1. Pick one of your test accounts → **Networking** → **Public network access**.
+2. Read (don't change yet): default = Enabled from all networks.
+3. Now set **Selected networks** → see the firewall rule UI.
+4. Look at **Private endpoint connections** tab — empty unless you completed Module 5.
+
+In production, DSR storage accounts have:
+- Public network access = **Disabled**
+- Connectivity only via Private Endpoint from `snet-pe-prd`
+
+## ⌨️ Activity 5 — Encryption settings
+
+1. Storage account → **Encryption** blade.
+2. Note: Microsoft-managed keys by default. DSR uses customer-managed keys (CMK) backed by Azure Key Vault — see § 9 of the design doc.
+3. Don't change anything in your lab account — just observe the option.
+
+## ⌨️ Activity 6 — Container, file share, queue, table — all in one account
+
+In your StorageV2 account:
+
+1. **Containers** → + Container → name `test-blob`.
+2. **File shares** → + File share → name `test-share`. Skip backup. (Hot tier, small quota.)
+3. **Queues** → + Queue → name `test-queue`.
+4. **Tables** → + Table → name `testtable`.
+
+✅ All four sub-services share one account, one billing line, one access policy.
+
+## ⌨️ Activity 7 — Account-level vs blob-level access tier
+
+1. Account → **Configuration** → **Default access tier** = Hot.
+2. Upload a blob → it inherits Hot.
+3. On the blob → right-click → **Change tier** → Cool.
+
+The **default** is account-level. Individual blobs can override (and lifecycle rules typically do).
+
+## ⌨️ Activity 8 — Tear down
+
+```bash
+az group delete -n rg-training-storage-<your-initials> --yes --no-wait
+```
+
+---
+
+## 🦾 Now your turn!
+
+Write a Resource Graph query that returns **all storage accounts in DSR DEV+UAT+PRD** showing:
+
+- Name, redundancy, account kind, public network access setting, HTTPS-only setting
+- Sorted by env then name
+
+Save it as a saved query — your weekly storage health check.
+
+---
+
+## ✅ Success checklist
+
+- [ ] You can list every DSR storage account and explain its role
+- [ ] You understand why all PRD accounts use ZRS
+- [ ] You've deployed accounts in 3 different SKUs and compared them
+- [ ] You can find encryption, networking, and firewall settings
+- [ ] You know that DSR PRD accounts disable public network access
+
+---
+
+## 💰 Cost note
+
+< NZD $1 with prompt teardown.
+
+---
+
+➡️ **Next:** [Step 07 — Reading the lifecycle policy (Hot / Cool / Cold)](step-07-lifecycle.md)
+````
+
+---
+
+## 📁 File 9 of N — `step-07-lifecycle.md`
+
+````markdown
+# Step 07 — Reading the lifecycle policy (Hot / Cool / Cold)
+
+_The "the automation already does this — here's how to read it" lab._ ♨️➡️🧊➡️❄️
+
+> [!NOTE]
+> **Duration:** 60 minutes
+> **Lab cost:** < NZD $1
+> **Pairs with:** Module 7 of the training plan
+> **Reframed at customer request:** "We won't be using these features — there are policies and scripts in place."
+
+---
+
+## 📖 Session overview
+
+DIA already has automation that moves data between Hot, Cool, and Cold tiers. The Preservation Team doesn't write these policies — but they need to **read** them, **verify** they're working, and **spot when they misbehave**. This session focuses on those three skills, not on designing tier policies from scratch.
+
+## 🎯 What you'll learn
+
+- What a **lifecycle management policy** looks like in JSON
+- How to **read** the existing DSR lifecycle policy and trace what it does
+- How to **verify** a policy is actually moving data (not just configured)
+- How to **monitor** lifecycle action counts and spot misbehaviour
+- The cost impact of each tier transition (you do **not** pay to *move into* a tier; you pay per-blob transaction)
+
+## 📚 Before this session — MS Learn pre-work
+
+| Module | Time | Why this matters |
+|---|---|---|
+| [Optimize storage costs with lifecycle management](https://learn.microsoft.com/training/modules/optimize-archive-costs-blob-storage/) | 30 min | The standard MS Learn module — but skim, since you won't be authoring policies |
+| [Hot, Cool, Cold, and Archive tiers](https://learn.microsoft.com/azure/storage/blobs/access-tiers-overview) (article, 15 min read) | 15 min | Per-tier costs and minimum retention rules |
+
+## 🔤 Acronyms used
+
+- **JSON** = JavaScript Object Notation — the format lifecycle policies are written in
+- **TTL** = Time To Live (how long since last modification)
+
+## ⏱️ EDE accounting
+
+- Trainee self-paced: 60 min
+- Instructor-led delivery: 1h
+- Prep work: 45 min
+- Q&A: 20 min
+- **Total EDE per trainee: ~3h**
+
+## 💰 Cost note
+
+- One test account, ~10 small blobs, lifecycle simulated: < NZD $1.
+
+---
+
+## 🧱 Foundational primer
+
+### Tier transition rules
+
+- **Free transitions:** None. Each blob moved between tiers counts as 1 transaction (~NZD $0.0001 / 10k transactions for read; writes are similar).
+- **Minimum stays:**
+  - Cool: 30 days
+  - Cold: 90 days
+  - Archive: 180 days (DSR doesn't use Archive)
+- **Reading** from Cool / Cold is **per-GB charged** — Cold reads are roughly 10x Cool reads.
+
+### What a DSR-style policy looks like (typical)
+
+```json
+{
+  "rules": [
+    {
+      "enabled": true,
+      "name": "anl-tier-down-rule",
+      "type": "Lifecycle",
+      "definition": {
+        "actions": {
+          "baseBlob": {
+            "tierToCool": { "daysAfterModificationGreaterThan": 90 },
+            "tierToCold": { "daysAfterModificationGreaterThan": 365 }
+          }
+        },
+        "filters": {
+          "blobTypes": ["blockBlob"],
+          "prefixMatch": ["stct-permrp-01/NLNZ_IE/"]
+        }
+      }
+    }
+  ]
+}
+```
+
+This says: blobs in container `stct-permrp-01` under prefix `NLNZ_IE/` go to Cool after 90 days inactivity, then Cold after 365 days. **No restore-to-Hot rule** — once cooled, blobs stay cooled.
+
+### Where DSR does NOT touch lifecycle
+
+- **WOD storage account** has legal hold — blobs **must not be moved**. WOD's lifecycle policy is empty by design (immutability tag prevents modification).
+
+---
+
+## ⌨️ Activity 1 — Read the production lifecycle policy (read-only)
+
+If you have Reader on DSR DEV/UAT/PRD:
+
+1. Portal → `stanlnznblobprdrosi01` → **Lifecycle management**.
+2. Click **List view** → see active rules.
+3. Click any rule → **Code view** → see the JSON.
+4. Copy the JSON to a scratchpad — you'll reference it.
+
+> [!IMPORTANT]
+> Don't click **Save** anywhere here. Read-only.
+
+## ⌨️ Activity 2 — Trace what the policy does
+
+For each rule, answer (in your notes):
+
+- Which container/prefix does it target?
+- After how many days does it move to Cool? Cold? Archive?
+- Does it delete anything, or only tier-down?
+- Are blob versions affected the same way?
+
+In production, the answers are:
+- Container: `stct-permrp-01` (and others)
+- Prefixes: `NLNZ_IE/`, `NLNZ_File/`, `Metadata/`, `SIP/`, `ANZ_IE/`
+- Cool after: typically 90–180 days
+- Cold after: typically 365 days
+- Delete: never (legal/compliance)
+- Versions: tiered separately by version-specific rules
+
+## ⌨️ Activity 3 — Deploy a lifecycle policy in your training sub
+
+```bash
+RG=rg-training-lifecycle-<your-initials>
+az group create -n $RG -l australiaeast --tags purpose=dsr-training
+
+SA=sttrainlc<your-initials>$RANDOM
+az storage account create -n $SA -g $RG -l australiaeast \
+  --sku Standard_LRS --kind StorageV2 --access-tier Hot
+
+cat > /tmp/lifecycle.json <<'EOF'
+{
+  "rules": [
+    {
+      "enabled": true,
+      "name": "anl-style-tier-down",
+      "type": "Lifecycle",
+      "definition": {
+        "actions": {
+          "baseBlob": {
+            "tierToCool": { "daysAfterModificationGreaterThan": 30 },
+            "tierToCold": { "daysAfterModificationGreaterThan": 90 }
+          }
+        },
+        "filters": {
+          "blobTypes": ["blockBlob"],
+          "prefixMatch": ["test-container/preservation/"]
+        }
+      }
+    }
+  ]
+}
+EOF
+
+az storage account management-policy create \
+  --account-name $SA \
+  --resource-group $RG \
+  --policy @/tmp/lifecycle.json
+```
+
+## ⌨️ Activity 4 — Verify the policy
+
+```bash
+az storage account management-policy show \
+  --account-name $SA \
+  --resource-group $RG \
+  --output json
+```
+
+Inspect the JSON — confirm `enabled=true`, the prefix matches your intent, the day thresholds look right.
+
+## ⌨️ Activity 5 — Upload test blobs
+
+```bash
+KEY=$(az storage account keys list -n $SA -g $RG --query '[0].value' -o tsv)
+
+az storage container create --name test-container \
+  --account-name $SA --account-key $KEY
+
+# Upload 5 sample blobs
+for i in 1 2 3 4 5; do
+  echo "test data $i" > /tmp/blob-$i.txt
+  az storage blob upload \
+    --account-name $SA --account-key $KEY \
+    --container-name test-container \
+    --name preservation/blob-$i.txt \
+    --file /tmp/blob-$i.txt
+done
+
+# Check current tiers
+az storage blob list \
+  --account-name $SA --account-key $KEY \
+  --container-name test-container \
+  --query "[].{name:name, tier:properties.blobTier}" \
+  --output table
+```
+
+✅ All blobs are Hot.
+
+## ⌨️ Activity 6 — Simulate the lifecycle (you can't time-travel 30 days, but…)
+
+Lifecycle Management runs once every 24h. To verify the policy *would* trigger if blobs were old enough, you can manually move a blob:
+
+```bash
+az storage blob set-tier \
+  --account-name $SA --account-key $KEY \
+  --container-name test-container \
+  --name preservation/blob-1.txt \
+  --tier Cool
+
+az storage blob list \
+  --account-name $SA --account-key $KEY \
+  --container-name test-container \
+  --query "[].{name:name, tier:properties.blobTier, lastModified:properties.lastModified}" \
+  --output table
+```
+
+✅ blob-1 is Cool, others remain Hot. Cost dropped immediately for blob-1.
+
+## ⌨️ Activity 7 — Monitor lifecycle action counts (production check)
+
+In production, you'd query Log Analytics for lifecycle activity. Preview:
+
+```kusto
+StorageBlobLogs
+| where TimeGenerated > ago(7d)
+| where OperationName in ("SetBlobTier","SetBlobAccessTier","TierChange")
+| summarize ActionCount = count() by bin(TimeGenerated, 1d), DestinationTier = tostring(parse_json(Properties).destinationAccessTier)
+| render columnchart
+```
+
+This is the chart your operations dashboard should show — daily count of tier-down events. A flatline = policy not running.
+
+## ⌨️ Activity 8 — Tear down
+
+```bash
+az group delete -n $RG --yes --no-wait
+```
+
+---
+
+## 🦾 Now your turn!
+
+Take the JSON from the production lifecycle policy (Activity 1) and write a one-paragraph plain-English summary suitable for a status update email:
+
+> "Our blob storage automatically moves preservation files to lower-cost tiers as they age. Files in the *X* prefix move to Cool after *Y* days and to Cold after *Z* days. The policy never deletes data and does not touch the WOD archive."
+
+Save this in your notes — you'll re-use it in Module 23 (Reporting).
+
+---
+
+## ✅ Success checklist
+
+- [ ] You can read a lifecycle policy JSON and explain what it does
+- [ ] You've deployed a lifecycle policy and verified it's enabled
+- [ ] You understand the minimum retention rules (30/90/180 days)
+- [ ] You know WOD does NOT have lifecycle (legal hold)
+- [ ] You know the KQL query that proves the policy is running
+
+---
+
+## 💰 Cost note
+
+< NZD $1 if torn down promptly.
+
+---
+
+➡️ **Next:** [Step 08 — Azure Files: NFS vs SMB](step-08-azure-files.md)
+````
+
+---
+
+## 📁 File 10 of N — `step-08-azure-files.md`
+
+````markdown
+# Step 08 — Azure Files: NFS vs SMB
+
+_The "Rosetta's hot path runs through here" lab._ 📂
+
+> [!NOTE]
+> **Duration:** 120 minutes
+> **Lab cost:** < NZD $3 (Premium FileStorage is the largest single cost in the series)
+> **Pairs with:** Module 8 of the training plan
+
+---
+
+## 📖 Session overview
+
+Azure Files is a managed file share service. DSR uses two flavours:
+
+- **`stanlnznfileprdrosi01`** — **Premium NFS v4.1** — Rosetta's hot path, mounted by RHEL VMs.
+- **`stanlnznfileprdrosi02`** — **Standard SMB** — admin shares, less performance-critical.
+
+You'll mount both kinds, understand the permissions models (POSIX vs Kerberos), watch performance metrics, and learn how throttling presents itself — because when Rosetta slows down, this is often where you look first.
+
+## 🎯 What you'll learn
+
+- The differences between **NFS v4.1** and **SMB 3.x** protocols on Azure Files
+- How to **mount** each from a Linux VM
+- POSIX permissions (UID/GID) for NFS vs **Kerberos** for SMB
+- How to read **share-level metrics** (latency, throttling, IOPS, throughput)
+- How to spot **throttling events** and what to do
+- DSR-specific mount options (per § 9.12 of the design)
+
+## 📚 Before this session — MS Learn pre-work
+
+| Module | Time | Why this matters |
+|---|---|---|
+| [Introduction to Azure Files](https://learn.microsoft.com/training/modules/intro-to-azure-files/) | 30 min | NFS vs SMB, premium vs standard |
+| [Configure Azure Files](https://learn.microsoft.com/training/modules/configure-azure-files-file-sync/) | 45 min | Hands-on overview |
+
+## 🔤 Acronyms used
+
+- **GID / UID** = Group / User Identifier (POSIX numeric IDs)
+- **IOPS** = Input/Output Operations Per Second
+- **NFS** = Network File System
+- **SMB** = Server Message Block (Windows-native file protocol; Linux supports it)
+- **SSSD** = System Security Services Daemon (Linux integration with AD)
+
+## ⏱️ EDE accounting
+
+- Trainee self-paced: 2h
+- Instructor-led delivery: 2h
+- Prep work: 1.25h
+- Q&A: 30 min
+- **Total EDE per trainee: ~6h**
+
+## 💰 Cost note
+
+- Premium FileStorage account (100 GiB minimum): ~NZD $0.50/day if left running
+- Small RHEL B2s VM: ~NZD $0.20/day
+- Tear down within 1–2 hours: total < NZD $3.
+
+---
+
+## 🧱 Foundational primer
+
+### NFS v4.1 vs SMB 3.x on Azure Files
+
+| | NFS v4.1 | SMB 3.x |
+|---|---|---|
+| Account kind | Premium FileStorage | StorageV2 (Standard or Premium) |
+| Authentication | POSIX UID/GID + IP firewall | NTLM, Kerberos (AD), or shared key |
+| Mounting from | Linux | Linux + Windows |
+| Encryption in transit | NFS over TLS *(preview)* / IPSec | SMB 3.x channel encryption (always) |
+| Used in DSR | Premium NFS, Rosetta hot path (`...rosi01`) | Standard SMB, admin shares (`...rosi02`) |
+
+### DSR-specific mount options (per § 9.12)
+
+For NFS:
+
+```bash
+mount -t nfs -o vers=4,minorversion=1,sec=sys,nconnect=4 \
+  stanlnznfileprdrosi01.file.core.windows.net:/stanlnznfileprdrosi01/permanent /mnt/permanent
+```
+
+Notes:
+- `vers=4,minorversion=1` — required for Premium NFS
+- `sec=sys` — POSIX UID/GID auth (no Kerberos)
+- `nconnect=4` — multiplexes I/O across 4 TCP connections (boosts throughput up to 4x)
+
+### Throttling rules (Premium FileStorage)
+
+Premium provisions IOPS and throughput per share, by share size:
+
+| Share size | Baseline IOPS | Burst IOPS | Throughput MiB/s |
+|---|---|---|---|
+| 100 GiB | 400 | 4,000 | 110 |
+| 1 TiB | 4,000 | 10,000 | 200 |
+| 10 TiB | 10,000 | 30,000 | 1,000 |
+
+Hit the limit → throttled → operations queue or fail. Visible as `ServerBusy` in metrics.
+
+---
+
+## ⌨️ Activity 1 — Inspect DSR Files accounts (read-only)
+
+1. Portal → `stanlnznfileprdrosi01` → **Overview**. Confirm: kind = **FileStorage**, performance = **Premium**, redundancy = **ZRS**.
+2. **File shares** → see `permanent`, etc.
+3. Click into `permanent` → **Settings** → note: protocol = NFS, root squash setting, snapshot count.
+4. Repeat for `stanlnznfileprdrosi02` (Standard SMB).
+
+## ⌨️ Activity 2 — Deploy a Premium NFS share in your training sub
+
+```bash
+RG=rg-training-files-<your-initials>
+az group create -n $RG -l australiaeast --tags purpose=dsr-training
+
+# Premium FileStorage account, NFS-capable
+SA=sttrainnfs<your-initials>$RANDOM
+az storage account create -n $SA -g $RG -l australiaeast \
+  --sku Premium_ZRS --kind FileStorage \
+  --enable-large-file-share \
+  --default-action Deny  # Firewall blocks public
+
+# Allow your IP for mounting (replace with your IP)
+MY_IP=$(curl -s https://api.ipify.org)
+az storage account network-rule add -n $SA -g $RG --ip-address $MY_IP
+
+# Disable secure transfer (NFS doesn't support TLS in production GA yet)
+az storage account update -n $SA -g $RG --https-only false
+
+# Create the NFS share (100 GiB minimum)
+az storage share-rm create \
+  --storage-account $SA \
+  --name preservation \
+  --quota 100 \
+  --enabled-protocols NFS \
+  --root-squash NoRootSquash
+```
+
+## ⌨️ Activity 3 — Spin up a small RHEL VM to mount from
+
+```bash
+az vm create -g $RG -n vm-trainfile-<your-initials> \
+  --image RedHat:RHEL:9-lvm-gen2:latest \
+  --size Standard_B2s \
+  --admin-username azureuser \
+  --generate-ssh-keys \
+  --public-ip-sku Standard \
+  --tags purpose=dsr-training
+
+# Get the public IP
+VM_IP=$(az vm show -g $RG -n vm-trainfile-<your-initials> -d --query publicIps -o tsv)
+echo "VM at $VM_IP"
+```
+
+## ⌨️ Activity 4 — Mount the NFS share
+
+```bash
+ssh azureuser@$VM_IP
+
+# On the VM:
+sudo dnf install -y nfs-utils
+sudo mkdir -p /mnt/preservation
+sudo mount -t nfs -o vers=4,minorversion=1,sec=sys,nconnect=4 \
+  <SA>.file.core.windows.net:/<SA>/preservation /mnt/preservation
+
+mount | grep preservation
+df -h /mnt/preservation
+
+# Test write
+sudo touch /mnt/preservation/hello.txt
+ls -la /mnt/preservation/
+```
+
+✅ You see the share mounted, ~100 GiB, and a file written.
+
+## ⌨️ Activity 5 — Performance metrics
+
+In the portal, on the storage account → **Insights** (Storage Insights):
+
+- Latency (success/failure)
+- Transactions
+- Egress / Ingress
+- Availability
+- Used capacity
+
+Generate some load from the VM:
+
+```bash
+# Sequential write test
+sudo dd if=/dev/zero of=/mnt/preservation/test.bin bs=1M count=500 conv=fsync
+```
+
+Watch the metrics tick up.
+
+## ⌨️ Activity 6 — Simulate throttling
+
+```bash
+# Multiple parallel writes to push IOPS
+for i in {1..10}; do
+  sudo dd if=/dev/zero of=/mnt/preservation/test-$i.bin bs=4k count=10000 oflag=direct &
+done
+wait
+```
+
+In Storage Insights → look for **Transactions / Server-side latency**. Spike = pressure. Repeated `ServerBusy` responses = actual throttling.
+
+## ⌨️ Activity 7 — Inspect a Standard SMB share
+
+DSR's `stanlnznfileprdrosi02` uses SMB. SMB on Linux uses Kerberos for AD auth.
+
+For training, mount with shared key:
+
+```bash
+SA_SMB=sttrainsmb<your-initials>$RANDOM
+az storage account create -n $SA_SMB -g $RG -l australiaeast \
+  --sku Standard_ZRS --kind StorageV2
+
+az storage share create -n adminshare --account-name $SA_SMB
+
+KEY=$(az storage account keys list -n $SA_SMB -g $RG --query '[0].value' -o tsv)
+
+# On your VM:
+sudo dnf install -y cifs-utils
+sudo mkdir -p /mnt/admin
+sudo mount -t cifs //$SA_SMB.file.core.windows.net/adminshare /mnt/admin \
+  -o vers=3.1.1,username=$SA_SMB,password=$KEY,uid=1000,gid=1000,serverino,nosharesock,actimeo=30
+
+mount | grep admin
+sudo touch /mnt/admin/hello.txt
+```
+
+In production, DSR uses Kerberos (via `SSSD`) instead of shared key — but the mount semantics are the same.
+
+## ⌨️ Activity 8 — Tear down
+
+```bash
+exit  # leave the VM
+az group delete -n $RG --yes --no-wait
+```
+
+---
+
+## 🦾 Now your turn!
+
+Write a KQL query for Log Analytics that returns:
+
+- Total `ServerBusy` (throttled) responses on `stanlnznfileprdrosi01` over the last 7 days
+- Grouped by hour
+- Rendered as a column chart
+
+Hint: the table is `StorageFileLogs`, the field is `StatusCode`.
+
+---
+
+## ✅ Success checklist
+
+- [ ] You've inspected both DSR Files accounts in production
+- [ ] You've deployed and mounted a Premium NFS share with DSR's mount options
+- [ ] You've deployed and mounted a Standard SMB share
+- [ ] You've watched performance metrics under load
+- [ ] You know how to spot throttling
+- [ ] You torn down everything
+
+---
+
+## 💰 Cost note
+
+< NZD $3 if torn down within 1–2 hours.
+
+---
+
+➡️ **Next:** [Step 09 — Data protection posture](step-09-data-protection.md)
+````
+
+---
+
+## 📁 File 11 of N — `step-09-data-protection.md`
+
+````markdown
+# Step 09 — Data protection posture
+
+_The "what's protecting our data, and how do I prove it?" lab._ 🛡️
+
+> [!NOTE]
+> **Duration:** 90 minutes
+> **Lab cost:** < NZD $1
+> **Pairs with:** Module 9 of the training plan
+
+---
+
+## 📖 Session overview
+
+DSR uses six layered data-protection features at the storage account level: **soft delete, snapshots, versioning, point-in-time restore, change feed, and blob inventory**. They overlap and complement each other. This session walks through each one — what it does, where it's enabled in DSR (per § 9.16 of the design), how to verify it's still on, and how to *consume* it (e.g. find a deleted blob's snapshot).
+
+## 🎯 What you'll learn
+
+- What each of the six features does and which DSR account uses what
+- How **soft delete** retention windows work (Files 31 days; Blob 365 PRD / 31 UAT / 7 DEV)
+- How **snapshots** are scheduled (daily 11 PM via Azure Automation Runbook) and retained (31 days)
+- How **versioning** is configured ("Keep all Versions" in PRD)
+- What **Point-in-Time Restore (PITR)** is — and that it works only for Hot/Cool, **not Cold**
+- How to read the **Change Feed** for forensic queries
+- How **Blob Inventory** generates weekly CSV reports (covered in detail in Module 11)
+
+## 📚 Before this session — MS Learn pre-work
+
+| Module | Time | Why this matters |
+|---|---|---|
+| [Protect your data with Azure Storage features](https://learn.microsoft.com/training/modules/protect-data-blob-storage/) | 30 min | Covers soft delete, versioning, PITR |
+| [Manage Azure Blob Storage lifecycle](https://learn.microsoft.com/training/modules/manage-azure-blob-storage-lifecycle/) | 30 min | Lifecycle interaction with versioning |
+
+## 🔤 Acronyms used
+
+- **PITR** = Point-in-Time Restore
+
+## ⏱️ EDE accounting
+
+- Trainee self-paced: 90 min
+- Instructor-led delivery: 1.5h
+- Prep work: 1h
+- Q&A: 30 min
+- **Total EDE per trainee: ~4.5h**
+
+## 💰 Cost note
+
+- One Standard storage account with all six protections enabled: ~NZD $0.05/day
+- Tear down at end → < NZD $1.
+
+---
+
+## 🧱 Foundational primer
+
+### The six layers, mapped to DSR
+
+| Feature | Files (`...file...`) | Blob Rosetta (`...blobprdrosi01`) | Blob WOD (`...blobprdwod01`) |
+|---|---|---|---|
+| Soft delete | 31 days | 365 days (PRD), 31 (UAT), 7 (DEV) | 365 days |
+| Snapshots | Daily 11 PM, 31-day retention | Daily 11 PM, 31-day retention | Daily 11 PM, 31-day retention |
+| Versioning | N/A (Files) | Keep all versions (PRD) | Keep all versions |
+| Point-in-Time Restore | N/A | **Hot/Cool only** — not Cold | Not used (immutability covers it) |
+| Change Feed | N/A | Enabled | Enabled |
+| Blob Inventory | N/A | Weekly, 365-day retention | Weekly, 365-day retention |
+
+### Soft delete vs versioning vs snapshots — what's different?
+
+- **Soft delete** = "trash bin". Deleted blob is recoverable for N days.
+- **Versioning** = every overwrite creates a new version; previous version is preserved automatically.
+- **Snapshots** = manual or scheduled point-in-time copies.
+- **PITR** = restore the *whole container* to a specific point in time. Different from per-blob recovery.
+- **Change feed** = an append-only log of every blob operation. Forensic.
+- **Blob inventory** = a periodic report of *what's in the account*. (Different from change feed = *what happened*.)
+
+> [!IMPORTANT]
+> PITR works only on **Hot or Cool** blobs. Once data has tiered to **Cold**, PITR cannot restore it. This is why DSR also keeps long soft-delete + versioning windows.
+
+---
+
+## ⌨️ Activity 1 — Inspect each protection in DSR (read-only)
+
+If you have Reader on DSR DEV:
+
+1. Portal → `stanlnznblobprdrosi01` (DEV equivalent) → **Data protection** blade.
+2. For each toggle, note:
+   - Soft delete: enabled, retention days
+   - Versioning: enabled, retention
+   - PITR: enabled, restore window
+   - Change feed: enabled, retention
+3. **Containers** → click any → **Snapshots** tab → see existing snapshots.
+
+## ⌨️ Activity 2 — Deploy a fully-protected account (production-like)
+
+```bash
+RG=rg-training-protect-<your-initials>
+az group create -n $RG -l australiaeast --tags purpose=dsr-training
+
+SA=sttrainprot<your-initials>$RANDOM
+az storage account create -n $SA -g $RG -l australiaeast \
+  --sku Standard_LRS --kind StorageV2 --access-tier Hot
+
+# Enable blob soft delete (7 days for lab)
+az storage account blob-service-properties update \
+  --account-name $SA -g $RG \
+  --enable-delete-retention true \
+  --delete-retention-days 7
+
+# Enable container soft delete
+az storage account blob-service-properties update \
+  --account-name $SA -g $RG \
+  --enable-container-delete-retention true \
+  --container-delete-retention-days 7
+
+# Enable versioning
+az storage account blob-service-properties update \
+  --account-name $SA -g $RG \
+  --enable-versioning true
+
+# Enable change feed (retention 7 days for lab)
+az storage account blob-service-properties update \
+  --account-name $SA -g $RG \
+  --enable-change-feed true \
+  --change-feed-retention-days 7
+
+# Enable PITR (restore window must be < soft-delete window)
+az storage account blob-service-properties update \
+  --account-name $SA -g $RG \
+  --enable-restore-policy true \
+  --restore-days 6
+```
+
+## ⌨️ Activity 3 — Test soft delete
+
+```bash
+KEY=$(az storage account keys list -n $SA -g $RG --query '[0].value' -o tsv)
+
+az storage container create -n preservation --account-name $SA --account-key $KEY
+echo "important data" > /tmp/important.txt
+az storage blob upload -c preservation -n important.txt -f /tmp/important.txt \
+  --account-name $SA --account-key $KEY
+
+# Delete it
+az storage blob delete -c preservation -n important.txt \
+  --account-name $SA --account-key $KEY
+
+# Try to list — soft-deleted blobs are hidden by default
+az storage blob list -c preservation \
+  --account-name $SA --account-key $KEY \
+  --output table
+
+# List INCLUDING deleted
+az storage blob list -c preservation \
+  --account-name $SA --account-key $KEY \
+  --include d \
+  --output table
+
+# Recover
+az storage blob undelete -c preservation -n important.txt \
+  --account-name $SA --account-key $KEY
+```
+
+✅ The blob is restored.
+
+## ⌨️ Activity 4 — Test versioning
+
+```bash
+# Overwrite the blob 3 times
+for i in 1 2 3; do
+  echo "version $i" > /tmp/important.txt
+  az storage blob upload -c preservation -n important.txt -f /tmp/important.txt \
+    --account-name $SA --account-key $KEY --overwrite
+done
+
+# List versions
+az storage blob list -c preservation -n important.txt \
+  --account-name $SA --account-key $KEY \
+  --include v \
+  --query "[].{name:name, version:versionId, isCurrent:isCurrentVersion, modified:properties.lastModified}" \
+  --output table
+```
+
+✅ You see 3 versions.
+
+In the portal: Container → blob → **Versions** tab → list, download, promote to current.
+
+## ⌨️ Activity 5 — Take a manual snapshot
+
+```bash
+az storage blob snapshot -c preservation -n important.txt \
+  --account-name $SA --account-key $KEY
+
+az storage blob list -c preservation -n important.txt \
+  --account-name $SA --account-key $KEY \
+  --include s \
+  --query "[].{name:name, snapshot:snapshot}" \
+  --output table
+```
+
+In production, this happens automatically via an Azure Automation Runbook scheduled at 23:00 NZST daily (per § 9.16.1.2).
+
+## ⌨️ Activity 6 — Use Change Feed for forensics
+
+Change Feed is an append-only log. Files appear under `$blobchangefeed/log/`.
+
+```bash
+# Wait ~5 min for change feed to populate, then:
+az storage blob list -c '$blobchangefeed' \
+  --account-name $SA --account-key $KEY \
+  --output table
+```
+
+You'll see Avro files containing every blob operation. Tools like Azure Storage Explorer or `azure-storage-blobchangefeed` Python SDK parse them.
+
+In production, this is how you'd answer "show me every delete on the WOD account in the last 24 hours" — useful for early-warning ransomware detection.
+
+## ⌨️ Activity 7 — Test Point-in-Time Restore
+
+```bash
+# Note the current time, wait a minute
+RESTORE_POINT=$(date -u -d '1 minute ago' +%Y-%m-%dT%H:%M:%SZ)
+
+# Make some changes
+echo "post-restore-point change" > /tmp/important.txt
+az storage blob upload -c preservation -n important.txt -f /tmp/important.txt \
+  --account-name $SA --account-key $KEY --overwrite
+
+# Restore the container to the earlier point in time
+az storage blob restore -g $RG --account-name $SA \
+  --time-to-restore $RESTORE_POINT \
+  --blob-range preservation/important.txt preservation/important.txt~~~
+```
+
+> [!IMPORTANT]
+> PITR runs at the **container** level, not the blob level. You specify a range of blob names (alphabetical) to restore.
+
+## ⌨️ Activity 8 — Tear down
+
+```bash
+az group delete -n $RG --yes --no-wait
+```
+
+---
+
+## 🦾 Now your turn!
+
+Write a Resource Graph query that lists all DSR storage accounts and shows whether each protection feature is **enabled** or **disabled**. Sample columns:
+
+```
+name | softDelete | versioning | changeFeed | pitr | inventory
+```
+
+Hint: blob service properties are at `microsoft.storage/storageaccounts/blobservices`.
+
+This is your **weekly data-protection compliance check**.
+
+---
+
+## ✅ Success checklist
+
+- [ ] You can name the six data-protection features and what each does
+- [ ] You've deployed an account with all six enabled
+- [ ] You've tested soft delete, versioning, snapshot, and PITR
+- [ ] You've examined the change feed log structure
+- [ ] You know PITR is Hot/Cool only — not Cold
+- [ ] You have a saved compliance-check query
+
+---
+
+## 💰 Cost note
+
+< NZD $1.
+
+---
+
+➡️ **Next:** [Step 10 — Immutability & legal hold](step-10-immutability.md)
+````
+
+---
+
+## 📁 File 12 of N — `step-10-immutability.md`
+
+````markdown
+# Step 10 — Immutability & legal hold
+
+_The "WOD must never change" lab._ 🔒
+
+> [!NOTE]
+> **Duration:** 75 minutes
+> **Lab cost:** < NZD $1
+> **Pairs with:** Module 10 of the training plan
+
+---
+
+## 📖 Session overview
+
+The **Whole-of-Domain (WOD) archive** is held under a legal hold tag named `WholeOfDomainArchiveHold` (per § 9.15 of the design). Loss of this hold = compliance breach. This session covers immutability — what it is, the difference between **time-based retention** and **legal hold**, how to apply both, and how to verify the WOD legal hold is still in place. The last point is critical: regular verification is the Preservation Team's responsibility.
+
+## 🎯 What you'll learn
+
+- The difference between **time-based retention** and **legal hold**
+- Container-level vs version-level immutability scope
+- How to **apply** a legal hold tag
+- How to **verify** a legal hold is in place (the weekly check)
+- What happens when someone tries to delete a legally-held blob
+- The escalation path if a hold is found removed
+- How DSR's WOD account uses this exact pattern
+
+## 📚 Before this session — MS Learn pre-work
+
+| Module | Time | Why this matters |
+|---|---|---|
+| [Configure immutable storage](https://learn.microsoft.com/azure/storage/blobs/immutable-storage-overview) (article) | 25 min | Concepts and terminology |
+| [Manage immutable blobs](https://learn.microsoft.com/azure/storage/blobs/immutable-policy-configure-version-scope) (article) | 25 min | The CLI/PowerShell commands you'll use |
+
+## 🔤 Acronyms used
+
+- **WORM** = Write Once Read Many (the regulatory term)
+
+## ⏱️ EDE accounting
+
+- Trainee self-paced: 75 min
+- Instructor-led delivery: 1.25h
+- Prep work: 1h
+- Q&A: 30 min
+- **Total EDE per trainee: ~4h**
+
+## 💰 Cost note
+
+- < NZD $1.
+
+---
+
+## 🧱 Foundational primer
+
+### Two flavours of immutability
+
+| Type | Stops what? | Removable? |
+|---|---|---|
+| **Time-based retention** | Delete and modify until N days have passed | Auto-expires; cannot be removed early in `Locked` state |
+| **Legal hold** | Delete and modify forever, until tag removed | Removable by anyone with `Storage Blob Data Owner` |
+
+WOD uses **legal hold** (indefinite, removable only by authorised actors).
+
+### Scope: container vs version
+
+- **Container-scoped** (legacy): the policy applies to all blobs in the container.
+- **Version-scoped** (newer, recommended for WOD): the policy applies to specific blob versions; supports versioning + immutability together.
+
+DSR uses version-scoped policies for WOD.
+
+### What "you can't modify or delete" actually means
+
+Operations blocked when a hold is in place:
+
+- Delete blob
+- Delete container
+- Overwrite blob (Put Blob, Put Block List)
+- Set blob tier (in some configurations)
+- Snapshot delete (snapshots inherit hold)
+
+Operations still allowed:
+
+- Read blob
+- List blob
+- Set blob metadata (in some configurations)
+- Snapshot create
+
+---
+
+## ⌨️ Activity 1 — Inspect WOD's legal hold (read-only)
+
+If you have Reader on DSR DEV/UAT/PRD:
+
+1. Portal → `stanlnznblobprdwod01` → **Containers** → click the WOD container.
+2. **Access policy** tab → see the legal hold tag.
+3. Confirm: tag = `WholeOfDomainArchiveHold`, status = enabled.
+
+If you do not have Reader, skip to Activity 2.
+
+## ⌨️ Activity 2 — Deploy a WOD-style account in your training sub
+
+```bash
+RG=rg-training-immut-<your-initials>
+az group create -n $RG -l australiaeast --tags purpose=dsr-training
+
+SA=sttrainwod<your-initials>$RANDOM
+az storage account create -n $SA -g $RG -l australiaeast \
+  --sku Standard_LRS --kind StorageV2
+
+KEY=$(az storage account keys list -n $SA -g $RG --query '[0].value' -o tsv)
+az storage container create -n wod-archive --account-name $SA --account-key $KEY
+
+# Upload a sample blob
+echo "archived web crawl" > /tmp/crawl.txt
+az storage blob upload -c wod-archive -n crawl.txt -f /tmp/crawl.txt \
+  --account-name $SA --account-key $KEY
+```
+
+## ⌨️ Activity 3 — Apply a legal hold tag
+
+```bash
+az storage container legal-hold set \
+  --account-name $SA --account-key $KEY \
+  --container-name wod-archive \
+  --tags WholeOfDomainArchiveHold
+
+# Verify
+az storage container legal-hold show \
+  --account-name $SA --account-key $KEY \
+  --container-name wod-archive \
+  --output table
+```
+
+✅ Tag applied. The container is now in legal hold.
+
+## ⌨️ Activity 4 — Try to delete a held blob
+
+```bash
+az storage blob delete -c wod-archive -n crawl.txt \
+  --account-name $SA --account-key $KEY
+```
+
+❌ This fails:
+
+```
+The blob has an active legal hold and cannot be modified.
+```
+
+✅ The hold works.
+
+## ⌨️ Activity 5 — Try to overwrite a held blob
+
+```bash
+echo "tampered content" > /tmp/crawl.txt
+az storage blob upload -c wod-archive -n crawl.txt -f /tmp/crawl.txt \
+  --account-name $SA --account-key $KEY --overwrite
+```
+
+❌ Same — fails. Immutability blocks overwrite.
+
+## ⌨️ Activity 6 — The weekly hold-verification check (production)
+
+This is the check that should run every Monday, alerting the Preservation Team if the hold is missing:
+
+```bash
+RESULT=$(az storage container legal-hold show \
+  --account-name $SA --account-key $KEY \
+  --container-name wod-archive \
+  --query "tags[?contains(@,'WholeOfDomainArchiveHold')] | length(@)" -o tsv)
+
+if [ "$RESULT" -ge "1" ]; then
+  echo "OK: WholeOfDomainArchiveHold present"
+else
+  echo "ALERT: hold missing — escalate to Cloud Security"
+fi
+```
+
+Wrap this in an Azure Automation Runbook and schedule weekly. Or:
+
+In Log Analytics:
+
+```kusto
+AzureActivity
+| where TimeGenerated > ago(7d)
+| where OperationNameValue contains "legalHold"
+| project TimeGenerated, Caller, OperationNameValue, ActivityStatusValue, Properties
+```
+
+This shows any legal-hold-related activity in the last 7 days. Any unexpected `Set` or `Delete` event = investigation.
+
+## ⌨️ Activity 7 — Time-based retention (for comparison)
+
+WOD uses legal hold, but version-scoped time-based is good to understand:
+
+```bash
+# Enable versioning first (required for version-scoped policy)
+az storage account blob-service-properties update \
+  --account-name $SA -g $RG --enable-versioning true
+
+# Apply a 7-day version-scoped policy in unlocked state
+az storage container immutability-policy create \
+  --account-name $SA --resource-group $RG \
+  --container-name wod-archive \
+  --period 7 \
+  --allow-protected-append-writes false
+```
+
+Inspect in portal: container → **Access policy** → see the immutability policy.
+
+> [!IMPORTANT]
+> An **unlocked** time-based policy can be removed. A **locked** policy cannot — only expires by time. WOD's policy must be locked in production.
+
+## ⌨️ Activity 8 — Remove the legal hold (cleanup only)
+
+```bash
+az storage container legal-hold clear \
+  --account-name $SA --account-key $KEY \
+  --container-name wod-archive \
+  --tags WholeOfDomainArchiveHold
+
+# Now delete works
+az storage blob delete -c wod-archive -n crawl.txt \
+  --account-name $SA --account-key $KEY
+
+az group delete -n $RG --yes --no-wait
+```
+
+---
+
+## 🦾 Now your turn!
+
+Build the **weekly hold-verification report** as a saved KQL query that:
+
+- Confirms the WOD legal hold tag is active on `stanlnznblobprdwod01`
+- Lists any legal-hold modification activity in the last 7 days
+- Flags as ALERT if any `Clear` or `SetLegalHold` event is found from outside DIA Cloud Security or Storage Owner accounts
+
+Schedule this query as a **Log Analytics alert** with email notification to the Preservation Team.
+
+---
+
+## ✅ Success checklist
+
+- [ ] You can name the difference between time-based retention and legal hold
+- [ ] You've applied and removed a legal hold in your lab
+- [ ] You've verified that delete and overwrite are blocked
+- [ ] You've written the weekly hold-verification check
+- [ ] You know the escalation path if the hold is found missing
+
+---
+
+## 🚨 Escalation path — hold found missing
+
+1. Confirm via CLI (Activity 6) that the hold is in fact removed (not just a UI glitch).
+2. Pull the Activity Log for the storage account for the last 14 days.
+3. Identify who removed the hold (`Caller` field).
+4. **Escalate immediately** to DIA Cloud Security and the Archives Library Manager.
+5. Re-apply the hold *only* under explicit instruction.
+
+---
+
+## 💰 Cost note
+
+< NZD $1.
+
+---
+
+➡️ **Next:** [Step 11 — Blob inventory](step-11-blob-inventory.md)
+````
+
+---
+
+## 📁 File 13 of N — `step-11-blob-inventory.md`
+
+````markdown
+# Step 11 — Blob inventory
+
+_The "what's actually in our storage?" lab._ 📋
+
+> [!NOTE]
+> **Duration:** 90 minutes
+> **Lab cost:** < NZD $1
+> **Pairs with:** Module 11 of the training plan
+
+---
+
+## 📖 Session overview
+
+DSR runs **weekly Blob Inventory jobs** on every blob storage account (per § 9.16.1.6 of the design). Each job produces a CSV (or Parquet) listing every blob in the account — name, size, tier, last modified, encryption scope, lease status, and tags. The reports are kept for 365 days. They're the foundation for capacity-by-tier reporting, audit trails, and lifecycle verification.
+
+This session teaches you how to *consume* the inventories that already exist — not how to set them up.
+
+## 🎯 What you'll learn
+
+- What the **Blob Inventory** report actually contains
+- How to **find** the latest inventory CSV
+- How to **read** an inventory CSV with KQL or Excel
+- How to build a **capacity-by-tier** report from the inventory
+- How to build a **capacity-by-prefix** report (Storage Group breakdown)
+- How to **schedule** weekly delivery of inventory-derived reports
+
+## 📚 Before this session — MS Learn pre-work
+
+| Module | Time | Why this matters |
+|---|---|---|
+| [Use Azure Storage blob inventory](https://learn.microsoft.com/azure/storage/blobs/blob-inventory) (article) | 25 min | What inventories contain, format options |
+| [Get started with KQL](https://learn.microsoft.com/training/modules/analyze-monitor-data-kusto-query-language/) | 30 min | If you didn't complete it for Module 16 yet |
+
+## 🔤 Acronyms used
+
+- **CSV** = Comma-Separated Values
+- **Parquet** = a columnar binary format (smaller files, faster querying than CSV)
+
+## ⏱️ EDE accounting
+
+- Trainee self-paced: 90 min
+- Instructor-led delivery: 1.5h
+- Prep work: 55 min
+- Q&A: 30 min
+- **Total EDE per trainee: ~4.5h**
+
+## 💰 Cost note
+
+- One Standard storage account with inventory enabled: < NZD $1.
+
+---
+
+## 🧱 Foundational primer
+
+### What an inventory job produces
+
+Each weekly run writes a CSV (or Parquet) to a designated container. The schema is configurable — DSR's typical schema:
+
+| Column | Example |
+|---|---|
+| `Name` | `stct-permrp-01/NLNZ_IE/2024/05/file.warc` |
+| `Creation-Time` | 2024-05-12T11:23:47Z |
+| `Last-Modified` | 2024-05-12T11:23:47Z |
+| `Content-Length` | 1048576 (bytes) |
+| `Access Tier` | Hot / Cool / Cold |
+| `Access Tier Inferred` | true / false |
+| `BlobType` | BlockBlob |
+| `Encryption Scope` | (DSR uses CMK) |
+| `Has Legal Hold` | true / false |
+| `Lease Status` | unlocked |
+| `Tags` | (custom blob tags) |
+
+### Inventory location in DSR
+
+Each blob storage account has a dedicated **inventory container** (e.g. `inventory-reports`). The job writes to:
+
+```
+{account}.blob.core.windows.net/inventory-reports/{rule-name}/{run-id}/
+```
+
+Retention: 365 days (PRD). Older reports are auto-deleted.
+
+---
+
+## ⌨️ Activity 1 — Inspect DSR's inventory configuration (read-only)
+
+If you have Reader on DSR DEV/UAT/PRD:
+
+1. Portal → `stanlnznblobprdrosi01` → **Blob inventory**.
+2. **Inventory rules** → list active rules, schedule, target container, format.
+3. Click any rule → see schema (columns) and prefix scope.
+4. **Inventory reports** tab → see the latest run output.
+5. Download a recent CSV (small if filtered by prefix).
+
+## ⌨️ Activity 2 — Set up inventory on your training account
+
+```bash
+RG=rg-training-inv-<your-initials>
+az group create -n $RG -l australiaeast --tags purpose=dsr-training
+
+SA=sttraininv<your-initials>$RANDOM
+az storage account create -n $SA -g $RG -l australiaeast \
+  --sku Standard_LRS --kind StorageV2
+
+KEY=$(az storage account keys list -n $SA -g $RG --query '[0].value' -o tsv)
+
+# Source: where the data lives
+az storage container create -n preservation --account-name $SA --account-key $KEY
+
+# Destination: where the inventory CSV is written
+az storage container create -n inventory-reports --account-name $SA --account-key $KEY
+
+# Upload some sample blobs
+for tier in hot cool cold; do
+  for i in 1 2 3; do
+    echo "sample-$tier-$i" > /tmp/$tier-$i.txt
+    az storage blob upload -c preservation \
+      -n preservation/$tier-prefix/sample-$i.txt -f /tmp/$tier-$i.txt \
+      --account-name $SA --account-key $KEY
+  done
+done
+```
+
+Now configure inventory via portal (CLI for inventory is verbose):
+
+1. Portal → your account → **Blob inventory** → **+ Add inventory rule**.
+2. Name: `weekly-anl-style`
+3. Container: `inventory-reports`
+4. Object type: Blob
+5. Schedule: **Daily** (lab — production uses weekly)
+6. Format: **CSV**
+7. Schema fields: select Name, Last-Modified, Content-Length, Access Tier, Has Legal Hold, BlobType
+8. Filter prefix: leave blank (capture everything)
+9. Save.
+
+> [!TIP]
+> The first run executes within ~24 hours of saving. For a faster lab, you can simulate the output below.
+
+## ⌨️ Activity 3 — Read the inventory CSV (lab simulation)
+
+If you can't wait 24h, here's a sample CSV inventory output to practise with:
+
+```csv
+Name,Last-Modified,Content-Length,Access Tier,Access Tier Inferred,BlobType,Has Legal Hold
+preservation/hot-prefix/sample-1.txt,2026-05-02T01:00:00Z,16,Hot,true,BlockBlob,false
+preservation/hot-prefix/sample-2.txt,2026-05-02T01:00:00Z,16,Hot,true,BlockBlob,false
+preservation/cool-prefix/sample-1.txt,2026-05-01T01:00:00Z,16,Cool,false,BlockBlob,false
+preservation/cool-prefix/sample-2.txt,2026-05-01T01:00:00Z,16,Cool,false,BlockBlob,false
+preservation/cold-prefix/sample-1.txt,2026-04-30T01:00:00Z,16,Cold,false,BlockBlob,false
+```
+
+Save as `/tmp/inventory.csv`.
+
+## ⌨️ Activity 4 — Capacity-by-tier (Excel)
+
+Open `/tmp/inventory.csv` in Excel. Pivot table:
+
+- Rows: Access Tier
+- Values: Sum of Content-Length, Count of Name
+
+Result:
+
+```
+Tier   | Total bytes | Blob count
+Hot    | 32          | 2
+Cool   | 32          | 2
+Cold   | 16          | 1
+```
+
+This is your **capacity-by-tier weekly report**.
+
+## ⌨️ Activity 5 — Capacity-by-prefix using KQL (advanced)
+
+Upload the CSV to Log Analytics or query directly with `externaldata`:
+
+```kusto
+externaldata (Name:string, LastModified:datetime, ContentLength:long, AccessTier:string, AccessTierInferred:bool, BlobType:string, HasLegalHold:bool)
+[
+  h@"https://<SA>.blob.core.windows.net/inventory-reports/.../inventory.csv"
+]
+with(format='csv', ignoreFirstRecord=true)
+| extend Prefix = tostring(split(Name, '/')[1])
+| summarize TotalBytes = sum(ContentLength), BlobCount = count() by Prefix, AccessTier
+| order by Prefix asc, AccessTier asc
+```
+
+Production use:
+
+```kusto
+| extend StorageGroup = case(
+    Name startswith "stct-permrp-01/NLNZ_IE/", "NLNZ_IE",
+    Name startswith "stct-permrp-01/NLNZ_File/", "NLNZ_File",
+    Name startswith "stct-permrp-01/Metadata/", "Metadata",
+    Name startswith "stct-permrp-01/SIP/", "SIP",
+    Name startswith "stct-permrp-01/ANZ_IE/", "ANZ_IE",
+    "Other")
+| summarize TotalGB = sum(ContentLength) / 1024 / 1024 / 1024, BlobCount = count() by StorageGroup, AccessTier
+```
+
+✅ This breaks down DSR by Storage Group and tier — exactly what you'd email weekly.
+
+## ⌨️ Activity 6 — Verify legal hold from inventory
+
+Inventory includes the `Has Legal Hold` column — use it as a backup verification of Module 10's hold check:
+
+```kusto
+... 
+| where HasLegalHold == false
+| where Name startswith "wod-archive/"
+| count
+```
+
+Result should always be **0**. Anything else = ALERT.
+
+## ⌨️ Activity 7 — Schedule weekly delivery
+
+Two options:
+
+| Method | Setup | Best for |
+|---|---|---|
+| Logic App | Watches the inventory container, processes the CSV, emails a summary | Code-light, easy to maintain |
+| Azure Automation Runbook | PowerShell script, scheduled weekly | Fits DSR's existing snapshot Runbook pattern |
+| Power BI | Connects to the inventory CSV, refreshes weekly, embedded in Teams | Visual reports |
+
+In production, DSR uses the Runbook pattern. The Preservation Team subscribes to its email output.
+
+## ⌨️ Activity 8 — Tear down
+
+```bash
+az group delete -n $RG --yes --no-wait
+```
+
+---
+
+## 🦾 Now your turn!
+
+Build the **weekly inventory consumer** — pseudo-script:
+
+1. Find the latest CSV in `inventory-reports/`
+2. Compute capacity-by-tier and capacity-by-storage-group
+3. Compare to last week (delta)
+4. Flag if any tier shifted unexpectedly (>20% change)
+5. Email the team
+
+The exact implementation depends on language — but you should sketch the logic.
+
+---
+
+## ✅ Success checklist
+
+- [ ] You've inspected DSR's inventory rules
+- [ ] You've configured an inventory rule on your training account
+- [ ] You've read an inventory CSV in Excel and KQL
+- [ ] You've built capacity-by-tier and capacity-by-prefix reports
+- [ ] You've used inventory to verify legal hold
+- [ ] You know how the weekly delivery is scheduled in DSR
+
+---
+
+## 💰 Cost note
+
+< NZD $1. Inventory writes are tiny (a few MB per week per account).
+
+---
+
+➡️ **Next:** [Step 12 — Rosetta architecture walkthrough](step-12-rosetta-architecture.md)
+````
+
+---
+
+## 📊 Progress
+
+**Delivered so far:** README + Modules 0–11 (13 files, Foundations + Storage streams complete).
+
+**Remaining:** 15 modules — Apps (4) + Observability (3) + Cost (2) + Read-only ops (2) + Capstones (4).
+
+Reply "**continue**" for the next batch (**Apps stream — Modules 12–15**: Rosetta architecture, App Gateway + WAF, Oracle, WOD containers).
