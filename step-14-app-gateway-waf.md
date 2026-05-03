@@ -1,4 +1,4 @@
-# Step 13 — Application Gateway + WAF for operators
+# Step 14 — Application Gateway + WAF for operators
 
 _The "front door of Rosetta" lab._ 🚪 Builds operator-level fluency in Application Gateway and WAF: backend health, certificate management, blocked-request review, and how to triage "Rosetta is down" tickets without write access.
 
@@ -62,7 +62,7 @@ About **2 hours** of optional pre-reading.
 1. Portal → **Application gateways → + Create**.
 2. RG: `rg-labs-foundations-<your-initials>`. Region: Australia East.
 3. Tier: **WAF V2**. Autoscale: minimum 1, max 2.
-4. Virtual network: `vnet-labs-net` (from Step 04). Subnet: needs to be its own — create one called `snet-agw` if it doesn't exist (CIDR `10.99.3.0/24`).
+4. Virtual network: `vnet-labs-net` (from Step 05). Subnet: needs to be its own — create one called `snet-agw` if it doesn't exist (CIDR `10.99.3.0/24`).
 5. Frontend → Public IP. Create new.
 6. Backend → For now, "Don't add a target" — we'll add a public FQDN as a test.
 7. Configuration → Listener: HTTP:80 (no cert needed for the lab). HTTP setting: HTTP:80.
@@ -161,7 +161,7 @@ When users say Rosetta is down, walk this checklist:
 | 3. Recent firewall blocks? | KQL on FirewallLog | Sudden spike in `Blocked`. |
 | 4. Backend latency? | KQL on AccessLog | `responseLatency_d` distribution. |
 | 5. Backend VM heartbeat? | KQL on Heartbeat | Computer name matches Rosetta VMs. |
-| 6. Storage / Oracle reachable? | Storage / DB metrics | Check next steps in Step 14. |
+| 6. Storage / Oracle reachable? | Storage / DB metrics | Check next steps in Step 15. |
 
 You don't fix anything — you escalate. But you escalate with the right data.
 
@@ -200,5 +200,5 @@ az network public-ip delete -g rg-labs-foundations-<your-initials> -n <your AGW 
 
 ---
 
-⬅️ **Previous:** [Step 12 — Rosetta architecture walkthrough](step-12-rosetta-architecture.md)
-➡️ **Next:** [Step 14 — Oracle on Azure (read-only ops)](step-14-oracle-on-azure.md)
+⬅️ **Previous:** [Step 13 — Rosetta architecture walkthrough](step-13-rosetta-architecture.md)
+➡️ **Next:** [Step 15 — Oracle on Azure (read-only ops)](step-15-oracle-on-azure.md)

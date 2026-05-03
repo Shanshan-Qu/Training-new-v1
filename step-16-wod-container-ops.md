@@ -1,4 +1,4 @@
-# Step 15 — WOD container operations
+# Step 16 — WOD container operations
 
 _The "web archive in containers" lab._ 🕸️ Builds working knowledge of the Web On-Demand stack: PODMAN containers running NGINX, pyweb, and OutbackCDX, with `blobfuse2` mounting `stanlnznblobprdwod01` for content access.
 
@@ -78,7 +78,7 @@ blobfuse2 --version # confirm >= 2.0
 
 ## ⌨️ Activity 3 — Mount your test storage account via blobfuse2
 
-Use the storage account from Step 05.
+Use the storage account from Step 06.
 
 ```bash
 # Create config
@@ -104,7 +104,7 @@ blobfuse2 mount ~/wod --config-file=~/blobfuse2.yaml --read-only
 ls ~/wod
 ```
 
-You should see your test blob from Step 05's container `lab`. Treat the mount as read-only.
+You should see your test blob from Step 06's container `lab`. Treat the mount as read-only.
 
 > [!IMPORTANT]
 > Use **Managed Identity** auth (not account key). DSR uses MI exclusively — the VM has its MI granted Storage Blob Data Reader on the WOD storage account.
@@ -227,5 +227,5 @@ az network nic delete -g rg-labs-foundations-<your-initials> -n vm-wod-labVMNic
 
 ---
 
-⬅️ **Previous:** [Step 14 — Oracle on Azure (read-only ops)](step-14-oracle-on-azure.md)
-➡️ **Next:** [Step 16 — Log Analytics & KQL for storage and VMs](step-16-log-analytics-kql.md) (Phase 4 begins)
+⬅️ **Previous:** [Step 15 — Oracle on Azure (read-only ops)](step-15-oracle-on-azure.md)
+➡️ **Next:** [Step 17 — Log Analytics & KQL for storage and VMs](step-17-log-analytics-kql.md) (Phase 4 begins)

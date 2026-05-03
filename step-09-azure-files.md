@@ -1,4 +1,4 @@
-# Step 08 — Azure Files (NFS & SMB)
+# Step 09 — Azure Files (NFS & SMB)
 
 _The "shared filesystems for Rosetta" lab._ 📁 Builds the working knowledge of Azure Files the team needs to operate `stanlnznfileprdrosi01/02` — NFS vs SMB, mounting, POSIX/Kerberos permissions, performance, and throttling.
 
@@ -153,7 +153,7 @@ AzureMetrics
 | order by TimeGenerated desc
 ```
 
-Throttling spikes correlate to deposit batches or backup runs — often expected, but the workbook in Step 17 will surface them.
+Throttling spikes correlate to deposit batches or backup runs — often expected, but the workbook in Step 18 will surface them.
 
 ## ⌨️ Activity 6 — Read POSIX permissions
 
@@ -211,5 +211,5 @@ az storage account delete -g rg-labs-foundations-<your-initials> -n <your accoun
 
 ---
 
-⬅️ **Previous:** [Step 07 — Cold tier retrieval & rehydration cost](step-07-cold-retrieval.md)
-➡️ **Next:** [Step 09 — Data protection posture](step-09-data-protection.md)
+⬅️ **Previous:** [Step 08 — Cold tier retrieval & rehydration cost](step-08-cold-retrieval.md)
+➡️ **Next:** [Step 10 — Data protection posture](step-10-data-protection.md)

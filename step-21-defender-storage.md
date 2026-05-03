@@ -1,4 +1,4 @@
-# Step 20 — Defender for Storage (awareness)
+# Step 21 — Defender for Storage (awareness)
 
 _The "what does Cloud Security expect from us?" lab._ 🛡️ Awareness-only walkthrough of Defender for Storage: what it watches, the alerts it raises, where they appear, and the escalation path. Phase 4 closes here.
 
@@ -103,7 +103,7 @@ SecurityAlert
 | order by TimeGenerated desc
 ```
 
-Pin this query as a tile on the **ANL Health** Workbook from Step 17. Empty result = healthy day; any rows = read and act.
+Pin this query as a tile on the **ANL Health** Workbook from Step 18. Empty result = healthy day; any rows = read and act.
 
 ## ⌨️ Activity 6 — Recognise vs. investigate
 
@@ -178,5 +178,5 @@ This is informational — Cloud Security drives remediation via Policy or direct
 
 ---
 
-⬅️ **Previous:** [Step 19 — Backup Center read-only operations](step-19-backup-center.md)
-➡️ **Next:** [Step 21 — Capstone: Weekly Health Report](step-21-capstone-weekly-health.md) (Phase 5 begins)
+⬅️ **Previous:** [Step 20 — Backup Center read-only operations](step-20-backup-center.md)
+➡️ **Next:** [Step 22 — Capstone: Weekly Health Report](step-22-capstone-weekly-health.md) (Phase 5 begins)

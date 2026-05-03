@@ -1,11 +1,11 @@
-# Step 22 — Capstone: Monthly Cost Report
+# Step 23 — Capstone: Monthly Cost Report
 
-_The "where did the money go this month?" lab._ 🏆 Builds the second team-owned artefact: the Monthly Cost Report. Combines Cost Management (Step 18), Blob Inventory (Step 11), and Workbooks (Step 17) into the canonical $-per-tier-per-account view leadership reads on the first business day of each month.
+_The "where did the money go this month?" lab._ 🏆 Builds the second team-owned artefact: the Monthly Cost Report. Combines Cost Management (Step 19), Blob Inventory (Step 12), and Workbooks (Step 18) into the canonical $-per-tier-per-account view leadership reads on the first business day of each month.
 
 > [!NOTE]
 > **Trainee duration:** 180 minutes
 > **Instructor EDE:** 5.0 hours (1h prep + 3h delivery + 1h Q&A buffer)
-> **Lab cost:** $0 — uses the export from Step 18 and the inventory from Step 11.
+> **Lab cost:** $0 — uses the export from Step 19 and the inventory from Step 12.
 > **Prerequisites:** Steps 11 + 17 + 18 complete. The scheduled cost export and a working blob inventory must be in place.
 > **Pairs with:** Module 5 of the DIA training plan (Reporting). **Capstone — output is a real deliverable.**
 
@@ -20,7 +20,7 @@ The Monthly Cost Report answers four questions, in order:
 3. What were the top three movers (positive and negative)?
 4. What's the action plan for any anomaly?
 
-This lab walks the build: ingest the daily cost CSV from Step 18 into a Workbook table, join with the latest blob inventory for capacity context, render the four canonical views, write the narrative, publish. By the end you have a repeatable monthly cycle.
+This lab walks the build: ingest the daily cost CSV from Step 19 into a Workbook table, join with the latest blob inventory for capacity context, render the four canonical views, write the narrative, publish. By the end you have a repeatable monthly cycle.
 
 **What you'll build**
 - A **Workbook** named `ANL — Monthly Cost Report`.
@@ -41,7 +41,7 @@ This lab walks the build: ingest the daily cost CSV from Step 18 into a Workbook
 
 ## 📚 Prepare in advance
 
-- Re-read Step 18 (Cost Management) — particularly the saved-view names and export schedule.
+- Re-read Step 19 (Cost Management) — particularly the saved-view names and export schedule.
 - Have the **previous month's report** open if one exists. The format is tracked in the SharePoint reports library.
 - Check the latest blob inventory CSV for each ANL storage account is in the `inventory` container.
 
@@ -130,7 +130,7 @@ AnlCost_CL
 | order by cost desc
 ```
 
-Render as Grid + Pie. Untagged rows show as "" — that's a tag-hygiene action item from Step 18.
+Render as Grid + Pie. Untagged rows show as "" — that's a tag-hygiene action item from Step 19.
 
 ## ⌨️ Activity 6 — View 3: by storage account, with capacity context
 
@@ -192,7 +192,7 @@ Five bullets. No more. The detail lives in the tiles.
 
 ## ⌨️ Activity 9 — Capacity tier breakdown (closes the loop)
 
-Pull from the inventory CSVs (Step 11):
+Pull from the inventory CSVs (Step 12):
 
 ```kql
 StorageBlobInventory_CL
@@ -223,7 +223,7 @@ This is the answer to "should we move more to Cool/Archive?". Confirm prices in 
 1. Add a **Year-to-date trend** chart (12-month rolling).
 2. Compute **forecast next month** from the last 90 days of daily cost (use `series_decompose_forecast` in KQL).
 3. Add a tile that flags any **untagged cost lines** — these are tag-hygiene action items.
-4. Build an automation that emails the report PDF to the distribution group on the first of the month (Logic Apps, or a runbook in Step 23).
+4. Build an automation that emails the report PDF to the distribution group on the first of the month (Logic Apps, or a runbook in Step 24).
 
 ## ✅ Success checklist
 
@@ -247,5 +247,5 @@ This is the answer to "should we move more to Cool/Archive?". Confirm prices in 
 
 ---
 
-⬅️ **Previous:** [Step 21 — Capstone: Weekly Health Report](step-21-capstone-weekly-health.md)
-➡️ **Next:** [Step 23 — Capstone: Incident Triage Tabletop](step-23-capstone-incident-triage.md)
+⬅️ **Previous:** [Step 22 — Capstone: Weekly Health Report](step-22-capstone-weekly-health.md)
+➡️ **Next:** [Step 24 — Capstone: Incident Triage Tabletop](step-24-capstone-incident-triage.md)

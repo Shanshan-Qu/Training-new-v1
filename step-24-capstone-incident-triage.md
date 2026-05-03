@@ -1,4 +1,4 @@
-# Step 23 — Capstone: Incident triage tabletop
+# Step 24 — Capstone: Incident triage tabletop
 
 _The "did everything you learned actually stick?" lab._ 🏆 The final Capstone — four scenarios run as a tabletop exercise. No new content, just the ability to navigate the tools you've built across all 22 prior steps under realistic time pressure.
 
@@ -42,9 +42,9 @@ The goal is fluency, not completeness. You won't fix anything; you'll know exact
 
 ## 📚 Prepare in advance
 
-- Have the **Weekly Health Workbook** (Step 21) open in one tab.
-- Have **Backup Center** (Step 19) open in another.
-- Have **Defender for Cloud → Alerts** (Step 20) open in a third.
+- Have the **Weekly Health Workbook** (Step 22) open in one tab.
+- Have **Backup Center** (Step 20) open in another.
+- Have **Defender for Cloud → Alerts** (Step 21) open in a third.
 - Have the **DSR Application Operations runbook** open in a fourth.
 - Whiteboard or shared notes doc for the tabletop facilitator.
 
@@ -134,7 +134,7 @@ VMs are down → Cloud Platform. Probe path returns 5xx but VM seems alive → a
 2. Likely culprit: **Storage → Read transactions and/or Cold/Archive retrieval**.
 3. Open the storage account in question → Insights → transactions by tier.
 4. KQL: `StorageBlobLogs | where TimeGenerated >= datetime(<sunday>) | where StatusCode < 300 | summarize MB = sum(ResponseBodySize)/1024/1024 by Uri | top 20 by MB desc`. Identify the URIs.
-5. Match URIs to a blob tier (Step 11 inventory join). If they were Cold/Archive, that explains the spike.
+5. Match URIs to a blob tier (Step 12 inventory join). If they were Cold/Archive, that explains the spike.
 6. Talk to the application owner / curator: was a planned bulk export run? If yes, expected. If no, investigate.
 
 ### Communication
@@ -153,7 +153,7 @@ Curator confirms unplanned → Cloud Security investigation (Defender alerts? An
 ### Debrief discussion
 
 - Should bulk-export jobs be announced in the Ops channel ahead of time?
-- Could lifecycle rules (Step 06) have moved this content out of Archive earlier so retrieval was cheaper?
+- Could lifecycle rules (Step 07) have moved this content out of Archive earlier so retrieval was cheaper?
 
 ---
 
@@ -241,5 +241,5 @@ Ka pai.
 
 ---
 
-⬅️ **Previous:** [Step 22 — Capstone: Monthly Cost Report](step-22-capstone-monthly-cost.md)
+⬅️ **Previous:** [Step 23 — Capstone: Monthly Cost Report](step-23-capstone-monthly-cost.md)
 ➡️ **Next:** _Programme complete._ Move on to advanced specialisation (your choice — security, FinOps, automation, application engineering)._

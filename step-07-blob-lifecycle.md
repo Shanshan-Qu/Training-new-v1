@@ -1,12 +1,12 @@
-# Step 06 — Blob lifecycle management
+# Step 07 — Blob lifecycle management
 
 _The "moving petabytes without lifting a finger" lab._ ♻️ Authors and reads lifecycle rules — the engine that automatically transitions Rosetta and WOD blobs between Hot, Cool, Cold, and Archive based on age and access pattern, without manual intervention.
 
 > [!NOTE]
 > **Trainee duration:** 90 minutes
 > **Instructor EDE:** 3.5 hours (1h prep + 1.5h delivery + 1h Q&A buffer)
-> **Lab cost:** under NZD $0.50 — reuses your storage account from Step 05.
-> **Prerequisites:** Step 05 complete.
+> **Lab cost:** under NZD $0.50 — reuses your storage account from Step 06.
+> **Prerequisites:** Step 06 complete.
 > **Pairs with:** Module 2 of the DIA training plan (Storage). **Lighter than originally proposed** — Emma's 28-Apr feedback noted the team already has policies and scripts for tier moves, so this lab focuses on **reading** existing rules and understanding cost effects, not authoring complex new rules from scratch.
 
 ---
@@ -159,14 +159,14 @@ For a 100 TB blob set:
 | Cold | ~$600 |
 | Archive | ~$300 |
 
-The savings are large — but read costs grow. Step 07 unpacks the retrieval economics.
+The savings are large — but read costs grow. Step 08 unpacks the retrieval economics.
 
 > [!IMPORTANT]
 > Whenever you propose changing a tier policy, attach the cost delta in NZD/month to the change request. Storage cost is the part of the cloud bill leadership notices.
 
 ## ⌨️ Activity 6 — Read tier statistics with a Resource Graph + KQL combo
 
-For per-blob tier reporting we need Storage Insights metrics or Inventory CSVs (covered in Step 11). For now, use the storage **container metric**:
+For per-blob tier reporting we need Storage Insights metrics or Inventory CSVs (covered in Step 12). For now, use the storage **container metric**:
 
 ```kql
 StorageBlobLogs
@@ -177,7 +177,7 @@ StorageBlobLogs
             by AccountName, bin(TimeGenerated, 1h)
 ```
 
-(Diagnostic settings → Storage logs → Log Analytics workspace must be configured. We'll set this up in Step 16.)
+(Diagnostic settings → Storage logs → Log Analytics workspace must be configured. We'll set this up in Step 17.)
 
 ## 🦾 Now your turn!
 
@@ -209,5 +209,5 @@ StorageBlobLogs
 
 ---
 
-⬅️ **Previous:** [Step 05 — Storage accounts deep-dive](step-05-storage-accounts-deep-dive.md)
-➡️ **Next:** [Step 07 — Cold tier retrieval & rehydration cost](step-07-cold-retrieval.md)
+⬅️ **Previous:** [Step 06 — Storage accounts deep-dive](step-06-storage-accounts-deep-dive.md)
+➡️ **Next:** [Step 08 — Cold tier retrieval & rehydration cost](step-08-cold-retrieval.md)

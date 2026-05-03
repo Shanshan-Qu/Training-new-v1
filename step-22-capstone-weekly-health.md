@@ -1,12 +1,12 @@
-# Step 21 — Capstone: Weekly Health Report
+# Step 22 — Capstone: Weekly Health Report
 
 _The "Friday morning one-pager" lab._ 🏆 Combines everything from Phase 1–4 into a real, repeatable artefact: the Weekly Health Report your team will publish every Friday.
 
 > [!NOTE]
 > **Trainee duration:** 180 minutes (this is a build, not a walkthrough)
 > **Instructor EDE:** 5.0 hours (1h prep + 3h delivery + 1h Q&A buffer)
-> **Lab cost:** $0 — uses the Workbook from Step 17 and queries from Step 16.
-> **Prerequisites:** Steps 01–20 complete. The functions you saved in Step 16 and the Workbook from Step 17 are required inputs.
+> **Lab cost:** $0 — uses the Workbook from Step 18 and queries from Step 17.
+> **Prerequisites:** Steps 01–20 complete. The functions you saved in Step 17 and the Workbook from Step 18 are required inputs.
 > **Pairs with:** Module 4 + Module 5 of the DIA training plan (Observability + Reporting). **This is a Capstone — output is a real deliverable, not a lab artefact.**
 
 ---
@@ -35,8 +35,8 @@ Your team publishes a Weekly Health Report every Friday at 9 AM NZT. The audienc
 
 ## 📚 Prepare in advance
 
-- Re-read Step 17 (Workbooks). You'll be in the Workbook editor for most of this lab.
-- Have your Step 16 saved functions ready (the `Anl1HeartbeatGaps`, `Anl2StorageErrors`, etc.).
+- Re-read Step 18 (Workbooks). You'll be in the Workbook editor for most of this lab.
+- Have your Step 17 saved functions ready (the `Anl1HeartbeatGaps`, `Anl2StorageErrors`, etc.).
 - Have the **DSR Application Operations runbook** open — Section 5 ("Weekly Health Report") is the audit trail of past reports and the source of truth for the metric set.
 
 ## 🧱 Foundational principles
@@ -205,7 +205,7 @@ This is the actual Friday morning ritual. The lab simulates it once.
 
 ## 🦾 Now your turn!
 
-1. Add a fourth KPI tile for **Storage capacity growth this week** (delta GiB from Step 11's inventory).
+1. Add a fourth KPI tile for **Storage capacity growth this week** (delta GiB from Step 12's inventory).
 2. Build a parameter `Tier` so the report can be filtered to a single Rosetta tier.
 3. Set the dashboard to refresh every 1 hour automatically.
 4. Add a "Last 4 weeks of backup compliance" trend tile to spot drift.
@@ -232,5 +232,5 @@ This is the actual Friday morning ritual. The lab simulates it once.
 
 ---
 
-⬅️ **Previous:** [Step 20 — Defender for Storage (awareness)](step-20-defender-storage.md)
-➡️ **Next:** [Step 22 — Capstone: Monthly Cost Report](step-22-capstone-monthly-cost.md)
+⬅️ **Previous:** [Step 21 — Defender for Storage (awareness)](step-21-defender-storage.md)
+➡️ **Next:** [Step 23 — Capstone: Monthly Cost Report](step-23-capstone-monthly-cost.md)

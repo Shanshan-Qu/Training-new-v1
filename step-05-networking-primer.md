@@ -1,4 +1,4 @@
-# Step 04 — Networking primer (read-only view)
+# Step 05 — Networking primer (read-only view)
 
 _The "I'm not configuring this, I just need to read it" lab._ 🌐 Builds enough networking literacy to troubleshoot Rosetta connectivity issues without ever needing Owner on a VNet — VNet, subnet, NSG, Private Endpoint, Private DNS, Hub-Spoke, ExpressRoute.
 
@@ -210,5 +210,5 @@ az network private-endpoint delete -g rg-labs-foundations-<your-initials> -n pe-
 
 ---
 
-⬅️ **Previous:** [Step 03 — Identity & access for the operator](step-03-identity-and-access.md)
-➡️ **Next:** [Step 05 — Storage accounts deep-dive](step-05-storage-accounts-deep-dive.md) (Phase 2 begins)
+⬅️ **Previous:** [Step 04 — Guardrails, governance & audit](step-04-governance-guardrails.md)
+➡️ **Next:** [Step 06 — Storage accounts deep-dive](step-06-storage-accounts-deep-dive.md) (Phase 2 begins)

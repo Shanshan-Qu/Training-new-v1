@@ -1,4 +1,4 @@
-# Step 10 — Immutability & legal hold
+# Step 11 — Immutability & legal hold
 
 _The "this blob shall not be deleted, by anyone, ever" lab._ ⚖️ Builds the WORM (write-once-read-many) policy fluency the team needs for compliance: time-based retention, legal holds, applying and verifying holds, and recognising what an audit needs.
 
@@ -83,7 +83,7 @@ About **1.5 hours** of optional pre-reading.
 
 This is the modern approach.
 
-1. Confirm versioning is on (Step 09 enabled it).
+1. Confirm versioning is on (Step 10 enabled it).
 2. Storage account → **Data protection → Version-level immutability**: **Enabled by default**. (You may need to first re-create the container with version-level immutability allowed.)
 3. New container `version-immut-test` with version-level immutability allowed at creation.
 4. Upload a blob. Click the blob → **Manage policy → + Add policy** → set retention 7 days, leave Unlocked.
@@ -171,5 +171,5 @@ This is exactly how DSR retains material under hold even when standard lifecycle
 
 ---
 
-⬅️ **Previous:** [Step 09 — Data protection posture](step-09-data-protection.md)
-➡️ **Next:** [Step 11 — Blob inventory & capacity reporting](step-11-blob-inventory.md)
+⬅️ **Previous:** [Step 10 — Data protection posture](step-10-data-protection.md)
+➡️ **Next:** [Step 12 — Blob inventory & capacity reporting](step-12-blob-inventory.md)

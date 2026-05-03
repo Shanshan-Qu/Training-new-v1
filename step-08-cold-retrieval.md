@@ -1,4 +1,4 @@
-# Step 07 — Cold tier retrieval & rehydration cost
+# Step 08 — Cold tier retrieval & rehydration cost
 
 _The "why was last month's bill so high?" lab._ 💸 Builds the retrieval-economics intuition the team needs: per-GB read costs at Cold and Archive, rehydration priorities, billing surprises, and how to communicate a retrieval plan to leadership before it happens.
 
@@ -173,5 +173,5 @@ Use this to triage "why did the bill spike last Thursday?" tickets. The answer i
 
 ---
 
-⬅️ **Previous:** [Step 06 — Blob lifecycle management](step-06-blob-lifecycle.md)
-➡️ **Next:** [Step 08 — Azure Files (NFS & SMB)](step-08-azure-files.md)
+⬅️ **Previous:** [Step 07 — Blob lifecycle management](step-07-blob-lifecycle.md)
+➡️ **Next:** [Step 09 — Azure Files (NFS & SMB)](step-09-azure-files.md)

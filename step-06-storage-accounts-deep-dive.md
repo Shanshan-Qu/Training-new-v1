@@ -1,4 +1,4 @@
-# Step 05 — Storage accounts deep-dive
+# Step 06 — Storage accounts deep-dive
 
 _The "this is the heart of your day job" lab._ 💾 Builds deep working knowledge of Azure storage accounts: kinds, redundancy, endpoints, performance tiers, firewall, and how to read every property of `stanlnznblobprdrosi01` and friends.
 
@@ -18,7 +18,7 @@ The Preservation Team owns the day-to-day operations of the storage accounts tha
 **What you'll learn**
 - The five **storage account kinds** and which one DSR uses (and why).
 - Every **redundancy option** (LRS, ZRS, GRS, GZRS, RA-GRS, RA-GZRS) — what each protects against and what it costs.
-- **Performance tiers** — Standard vs Premium, Hot vs Cool vs Cold vs Archive (we'll cover transitions in Step 06).
+- **Performance tiers** — Standard vs Premium, Hot vs Cool vs Cold vs Archive (we'll cover transitions in Step 07).
 - **Endpoints** — public, private, and the role of `privatelink.blob.core.windows.net`.
 - **Storage firewall** rules — public network access, IP allowlists, and the "selected networks" pattern DSR uses.
 - How to read every property of a storage account from Portal, JSON view, and Resource Graph.
@@ -107,7 +107,7 @@ Open the new account and visit each of these blades; the goal is recognition, no
 | **Networking** | Public network access, firewall, private endpoints, virtual networks. |
 | **Data protection** | Soft delete, versioning, change feed, point-in-time restore. |
 | **Encryption** | Microsoft-managed keys vs Customer-managed keys (DSR uses CMK in Key Vault for prod). |
-| **Lifecycle management** | Rules to transition / delete blobs (we'll author one in Step 06). |
+| **Lifecycle management** | Rules to transition / delete blobs (we'll author one in Step 07). |
 | **Storage browser** | Built-in blob/file explorer in the portal. |
 | **Diagnostic settings (under Monitoring)** | Logs and metrics destinations — Log Analytics workspace for DSR. |
 
@@ -202,5 +202,5 @@ You should see the production storage accounts (e.g. `stanlnznblobprdrosi01`, `s
 
 ---
 
-⬅️ **Previous:** [Step 04 — Networking primer](step-04-networking-primer.md)
-➡️ **Next:** [Step 06 — Blob lifecycle management](step-06-blob-lifecycle.md)
+⬅️ **Previous:** [Step 05 — Networking primer](step-05-networking-primer.md)
+➡️ **Next:** [Step 07 — Blob lifecycle management](step-07-blob-lifecycle.md)

@@ -1,4 +1,4 @@
-# Step 12 — Rosetta architecture walkthrough (read-only)
+# Step 13 — Rosetta architecture walkthrough (read-only)
 
 _The "draw the picture from memory" lab._ 🏛️ Builds the operator's mental model of Rosetta on DSR: Application Gateway, App VMs, Index VMs, Oracle, file shares, blob storage, and how they connect. No deploys — recognising and reading.
 
@@ -36,7 +36,7 @@ Phase 3 starts here. You've built foundations and learned the storage estate; no
 | **Index tier** | Search index for IEs. |
 | **Workflow tier** | Background processing (deposits, format characterisation). |
 | **VMSS** | Virtual Machine Scale Set — used for tiers that scale horizontally. |
-| **NSG** | Network Security Group — already covered in Step 04. |
+| **NSG** | Network Security Group — already covered in Step 05. |
 
 ## 📚 Prepare in advance — Microsoft Learn
 
@@ -121,7 +121,7 @@ Don't restart, resize, or change anything. This is a *recognise* lab.
 3. **Connection** — note the target service & resource group.
 4. From a Rosetta VM (read-only operationally — usually you'd have a jumpbox), `nslookup ora.prd.anl.dia.govt.nz` returns the PE private IP.
 
-We'll cover Oracle deeper in Step 14.
+We'll cover Oracle deeper in Step 15.
 
 ## ⌨️ Activity 6 — Locate logs
 
@@ -191,5 +191,5 @@ Compare your sketch to the actual ALZ design v1.4. The gaps in your drawing tell
 
 ---
 
-⬅️ **Previous:** [Step 11 — Blob inventory](step-11-blob-inventory.md)
-➡️ **Next:** [Step 13 — Application Gateway + WAF for operators](step-13-app-gateway-waf.md)
+⬅️ **Previous:** [Step 12 — Blob inventory](step-12-blob-inventory.md)
+➡️ **Next:** [Step 14 — Application Gateway + WAF for operators](step-14-app-gateway-waf.md)

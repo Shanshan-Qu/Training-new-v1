@@ -1,4 +1,4 @@
-# Step 14 — Oracle on Azure (read-only ops view)
+# Step 15 — Oracle on Azure (read-only ops view)
 
 _The "I can recognise an Oracle problem when I see one" lab._ 🐘 Builds operational awareness of Rosetta's Oracle backend on Azure VMs: Data Guard sync, RMAN backup status, port 1521 connectivity checks — without ever issuing a SQL command.
 
@@ -81,7 +81,7 @@ nc -vz ora.prd.anl.dia.govt.nz 1521
 ```
 
 If `nc` fails, the issue is one of:
-1. NSG (Step 04 rule blocking app → oracle on 1521).
+1. NSG (Step 05 rule blocking app → oracle on 1521).
 2. Oracle TNS Listener not running.
 3. DNS pointing to a stale IP.
 
@@ -131,7 +131,7 @@ Acceptable: <10s. Concern: 10–60s for >5 minutes. Escalate: >60s sustained.
 
 | Symptom | Likely cause |
 |---|---|
-| Rosetta UI loads but search returns nothing | Index tier (Step 12), not Oracle. |
+| Rosetta UI loads but search returns nothing | Index tier (Step 13), not Oracle. |
 | Rosetta UI shows "Database connection failed" banner | Oracle / connectivity. Run Activity 2. |
 | Deposits stuck in "ingesting" | Could be either — check Workflow tier logs first. |
 | Sudden flood of "ORA-12541" in app logs | TNS Listener down on Oracle host — page DBA. |
@@ -155,7 +155,7 @@ A clear escalation gets a fast response. A vague "Oracle's broken" wastes a roun
 ## 🦾 Now your turn!
 
 1. Write the KQL for "show every RMAN backup outcome in the last 7 days, with success/fail count by day".
-2. Find the **Backup Center** entry for the Oracle backup vault (covered fully in Step 19) — does it list the Oracle VMs?
+2. Find the **Backup Center** entry for the Oracle backup vault (covered fully in Step 20) — does it list the Oracle VMs?
 3. From a Rosetta VM, write a one-liner that confirms DNS, port 1521 reachable, *and* logs the result with a timestamp.
 4. Read the **DSR Oracle Data Guard runbook** (DIA SharePoint) and identify the failover trigger conditions. Don't memorise the steps — just know where to find them.
 
@@ -179,5 +179,5 @@ A clear escalation gets a fast response. A vague "Oracle's broken" wastes a roun
 
 ---
 
-⬅️ **Previous:** [Step 13 — Application Gateway + WAF](step-13-app-gateway-waf.md)
-➡️ **Next:** [Step 15 — WOD container operations](step-15-wod-container-ops.md)
+⬅️ **Previous:** [Step 14 — Application Gateway + WAF](step-14-app-gateway-waf.md)
+➡️ **Next:** [Step 16 — WOD container operations](step-16-wod-container-ops.md)

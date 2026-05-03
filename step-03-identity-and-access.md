@@ -181,4 +181,4 @@ az ad sp delete --id $(az ad sp list --display-name "sp-lab-readonly-<your-initi
 ---
 
 ⬅️ **Previous:** [Step 02 — Portal & Cloud Shell tour](step-02-portal-and-cloud-shell.md)
-➡️ **Next:** [Step 04 — Networking primer (read-only view)](step-04-networking-primer.md)
+➡️ **Next:** [Step 04 — Guardrails, governance & audit](step-04-governance-guardrails.md)

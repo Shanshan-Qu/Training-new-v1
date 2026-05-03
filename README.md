@@ -26,57 +26,58 @@ Starts at zero Azure knowledge; finishes at "I can operate our preservation syst
 | 01 | [Azure foundations](step-01-azure-foundations.md) |
 | 02 | [Portal & Cloud Shell tour](step-02-portal-and-cloud-shell.md) |
 | 03 | [Identity & access for the operator](step-03-identity-and-access.md) |
-| 04 | [Networking primer (read-only view)](step-04-networking-primer.md) |
+| 04 | [Guardrails, governance & audit](step-04-governance-guardrails.md) |
+| 05 | [Networking primer (read-only view)](step-05-networking-primer.md) |
 
 ### Storage
 | # | Module |
 |---|---|
-| 05 | [Storage accounts deep-dive](step-05-storage-accounts-deep-dive.md) |
-| 06 | [Blob lifecycle management](step-06-blob-lifecycle.md) |
-| 07 | [Cold tier retrieval & rehydration cost](step-07-cold-retrieval.md) |
-| 08 | [Azure Files (NFS & SMB)](step-08-azure-files.md) |
-| 09 | [Data protection posture](step-09-data-protection.md) |
-| 10 | [Immutability & legal hold](step-10-immutability.md) |
-| 11 | [Blob inventory & capacity reporting](step-11-blob-inventory.md) |
+| 06 | [Storage accounts deep-dive](step-06-storage-accounts-deep-dive.md) |
+| 07 | [Blob lifecycle management](step-07-blob-lifecycle.md) |
+| 08 | [Cold tier retrieval & rehydration cost](step-08-cold-retrieval.md) |
+| 09 | [Azure Files (NFS & SMB)](step-09-azure-files.md) |
+| 10 | [Data protection posture](step-10-data-protection.md) |
+| 11 | [Immutability & legal hold](step-11-immutability.md) |
+| 12 | [Blob inventory & capacity reporting](step-12-blob-inventory.md) |
 
 ### Applications
 | # | Module |
 |---|---|
-| 12 | [Rosetta architecture walkthrough (read-only)](step-12-rosetta-architecture.md) |
-| 13 | [Application Gateway + WAF for operators](step-13-app-gateway-waf.md) |
-| 14 | [Oracle on Azure (read-only ops view)](step-14-oracle-on-azure.md) |
-| 15 | [WOD container operations](step-15-wod-container-ops.md) |
+| 13 | [Rosetta architecture walkthrough (read-only)](step-13-rosetta-architecture.md) |
+| 14 | [Application Gateway + WAF for operators](step-14-app-gateway-waf.md) |
+| 15 | [Oracle on Azure (read-only ops view)](step-15-oracle-on-azure.md) |
+| 16 | [WOD container operations](step-16-wod-container-ops.md) |
 
 ### Observability & Cost
 | # | Module |
 |---|---|
-| 16 | [Azure Monitor: Logs, Metrics & Alerts](step-16-log-analytics-kql.md) |
-| 17 | [Azure Monitor Workbooks](step-17-workbooks.md) |
-| 18 | [Cost Management for an application owner](step-18-cost-management.md) |
+| 17 | [Azure Monitor: Logs, Metrics & Alerts](step-17-log-analytics-kql.md) |
+| 18 | [Azure Monitor Workbooks](step-18-workbooks.md) |
+| 19 | [Cost Management for an application owner](step-19-cost-management.md) |
 
 ### Read-only operations
 | # | Module |
 |---|---|
-| 19 | [Backup Center read-only operations](step-19-backup-center.md) |
-| 20 | [Defender for Storage (awareness)](step-20-defender-storage.md) |
+| 20 | [Backup Center read-only operations](step-20-backup-center.md) |
+| 21 | [Defender for Storage (awareness)](step-21-defender-storage.md) |
 
 ### Capstones
 | # | Module |
 |---|---|
-| 21 | [Capstone: Weekly Health Report](step-21-capstone-weekly-health.md) |
-| 22 | [Capstone: Monthly Cost Report](step-22-capstone-monthly-cost.md) |
-| 23 | [Capstone: Incident triage tabletop](step-23-capstone-incident-triage.md) |
+| 22 | [Capstone: Weekly Health Report](step-22-capstone-weekly-health.md) |
+| 23 | [Capstone: Monthly Cost Report](step-23-capstone-monthly-cost.md) |
+| 24 | [Capstone: Incident triage tabletop](step-24-capstone-incident-triage.md) |
 
 ---
 
 ## 🚦 How to start
 
 1. Set up a personal training Azure subscription (Azure free trial, DIA-issued sandbox, or Visual Studio credits). **Do not use the production DSR subscription for hands-on labs.**
-2. Work through the **Foundations** stream (Modules 01–04) first — every later lab assumes it.
+2. Work through the **Foundations** stream (Modules 01–05) first — every later lab assumes it.
 3. Follow stream order: Storage → Applications → Observability & Cost → Read-only ops → Capstones.
 4. Each module is self-contained markdown — usable for live sessions, self-paced study, or reference for new starters.
 
-Recommended pacing: **2 modules per week over ~10–12 weeks**.
+Recommended pacing: **2 modules per week over ~12 weeks**.
 
 ---
 

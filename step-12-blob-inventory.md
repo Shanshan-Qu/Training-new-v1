@@ -1,4 +1,4 @@
-# Step 11 — Blob inventory & capacity reporting
+# Step 12 — Blob inventory & capacity reporting
 
 _The "where did all the storage go?" lab._ 📊 Sets up Blob Inventory — the weekly CSV that powers DSR's capacity-by-tier reporting, the Monthly Cost Report, and any "how much is at Cold tier?" question from leadership.
 
@@ -176,5 +176,5 @@ Any tier with a >20% MoM change is worth flagging in the report.
 
 ---
 
-⬅️ **Previous:** [Step 10 — Immutability & legal hold](step-10-immutability.md)
-➡️ **Next:** [Step 12 — Rosetta architecture walkthrough](step-12-rosetta-architecture.md) (Phase 3 begins)
+⬅️ **Previous:** [Step 11 — Immutability & legal hold](step-11-immutability.md)
+➡️ **Next:** [Step 13 — Rosetta architecture walkthrough](step-13-rosetta-architecture.md) (Phase 3 begins)

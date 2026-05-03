@@ -1,4 +1,4 @@
-# Step 18 — Cost Management for an application owner
+# Step 19 — Cost Management for an application owner
 
 _The "where is the money going?" lab._ 💰 Builds the muscle for Monthly Cost Reporting: saved views, scheduled exports, anomaly alerts, and the tag hygiene that makes the whole thing possible.
 
@@ -7,7 +7,7 @@ _The "where is the money going?" lab._ 💰 Builds the muscle for Monthly Cost R
 > **Instructor EDE:** 3.5 hours (1h prep + 1.5h delivery + 1h Q&A buffer)
 > **Lab cost:** $0 — Cost Management is free.
 > **Prerequisites:** Steps 01–11 complete (you've created enough resources to see real cost data).
-> **Pairs with:** Module 5 of the DIA training plan (Reporting). Feeds directly into the Phase 5 Capstone (Step 22 — Monthly Cost Report).
+> **Pairs with:** Module 5 of the DIA training plan (Reporting). Feeds directly into the Phase 5 Capstone (Step 23 — Monthly Cost Report).
 
 ---
 
@@ -96,7 +96,7 @@ This is the view you'll eyeball weekly. Sudden movement = something to investiga
 4. Save.
 5. Wait ~24h, then check the container — files appear at `anl/<year>/<month>/<filename>.csv`.
 
-This is the source for the Capstone (Step 22) — you point a Workbook at this container.
+This is the source for the Capstone (Step 23) — you point a Workbook at this container.
 
 ## ⌨️ Activity 6 — Set a budget with alerts
 
@@ -148,7 +148,7 @@ These are the resources that show as "(Untagged)" in your environment view. Send
 ## 📚 Self-serve refresher
 
 - [Cost analysis common scenarios](https://learn.microsoft.com/azure/cost-management-billing/costs/cost-analysis-common-uses) — pattern bank.
-- [Cost Management API](https://learn.microsoft.com/rest/api/cost-management/) — for automation in Step 22's Capstone.
+- [Cost Management API](https://learn.microsoft.com/rest/api/cost-management/) — for automation in Step 23's Capstone.
 
 ## 💰 Cost note
 
@@ -158,5 +158,5 @@ These are the resources that show as "(Untagged)" in your environment view. Send
 
 ---
 
-⬅️ **Previous:** [Step 17 — Azure Monitor Workbooks](step-17-workbooks.md)
-➡️ **Next:** [Step 19 — Backup Center read-only operations](step-19-backup-center.md)
+⬅️ **Previous:** [Step 18 — Azure Monitor Workbooks](step-18-workbooks.md)
+➡️ **Next:** [Step 20 — Backup Center read-only operations](step-20-backup-center.md)

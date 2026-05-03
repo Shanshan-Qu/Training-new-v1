@@ -1,4 +1,4 @@
-# Step 09 — Data protection posture
+# Step 10 — Data protection posture
 
 _The "what stops accidental deletion" lab._ 🛡️ Builds the recoverability mental model: snapshots, soft delete, versioning, point-in-time restore, change feed — and how to *prove* a storage account is properly protected.
 
@@ -20,7 +20,7 @@ DSR runs a multi-layer data protection model. Some layers (Recovery Services Vau
 - How each one helps recovery — and what each one **does not** protect against.
 - How to verify a storage account is protected (one Resource Graph query for the audit team).
 - How to recover a deleted blob using soft delete or versioning.
-- The interaction with lifecycle rules (versions cost money — you've seen this in Step 06).
+- The interaction with lifecycle rules (versions cost money — you've seen this in Step 07).
 
 ## 💡 Jargon buster
 
@@ -78,7 +78,7 @@ You'll see every storage account's protection state in one view. In DSR, the pro
 
 ## ⌨️ Activity 3 — Recover a soft-deleted blob
 
-1. Container `lab` → click your test blob from Step 05 → **Delete** (single blob).
+1. Container `lab` → click your test blob from Step 06 → **Delete** (single blob).
 2. Top of the Containers list → toggle **Show deleted blobs**.
 3. The blob appears with status **Deleted, X days remaining**. Right-click → **Undelete**.
 4. Blob is restored.
@@ -169,5 +169,5 @@ Every result is a finding — escalate to whoever owns that storage account.
 
 ---
 
-⬅️ **Previous:** [Step 08 — Azure Files (NFS & SMB)](step-08-azure-files.md)
-➡️ **Next:** [Step 10 — Immutability & legal hold](step-10-immutability.md)
+⬅️ **Previous:** [Step 09 — Azure Files (NFS & SMB)](step-09-azure-files.md)
+➡️ **Next:** [Step 11 — Immutability & legal hold](step-11-immutability.md)

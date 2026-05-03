@@ -1,4 +1,4 @@
-# Step 19 — Backup Center read-only operations
+# Step 20 — Backup Center read-only operations
 
 _The "did last night's backup actually run?" lab._ 🛡️ Builds the operator view of Backup Center — the single pane DSR uses to confirm RPO compliance across VMs, file shares, blobs, and Oracle backups.
 
@@ -51,7 +51,7 @@ About **2 hours** of optional pre-reading.
 - **DSR Cloud Platform owns vault configuration.** The Preservation Team has Reader on the vault and acts on what they see.
 - **Soft delete on vault is enabled** in DSR. Even if a malicious actor "deleted" a backup, the data is recoverable for 14 days.
 - **NZ North has no paired region.** Cross-region restore is not configured. ZRS storage on the vault provides zone redundancy.
-- **Per-tier policy varies.** Web tier daily; Index tier daily; Oracle has its own RMAN cycle (Step 14) running in parallel with VM-level Azure Backup.
+- **Per-tier policy varies.** Web tier daily; Index tier daily; Oracle has its own RMAN cycle (Step 15) running in parallel with VM-level Azure Backup.
 - **The compliance read = "every protected item has a recovery point in the last 24h"**. Anything else is an exception worth raising.
 - **You don't trigger backups manually** in DSR — policies drive them. You read, you don't write.
 
@@ -67,7 +67,7 @@ About **2 hours** of optional pre-reading.
 
 ## ⌨️ Activity 2 — Enable backup on a small lab VM
 
-Use the lab VM from Step 15 (or any small VM).
+Use the lab VM from Step 16 (or any small VM).
 
 1. VM → **Backup**. Or Backup Center → **+ Backup** → Azure resource → Virtual machine.
 2. Recovery Services Vault: + Create. Name: `rsv-lab-<initials>`. RG: lab RG. Region: same as VM.
@@ -201,5 +201,5 @@ az backup vault delete -g rg-labs-foundations-<your-initials> -n rsv-lab-<initia
 
 ---
 
-⬅️ **Previous:** [Step 18 — Cost Management for an application owner](step-18-cost-management.md)
-➡️ **Next:** [Step 20 — Defender for Storage (awareness)](step-20-defender-storage.md)
+⬅️ **Previous:** [Step 19 — Cost Management for an application owner](step-19-cost-management.md)
+➡️ **Next:** [Step 21 — Defender for Storage (awareness)](step-21-defender-storage.md)
