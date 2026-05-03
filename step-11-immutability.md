@@ -4,7 +4,6 @@ _The "this blob shall not be deleted, by anyone, ever" lab._ ⚖️ Builds the W
 
 > [!NOTE]
 > **Trainee duration:** 75 minutes
-> **Instructor EDE:** 3.25 hours (1h prep + 1.25h delivery + 1h Q&A buffer)
 > **Lab cost:** under NZD $0.50 — reuses your test storage account.
 > **Prerequisites:** Steps 05 + 06 + 09 complete.
 > **Pairs with:** Module 2 of the DIA training plan (Storage).
@@ -42,7 +41,7 @@ Some of DIA's preserved content is subject to legal hold or statutory retention 
 |---|---|
 | [Immutable storage for blobs](https://learn.microsoft.com/azure/storage/blobs/immutable-storage-overview) | The exact mechanism DSR uses. |
 | [Configure immutability policies](https://learn.microsoft.com/azure/storage/blobs/immutable-policy-configure-version-scope) | Step-by-step for version-level policies. |
-| [Compliance with WORM storage](https://learn.microsoft.com/azure/compliance/offerings/offering-cohasset-immutable-blob-storage) | DIA's audit/compliance reference. |
+| [Immutable storage for Azure Blob Storage](https://learn.microsoft.com/azure/storage/blobs/immutable-storage-overview) | DIA's audit/compliance reference. |
 
 About **1.5 hours** of optional pre-reading.
 

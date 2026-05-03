@@ -4,7 +4,6 @@ _The "what stops accidental deletion" lab._ 🛡️ Builds the recoverability me
 
 > [!NOTE]
 > **Trainee duration:** 90 minutes
-> **Instructor EDE:** 3.5 hours (1h prep + 1.5h delivery + 1h Q&A buffer)
 > **Lab cost:** under NZD $0.50 — reuses your test storage account.
 > **Prerequisites:** Steps 05 + 06 complete.
 > **Pairs with:** Module 2 of the DIA training plan (Storage). **Note:** backup *configuration* is owned by DIA Platform Team, but the Preservation Team owns *posture awareness* — you'll be asked "is X protected?" and need to be able to read the answer.
@@ -38,7 +37,7 @@ DSR runs a multi-layer data protection model. Some layers (Recovery Services Vau
 
 | Module | Why it matters for ANL |
 |---|---|
-| [Protect data with soft delete and versioning](https://learn.microsoft.com/training/modules/protect-data-blob-storage/) | The exact protection layers DSR uses. |
+| [Data protection overview for Blob Storage](https://learn.microsoft.com/azure/storage/blobs/data-protection-overview) | The exact protection layers DSR uses. |
 | [Point-in-time restore for block blobs](https://learn.microsoft.com/azure/storage/blobs/point-in-time-restore-overview) | The "roll back the account" feature. |
 | [Blob change feed](https://learn.microsoft.com/azure/storage/blobs/storage-blob-change-feed) | What feeds the WOD audit and inventory pipelines. |
 

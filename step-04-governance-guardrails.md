@@ -4,7 +4,6 @@ _The "what stops me breaking production?" lab._ 🛡️ Builds the governance fl
 
 > [!NOTE]
 > **Trainee duration:** 90 minutes
-> **Instructor EDE:** 4.0 hours (1h prep + 1.5h delivery + 1h Q&A + 30m review)
 > **Lab cost:** under NZD $0.50 — only one resource for lock testing.
 > **Prerequisites:** Steps 01–03 (subscription, portal navigation, identity).
 > **Pairs with:** Module 1 of the DIA training plan (Foundations) — addresses the "Visibility, governance & audit" feedback that made governance a first-class topic.

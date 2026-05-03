@@ -4,7 +4,6 @@ _The "where did the money go this month?" lab._ 🏆 Builds the second team-owne
 
 > [!NOTE]
 > **Trainee duration:** 180 minutes
-> **Instructor EDE:** 5.0 hours (1h prep + 3h delivery + 1h Q&A buffer)
 > **Lab cost:** $0 — uses the export from Step 19 and the inventory from Step 12.
 > **Prerequisites:** Steps 11 + 17 + 18 complete. The scheduled cost export and a working blob inventory must be in place.
 > **Pairs with:** Module 5 of the DIA training plan (Reporting). **Capstone — output is a real deliverable.**
@@ -238,7 +237,7 @@ This is the answer to "should we move more to Cool/Archive?". Confirm prices in 
 
 - DSR Application Operations runbook, Section 6 ("Monthly Cost Report").
 - [Cost Management API reference](https://learn.microsoft.com/rest/api/cost-management/) — for direct queries.
-- [Blob pricing](https://azure.microsoft.com/pricing/details/storage/blobs/) — refresh tier prices each cycle.
+- [Blob pricing](https://azure.microsoft.com/en-us/pricing/details/storage/blobs/) — refresh tier prices each cycle.
 
 ## 💰 Cost note
 

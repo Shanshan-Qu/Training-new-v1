@@ -4,7 +4,6 @@ _The "web archive in containers" lab._ 🕸️ Builds working knowledge of the W
 
 > [!NOTE]
 > **Trainee duration:** 90 minutes
-> **Instructor EDE:** 3.5 hours (1h prep + 1.5h delivery + 1h Q&A buffer)
 > **Lab cost:** under NZD $0.50 — a small Linux VM with PODMAN.
 > **Prerequisites:** Steps 01–05, 08 complete; basic Linux comfort.
 > **Pairs with:** Module 3 of the DIA training plan (Application Operations).
@@ -208,7 +207,7 @@ If `df` shows nothing or `ls` hangs, the mount has dropped. The fix is `umount ~
 ## 📚 Self-serve refresher
 
 - [PODMAN cheat sheet](https://docs.podman.io/en/stable/Tutorials.html) — every command you'll use day-to-day.
-- [blobfuse2 troubleshooting](https://learn.microsoft.com/azure/storage/blobs/blobfuse2-troubleshoot) — when the mount goes weird.
+- [blobfuse2 troubleshooting](https://learn.microsoft.com/azure/storage/blobs/blobfuse2-troubleshooting) — when the mount goes weird.
 
 ## 💰 Cost note
 

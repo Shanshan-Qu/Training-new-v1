@@ -4,7 +4,6 @@ _The "where did all the storage go?" lab._ 📊 Sets up Blob Inventory — the w
 
 > [!NOTE]
 > **Trainee duration:** 90 minutes
-> **Instructor EDE:** 3.5 hours (1h prep + 1.5h delivery + 1h Q&A buffer)
 > **Lab cost:** under NZD $0.50 — one inventory rule and the resulting CSV.
 > **Prerequisites:** Steps 05 + 06 complete.
 > **Pairs with:** Module 2 + Module 5 of the DIA training plan (Storage / Reporting). **Closes Phase 2** — you'll use the inventory CSVs in Phase 4 (Workbooks) and Phase 5 (Capstones).
@@ -163,7 +162,7 @@ Any tier with a >20% MoM change is worth flagging in the report.
 ## 📚 Self-serve refresher
 
 - [Inventory schema reference](https://learn.microsoft.com/azure/storage/blobs/blob-inventory#inventory-schema) — every field documented.
-- [Power Query — load CSV from Azure Storage](https://learn.microsoft.com/power-query/connectors/azureblobstorage) — for the Excel-based reports.
+- [Power Query — Azure Blob Storage connector](https://learn.microsoft.com/power-query/connectors/azure-blob-storage) — for the Excel-based reports.
 
 ## 💰 Cost note
 

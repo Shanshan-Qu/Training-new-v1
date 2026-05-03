@@ -4,7 +4,6 @@ _The "moving petabytes without lifting a finger" lab._ ♻️ Authors and reads 
 
 > [!NOTE]
 > **Trainee duration:** 90 minutes
-> **Instructor EDE:** 3.5 hours (1h prep + 1.5h delivery + 1h Q&A buffer)
 > **Lab cost:** under NZD $0.50 — reuses your storage account from Step 06.
 > **Prerequisites:** Step 06 complete.
 > **Pairs with:** Module 2 of the DIA training plan (Storage). **Lighter than originally proposed** — Emma's 28-Apr feedback noted the team already has policies and scripts for tier moves, so this lab focuses on **reading** existing rules and understanding cost effects, not authoring complex new rules from scratch.
@@ -40,7 +39,7 @@ DSR's preservation strategy lives partly in lifecycle rules: WOD content cools t
 
 | Module | Why it matters for ANL |
 |---|---|
-| [Optimize storage costs with lifecycle management](https://learn.microsoft.com/training/modules/optimize-blob-storage-costs/) | The exact pattern DSR uses for WOD and IE storage. |
+| [Hot, Cool, Cold and Archive blob tiers](https://learn.microsoft.com/azure/storage/blobs/storage-blob-storage-tiers) | The exact pattern DSR uses for WOD and IE storage. |
 | [Lifecycle management policy](https://learn.microsoft.com/azure/storage/blobs/lifecycle-management-overview) | The reference for every field in the JSON. |
 | [Access tiers — comparison and pricing](https://learn.microsoft.com/azure/storage/blobs/access-tiers-overview) | Per-GB rates and minimum retention you must know. |
 

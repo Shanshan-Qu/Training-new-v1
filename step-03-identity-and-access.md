@@ -4,7 +4,6 @@ _The "who can do what" lab._ 🔐 Builds the access mindset Preservation needs: 
 
 > [!NOTE]
 > **Trainee duration:** 75 minutes
-> **Instructor EDE:** 3.25 hours (1h prep + 1.25h delivery + 1h Q&A buffer)
 > **Lab cost:** under NZD $0.50 — only the storage account from Step 01 is reused.
 > **Prerequisites:** Step 01 + 02 complete.
 > **Pairs with:** Module 1 of the DIA training plan (Foundations) — addresses Emma's "RBAC visibility for audit" feedback.

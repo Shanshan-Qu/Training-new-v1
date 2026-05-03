@@ -4,7 +4,6 @@ _The "I can recognise an Oracle problem when I see one" lab._ 🐘 Builds operat
 
 > [!NOTE]
 > **Trainee duration:** 75 minutes
-> **Instructor EDE:** 3.25 hours (1h prep + 1.25h delivery + 1h Q&A buffer)
 > **Lab cost:** $0 — all reading; no Oracle deploy.
 > **Prerequisites:** Steps 01–04, 12 complete.
 > **Pairs with:** Module 3 of the DIA training plan (Application Operations). **Note:** Oracle administration (SQL, schema, RMAN config) is owned by **DIA Database Team**. The Preservation Team owns *connectivity awareness* and recognises the symptoms of Oracle-related Rosetta problems.

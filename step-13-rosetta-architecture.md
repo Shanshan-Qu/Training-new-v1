@@ -4,7 +4,6 @@ _The "draw the picture from memory" lab._ 🏛️ Builds the operator's mental m
 
 > [!NOTE]
 > **Trainee duration:** 90 minutes
-> **Instructor EDE:** 3.5 hours (1h prep + 1.5h delivery + 1h Q&A buffer)
 > **Lab cost:** $0 — all reading, no deploys.
 > **Prerequisites:** Steps 01–11 complete.
 > **Pairs with:** Module 3 of the DIA training plan (Application Operations) — anchored to the DSR DPS Azure Application Landing Zone Design v1.4.

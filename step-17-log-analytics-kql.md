@@ -4,7 +4,6 @@ _The "I can find any log in 30 seconds AND get paged when things break" lab._ �
 
 > [!NOTE]
 > **Trainee duration:** 180 minutes
-> **Instructor EDE:** 5.0 hours (1h prep + 3h delivery + 1h Q&A buffer)
 > **Lab cost:** under NZD $1 — small workspace, free-tier ingestion volume, alerts are free for the first few rules.
 > **Prerequisites:** Steps 01–16 complete (this lab pulls together signals from every prior step).
 > **Pairs with:** Module 4 of the DIA training plan (Observability & Reporting).
@@ -49,11 +48,11 @@ By the end you can both find any signal across the DSR estate AND be notified au
 
 | Module | Why it matters for ANL |
 |---|---|
-| [Introduction to Kusto Query Language](https://learn.microsoft.com/training/modules/intro-to-kusto/) | The core mental model — same dialect as Resource Graph and App Insights. |
-| [Analyze your Azure infrastructure with Log Analytics](https://learn.microsoft.com/training/modules/analyze-infrastructure-log-data/) | Practical query patterns for ops. |
+| [Get started with Log Analytics queries](https://learn.microsoft.com/azure/azure-monitor/logs/get-started-queries) | The core mental model — same dialect as Resource Graph and App Insights. |
+| [Analyze monitoring data with KQL (path)](https://learn.microsoft.com/training/paths/analyze-monitoring-data-with-kql/) | Practical query patterns for ops. |
 | [Write efficient KQL queries](https://learn.microsoft.com/azure/data-explorer/kusto/query/best-practices) | Cost and performance shaping — read this once. |
 | [Improve incident response with alerts on Azure](https://learn.microsoft.com/training/modules/incident-response-with-alerting-on-azure/) | Metric vs log alerts, action groups, alert processing rules. |
-| [Analyze metrics from your Azure resource](https://learn.microsoft.com/training/modules/analyze-azure-infrastructure-by-using-azure-monitor-logs/) | The metrics blade — splitting, multi-resource, pinning. |
+| [Analyze monitoring data with KQL (path)](https://learn.microsoft.com/training/paths/analyze-monitoring-data-with-kql/) | The metrics blade — splitting, multi-resource, pinning. |
 
 About **4 hours** of optional pre-reading.
 

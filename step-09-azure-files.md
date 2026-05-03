@@ -4,7 +4,6 @@ _The "shared filesystems for Rosetta" lab._ 📁 Builds the working knowledge of
 
 > [!NOTE]
 > **Trainee duration:** 120 minutes
-> **Instructor EDE:** 4.0 hours (1h prep + 2h delivery + 1h Q&A buffer)
 > **Lab cost:** under NZD $5 — one Premium FileStorage account (NFS or SMB) for the duration of the lab. **Delete promptly after.**
 > **Prerequisites:** Steps 01–05 complete. A Linux VM you can SSH to (or a small Cloud Shell mount).
 > **Pairs with:** Module 2 of the DIA training plan (Storage).

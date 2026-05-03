@@ -4,7 +4,6 @@ _The "find anything in 30 seconds" lab._ 🧭 Builds Portal fluency: search, pin
 
 > [!NOTE]
 > **Trainee duration:** 60 minutes
-> **Instructor EDE:** 3.0 hours (1h prep + 1h delivery + 1h Q&A buffer)
 > **Lab cost:** $0 — Cloud Shell uses a small free file share, everything else is metadata.
 > **Prerequisites:** Step 01 complete; your `rg-labs-foundations-<your-initials>` and test storage account from Step 01.
 > **Pairs with:** Module 1 of the DIA training plan (Foundations).
@@ -38,7 +37,7 @@ The Azure portal is large. Without the right shortcuts, finding a specific resou
 
 | Module | Why it matters for ANL |
 |---|---|
-| [Navigate the Azure portal](https://learn.microsoft.com/training/modules/intro-to-azure-portal/) | The team's daily home base. |
+| [Tour the Azure portal](https://learn.microsoft.com/training/modules/tour-azure-portal/) | The team's daily home base. |
 | [Introduction to Azure Cloud Shell](https://learn.microsoft.com/azure/cloud-shell/overview) | No-install access for ad-hoc commands. |
 | [Introduction to Azure Resource Graph](https://learn.microsoft.com/training/modules/intro-to-governance/) | The fastest way to find things across DSR's three subs. |
 | [Get started with Azure CLI](https://learn.microsoft.com/cli/azure/get-started-with-azure-cli) | The CLI is what scripts and runbooks use under the hood. |

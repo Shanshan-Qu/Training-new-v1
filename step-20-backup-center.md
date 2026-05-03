@@ -4,7 +4,6 @@ _The "did last night's backup actually run?" lab._ 🛡️ Builds the operator v
 
 > [!NOTE]
 > **Trainee duration:** 90 minutes
-> **Instructor EDE:** 3.5 hours (1h prep + 1.5h delivery + 1h Q&A buffer)
 > **Lab cost:** under NZD $2 — one tiny VM with a single backup point.
 > **Prerequisites:** Steps 01–05 complete. Familiarity with Recovery Services Vaults helps.
 > **Pairs with:** Module 4 of the DIA training plan (Observability & Reporting). **Backup ownership:** DSR Cloud Platform owns vault configuration and policy; the Preservation Team owns the *daily compliance read* and escalation.
@@ -183,7 +182,7 @@ This template is reused; keep it on hand.
 ## 📚 Self-serve refresher
 
 - [Backup Center query reference](https://learn.microsoft.com/azure/backup/backup-azure-monitoring-built-in-monitor) — every table.
-- [Backup reports schema](https://learn.microsoft.com/azure/backup/backup-reports-data-model) — when you write your own queries.
+- [Configure Backup reports](https://learn.microsoft.com/azure/backup/configure-reports) — when you write your own queries.
 
 ## 💰 Cost note
 

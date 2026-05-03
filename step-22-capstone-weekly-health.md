@@ -4,7 +4,6 @@ _The "Friday morning one-pager" lab._ 🏆 Combines everything from Phase 1–4 
 
 > [!NOTE]
 > **Trainee duration:** 180 minutes (this is a build, not a walkthrough)
-> **Instructor EDE:** 5.0 hours (1h prep + 3h delivery + 1h Q&A buffer)
 > **Lab cost:** $0 — uses the Workbook from Step 18 and queries from Step 17.
 > **Prerequisites:** Steps 01–20 complete. The functions you saved in Step 17 and the Workbook from Step 18 are required inputs.
 > **Pairs with:** Module 4 + Module 5 of the DIA training plan (Observability + Reporting). **This is a Capstone — output is a real deliverable, not a lab artefact.**

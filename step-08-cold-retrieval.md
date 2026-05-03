@@ -4,7 +4,6 @@ _The "why was last month's bill so high?" lab._ 💸 Builds the retrieval-econom
 
 > [!NOTE]
 > **Trainee duration:** 75 minutes
-> **Instructor EDE:** 3.25 hours (1h prep + 1.25h delivery + 1h Q&A buffer)
 > **Lab cost:** under NZD $0.50 — a few small Cold-tier blobs and a single rehydration.
 > **Prerequisites:** Steps 05 + 06 complete.
 > **Pairs with:** Module 2 of the DIA training plan (Storage).
@@ -39,9 +38,9 @@ The DIA digital preservation estate has a long-tail access pattern: most preserv
 
 | Module | Why it matters for ANL |
 |---|---|
-| [Manage Azure Blob Storage lifecycle](https://learn.microsoft.com/training/modules/optimize-blob-storage-costs/) | Sets up tier-cost intuition. |
+| [Hot, Cool, Cold and Archive blob tiers](https://learn.microsoft.com/azure/storage/blobs/storage-blob-storage-tiers) | Sets up tier-cost intuition. |
 | [Rehydrate a blob from Archive](https://learn.microsoft.com/azure/storage/blobs/archive-rehydrate-overview) | The exact mechanism this lab covers. |
-| [Plan and manage costs for Azure Blob Storage](https://learn.microsoft.com/azure/storage/blobs/storage-blob-cost-optimization) | Microsoft's authoritative cost guide. |
+| [Plan and manage costs for Azure Storage](https://learn.microsoft.com/azure/storage/common/storage-plan-manage-costs) | Microsoft's authoritative cost guide. |
 
 About **1 hour** of optional pre-reading.
 
@@ -161,8 +160,8 @@ Use this to triage "why did the bill spike last Thursday?" tickets. The answer i
 
 ## 📚 Self-serve refresher
 
-- [Blob storage pricing — current](https://azure.microsoft.com/pricing/details/storage/blobs/) — for the live numbers.
-- [Reduce costs by managing data lifecycle](https://learn.microsoft.com/azure/storage/blobs/storage-blob-cost-optimization) — Microsoft's authoritative cost-optimisation reference.
+- [Blob storage pricing — current](https://azure.microsoft.com/en-us/pricing/details/storage/blobs/) — for the live numbers.
+- [Plan and manage costs for Azure Storage](https://learn.microsoft.com/azure/storage/common/storage-plan-manage-costs) — Microsoft's authoritative cost-optimisation reference.
 
 ## 💰 Cost note
 

@@ -4,7 +4,6 @@ _The "one-pager that updates itself" lab._ 📈 Builds the parameterised dashboa
 
 > [!NOTE]
 > **Trainee duration:** 90 minutes
-> **Instructor EDE:** 3.5 hours (1h prep + 1.5h delivery + 1h Q&A buffer)
 > **Lab cost:** $0 — Workbooks are free, you reuse the workspace from Step 17.
 > **Prerequisites:** Step 17 complete; the saved KQL functions you built there.
 > **Pairs with:** Module 4 of the DIA training plan (Observability & Reporting).

@@ -4,7 +4,6 @@ _The "front door of Rosetta" lab._ 🚪 Builds operator-level fluency in Applica
 
 > [!NOTE]
 > **Trainee duration:** 120 minutes
-> **Instructor EDE:** 4.0 hours (1h prep + 2h delivery + 1h Q&A buffer)
 > **Lab cost:** under NZD $5 — a small AGW v2 + WAF for an hour. **Delete promptly after.**
 > **Prerequisites:** Steps 01–04, 12 complete.
 > **Pairs with:** Module 3 of the DIA training plan (Application Operations).

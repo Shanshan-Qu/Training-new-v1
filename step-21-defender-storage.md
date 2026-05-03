@@ -4,7 +4,6 @@ _The "what does Cloud Security expect from us?" lab._ 🛡️ Awareness-only wal
 
 > [!NOTE]
 > **Trainee duration:** 60 minutes
-> **Instructor EDE:** 3.0 hours (1h prep + 1h delivery + 1h Q&A buffer)
 > **Lab cost:** $0 — read-only walkthrough.
 > **Prerequisites:** Steps 01–05 complete. Defender already enabled at sub level (DSR Cloud Security owns this).
 > **Pairs with:** Module 4 of the DIA training plan (Observability & Reporting). **Ownership:** DSR Cloud Security owns Defender configuration and alert investigation. The Preservation Team's role is *recognise → escalate*.

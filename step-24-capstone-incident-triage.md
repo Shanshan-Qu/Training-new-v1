@@ -4,7 +4,6 @@ _The "did everything you learned actually stick?" lab._ 🏆 The final Capstone 
 
 > [!NOTE]
 > **Trainee duration:** 180 minutes (four scenarios × ~45 min each)
-> **Instructor EDE:** 6.0 hours (1.5h prep + 3h delivery + 1.5h Q&A buffer — debrief time matters)
 > **Lab cost:** $0 — read-only across the existing estate.
 > **Prerequisites:** Steps 01–22 complete. Confidence in KQL, the Workbooks, and Backup Center.
 > **Pairs with:** Module 3 + Module 4 of the DIA training plan (Application Operations + Observability). **Closes the programme.**

@@ -4,9 +4,8 @@ _The "what is Azure made of, anyway?" lab._ 🧭 Builds the mental model every l
 
 > [!NOTE]
 > **Trainee duration:** 90 minutes
-> **Instructor EDE:** 3.5 hours (1h prep + 1.5h delivery + 1h Q&A buffer)
 > **Lab cost:** under NZD $0.50 — almost everything used here is free metadata. Deployable in your own Azure free-trial subscription.
-> **Prerequisites:** an Azure account (free trial is fine), a modern browser, your DIA work email allowed to sign in to a personal subscription.
+> **Prerequisites:** Your personal Azure sandbox is set up — see [lab-environment-setup.md](lab-environment-setup.md). A modern browser. Your DIA work email allowed to sign in to a personal subscription.
 > **Pairs with:** Module 1 of the DIA training plan (Foundations).
 
 ---

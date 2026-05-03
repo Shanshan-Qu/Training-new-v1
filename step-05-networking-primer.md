@@ -4,7 +4,6 @@ _The "I'm not configuring this, I just need to read it" lab._ 🌐 Builds enough
 
 > [!NOTE]
 > **Trainee duration:** 90 minutes
-> **Instructor EDE:** 3.5 hours (1h prep + 1.5h delivery + 1h Q&A buffer)
 > **Lab cost:** under NZD $1 — small VNet, NSG, and a single private endpoint. All free or near-free.
 > **Prerequisites:** Steps 01–03 complete.
 > **Pairs with:** Module 1 of the DIA training plan (Foundations) — addresses Emma's "Guardrails & Governance" feedback by showing where network controls live.

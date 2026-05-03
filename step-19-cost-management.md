@@ -4,7 +4,6 @@ _The "where is the money going?" lab._ 💰 Builds the muscle for Monthly Cost R
 
 > [!NOTE]
 > **Trainee duration:** 90 minutes
-> **Instructor EDE:** 3.5 hours (1h prep + 1.5h delivery + 1h Q&A buffer)
 > **Lab cost:** $0 — Cost Management is free.
 > **Prerequisites:** Steps 01–11 complete (you've created enough resources to see real cost data).
 > **Pairs with:** Module 5 of the DIA training plan (Reporting). Feeds directly into the Phase 5 Capstone (Step 23 — Monthly Cost Report).
@@ -39,7 +38,7 @@ The Preservation Team owns the Monthly Cost Report for ANL. Cost Management is t
 
 | Module | Why it matters for ANL |
 |---|---|
-| [Get started with Cost Management](https://learn.microsoft.com/training/modules/get-started-cost-management/) | The basics. |
+| [Describe Azure Cost Management](https://learn.microsoft.com/training/modules/describe-cost-management-azure/) | The basics. |
 | [Optimize costs with Cost Management](https://learn.microsoft.com/azure/cost-management-billing/costs/cost-mgt-best-practices) | The patterns DSR follows. |
 | [Schedule a cost export](https://learn.microsoft.com/azure/cost-management-billing/costs/tutorial-export-acm-data) | The export pattern feeding the Capstone. |
 

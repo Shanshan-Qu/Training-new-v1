@@ -4,7 +4,6 @@ _The "this is the heart of your day job" lab._ 💾 Builds deep working knowledg
 
 > [!NOTE]
 > **Trainee duration:** 90 minutes
-> **Instructor EDE:** 3.5 hours (1h prep + 1.5h delivery + 1h Q&A buffer)
 > **Lab cost:** under NZD $0.50 — two tiny storage accounts and a few KB of blob data.
 > **Prerequisites:** Steps 01–04 complete.
 > **Pairs with:** Module 2 of the DIA training plan (Storage) — addresses Emma's "storage focus throughout" feedback.
@@ -41,7 +40,7 @@ The Preservation Team owns the day-to-day operations of the storage accounts tha
 
 | Module | Why it matters for ANL |
 |---|---|
-| [Introduction to Azure Storage](https://learn.microsoft.com/training/modules/intro-to-azure-storage/) | The model behind every account in DSR. |
+| [Azure Storage fundamentals](https://learn.microsoft.com/training/modules/azure-storage-fundamentals/) | The model behind every account in DSR. |
 | [Choose a redundancy option](https://learn.microsoft.com/azure/storage/common/storage-redundancy) | Understand why DSR uses ZRS in NZ North. |
 | [Configure storage account network security](https://learn.microsoft.com/training/modules/secure-azure-storage-account/) | The firewall pattern protecting Rosetta data. |
 | [Performance tiers and access tiers](https://learn.microsoft.com/azure/storage/blobs/access-tiers-overview) | Foundation for Steps 06 & 07 on lifecycle and retrieval. |
