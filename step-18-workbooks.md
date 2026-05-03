@@ -173,5 +173,5 @@ This is how DSR keeps Workbooks reproducible across environments.
 
 ---
 
-⬅️ **Previous:** [Step 17 — Log Analytics & KQL for storage and VMs](step-17-log-analytics-kql.md)
+⬅️ **Previous:** [Step 17 — Azure Monitor: Logs, Metrics & Alerts](step-17-azure-monitor.md)
 ➡️ **Next:** [Step 19 — Cost Management for an application owner](step-19-cost-management.md)

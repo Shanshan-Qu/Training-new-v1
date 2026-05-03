@@ -227,4 +227,4 @@ az network nic delete -g rg-labs-foundations-<your-initials> -n vm-wod-labVMNic
 ---
 
 ⬅️ **Previous:** [Step 15 — Oracle on Azure (read-only ops)](step-15-oracle-on-azure.md)
-➡️ **Next:** [Step 17 — Log Analytics & KQL for storage and VMs](step-17-log-analytics-kql.md) (Phase 4 begins)
+➡️ **Next:** [Step 17 — Azure Monitor: Logs, Metrics & Alerts](step-17-azure-monitor.md) (Phase 4 begins)

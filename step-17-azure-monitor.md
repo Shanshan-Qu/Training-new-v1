@@ -369,27 +369,38 @@ This is a free signal — no metric, no log query — but covers the worst kinds
 
 Azure Monitor charges across **four** independent dimensions. Most surprises in the bill come from #2 (ingestion) and #4 (log alerts).
 
-### 1. Log Analytics workspace (LAW) itself
+### 1. Log Analytics workspace (LAW) — three ingestion plans
 
-| Item | Price (Australia East, NZD) | Notes |
-|---|---|---|
-| Workspace creation/existence | **Free** | You are charged only on ingestion + retention. |
-| Pay-as-you-go ingestion | **~NZD $4.30 / GB** | Above the free tier. |
-| Free tier | First **5 GB / workspace / month** | Enough for the whole lab (lab volume <100 MB). |
-| Commitment tiers (100 GB/day +) | ~15–30% discount | DSR PROD is a candidate when ingestion stabilises. |
-| Basic Logs | **~NZD $0.85 / GB** ingest, **$0.0075/GB** scanned | Cheap for verbose, rarely-queried tables (e.g. `StorageBlobLogs` raw). 8-day retention. |
-| Auxiliary Logs (preview) | Even cheaper than Basic | Long-term archive of low-value logs. |
+Azure Monitor Logs offers **three table plans** that change ingestion price, query price, retention behaviour and feature support. Choosing the right plan per table is the single biggest cost lever.
+
+| Dimension | **Analytics** (default) | **Basic Logs** | **Auxiliary Logs** (preview) |
+|---|---|---|---|
+| **Ingestion price** (Australia East, NZD, indicative) | ~**$4.30 / GB** | ~**$0.85 / GB** (≈ 5× cheaper) | ~**$0.25 / GB** (≈ 17× cheaper) |
+| **Query price** | Free (included) | ~**$0.0075 / GB scanned** | ~**$0.0075 / GB scanned** |
+| **Interactive retention** | Up to **31 days free**, then per-GB | **30 days** (fixed) | **30 days** (fixed) |
+| **Long-term retention** | Add archive (up to 12 yrs) | Add archive (up to 12 yrs) | Add archive (up to 12 yrs) |
+| **Query language** | Full KQL | KQL **subset** (no joins, no `make-series`) | KQL subset, simple filter/project |
+| **Alerts** | ✅ Log alerts supported | ❌ Not supported | ❌ Not supported |
+| **Workbooks / dashboards** | ✅ | ⚠️ Limited | ⚠️ Limited |
+| **Best for** | Tables you query, alert on, or join | High-volume verbose tables you rarely read (storage `StorageBlobLogs`, AGW access logs) | Compliance/audit logs you keep "just in case" |
+
+> [!IMPORTANT]
+> A table's plan can be changed in-place: **Log Analytics workspace → Tables → … → Manage table → Table plan**. Plan change applies to *future* ingested data only.
+
+Other LAW pricing notes:
+
+- **Workspace itself is free** — you only pay for ingestion + retention.
+- **Free tier:** the first **5 GB / workspace / month** of Analytics ingestion is free (enough for the whole lab).
+- **Commitment tiers** (100 / 200 / 500 / 1 000 / 2 000 / 5 000 GB per day) give 15–30% off Analytics ingestion. Worth considering once your daily volume is stable.
 
 ### 2. Log retention (the silent line item)
 
 | Tier | Free retention | Beyond | Cost beyond free |
 |---|---|---|---|
 | Analytics Logs (default) | **31 days free** | Per GB-month | ~NZD $0.18 / GB / month |
+| Basic / Auxiliary Logs | 30 days fixed (no extension) | n/a | n/a — move to archive |
 | Sentinel-enabled workspace | **90 days free** | Per GB-month | ~NZD $0.18 / GB / month |
 | Archive tier | n/a | 1 day to 12 years | ~NZD $0.04 / GB / month + per-GB restore fee |
-
-> [!IMPORTANT]
-> DSR's policy is **90-day analytics + 2-year archive** for `StorageBlobLogs` and `AzureActivity`. That's where most of Azure Monitor's monthly spend lives.
 
 ### 3. Metrics
 
@@ -401,12 +412,12 @@ Azure Monitor charges across **four** independent dimensions. Most surprises in 
 
 ### 4. Alerts
 
-| Alert type | Price (per rule, per month) | Latency | DSR usage |
+| Alert type | Price (per rule, per month) | Latency | Typical use |
 |---|---|---|---|
-| **Metric alert** | ~NZD $0.20 per signal | ~1 min | ~10 in DSR PROD (storage availability, AGW health, VM CPU) |
-| **Log (scheduled-query) alert** — 5-min frequency | ~NZD $1.50 | 5 min min | ~6 in DSR PROD (5xx bursts, soft-delete misuse, immutability changes) |
-| **Log alert** — 1-min frequency | ~NZD $4.50 | 1 min | Use sparingly |
-| **Activity Log alert** | **Free** | seconds | Use freely (e.g. "storage account deleted") |
+| **Metric alert** | ~NZD $0.20 per signal | ~1 min | Storage availability, AGW health, VM CPU |
+| **Log (scheduled-query) alert** — 5-min frequency | ~NZD $1.50 | 5 min min | 5xx bursts, soft-delete misuse, immutability changes |
+| **Log alert** — 1-min frequency | ~NZD $4.50 | 1 min | Use sparingly — sev-1 only |
+| **Activity Log alert** | **Free** | seconds | "Storage account deleted", role assignment changes |
 | **Smart Detection** (App Insights) | Free | varies | Off for DSR |
 
 ### 5. Action groups & notifications
@@ -427,20 +438,85 @@ Azure Monitor charges across **four** independent dimensions. Most surprises in 
 - Action group: **$0**.
 - **Total expected lab spend: under NZD $0.50.**
 
-### DSR PROD monthly estimate (for context)
+---
 
-| Bucket | Estimate | Notes |
+### 🧮 Worked example — 10 GB/day workspace
+
+> [!NOTE]
+> The numbers below are **illustrative only**, computed from the public price list. They are **not** based on DSR billing. To get DSR's real number, run the KQL query at the end of this section against the production workspace.
+
+**Assumptions** (so you can recompute):
+- Region: Australia East, prices in NZD, **indicative** (always check [Azure Monitor pricing](https://azure.microsoft.com/en-us/pricing/details/monitor/))
+- Daily ingestion: **10 GB/day** = 300 GB/month
+- Free Analytics tier: 5 GB/month deducted
+- Retention: 90 days analytics for everything
+- Alerts: **8 metric** + **4 log (5-min)** + **5 activity-log** rules
+- Notifications: 1 action group, email only
+
+#### Scenario A — Everything on **Analytics** plan (status quo for most teams)
+
+| Component | Calc | Cost / month (NZD) |
 |---|---|---|
-| LAW ingestion (~30 GB/day) | ~NZD $3,300 / month | Mostly `StorageBlobLogs` + `AzureActivity` + AGW logs |
-| 90-day analytics retention | ~NZD $480 / month | |
-| 2-year archive | ~NZD $260 / month | |
-| Metric alerts (~10) | ~NZD $2 / month | |
-| Log alerts (~6 @ 5-min) | ~NZD $9 / month | |
-| Action groups + email | $0 | |
-| **Total Azure Monitor (PROD)** | **~NZD $4,050 / month** | Largest single dimension is ingestion — see Step 19 for cost optimisation levers. |
+| Ingestion | (300 − 5) × $4.30 | **$1 268.50** |
+| Retention 31→90 days | 295 GB × (90 − 31)/30 × $0.18 | **$104.43** |
+| Metric alerts (8) | 8 × $0.20 | $1.60 |
+| Log alerts (4 @ 5-min) | 4 × $1.50 | $6.00 |
+| Activity Log alerts (5) | free | $0.00 |
+| Action group + email | free | $0.00 |
+| **Total** | | **~$1 380 / month** |
+
+#### Scenario B — **Mixed plan** (high-volume tables on Basic, audit on Auxiliary)
+
+Assume the 10 GB/day breaks down as:
+- 6 GB/day → high-volume, rarely-queried tables (`StorageBlobLogs`, `AGWAccessLogs`) → **Basic Logs**
+- 1 GB/day → compliance/audit tables (`AzureActivity`, role changes) → **Auxiliary Logs**
+- 3 GB/day → tables you actively query and alert on (`Heartbeat`, `Perf`, `AzureDiagnostics` for AGW firewall) → **Analytics**
+
+| Component | Calc | Cost / month (NZD) |
+|---|---|---|
+| Analytics ingestion | (3 × 30 − 5) × $4.30 | **$365.50** |
+| Basic Logs ingestion | 6 × 30 × $0.85 | **$153.00** |
+| Auxiliary Logs ingestion | 1 × 30 × $0.25 | **$7.50** |
+| Query scans on Basic/Aux | est. 5 GB scanned/month × $0.0075 | $0.04 |
+| Retention 31→90 d (Analytics only) | 90 GB × 59/30 × $0.18 | **$31.86** |
+| Metric alerts (8) | 8 × $0.20 | $1.60 |
+| Log alerts (4 @ 5-min) — note: only against Analytics tables | 4 × $1.50 | $6.00 |
+| Activity Log alerts (5) | free | $0.00 |
+| Action group + email | free | $0.00 |
+| **Total** | | **~$565 / month** |
+
+#### Savings summary
+
+| Scenario | Monthly cost | Savings vs A | % saved |
+|---|---|---|---|
+| **A — All Analytics** | ~$1 380 | — | — |
+| **B — Mixed plan** | ~$565 | ~$815 / month | **~59%** |
+
+**Trade-offs to flag with Emma before moving any DSR table to Basic/Auxiliary:**
+1. You can no longer set **log alerts** against Basic/Auxiliary tables (metric alerts on the same resource still work).
+2. Query language is a **subset** of KQL (no `join`, no `make-series`, limited transforms).
+3. Workbook tiles backed by Basic/Aux tables may need rewriting.
+4. Plan changes apply to **future** data only — historical data stays on whatever plan it was ingested under.
 
 > [!TIP]
-> The single biggest ingestion saver is **moving `StorageBlobLogs` to Basic Logs** (when query patterns allow). In DSR that would cut ingestion cost by ~40%. We test this hypothesis in Step 19.
+> Before changing any DSR table's plan, run a 30-day audit: "Which alerts query this table? Which workbook tiles? Which saved queries?" If the answer is "none in the last 90 days", it's a Basic Logs candidate. We do this audit hands-on in **Step 19 — Cost Management**.
+
+#### How to get the **real** DSR ingestion number
+
+Run this KQL in the DSR Log Analytics workspace (Reader is enough):
+
+```kusto
+// Last 30 days of billable ingestion, grouped by table
+Usage
+| where TimeGenerated > ago(30d)
+| where IsBillable == true
+| summarize BillableGB = sum(Quantity) / 1000 by DataType
+| order by BillableGB desc
+```
+
+Then either:
+- Multiply each row by the regional Analytics rate, or
+- Open **Cost Management → Cost analysis** in the DSR subscription and filter Service name = "Log Analytics" / "Azure Monitor" for the authoritative actual spend.
 
 ```bash
 # Cleanup (only if you don't want to keep the workspace)
