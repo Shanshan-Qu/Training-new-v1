@@ -1,11 +1,11 @@
-# Step 16 — Log Analytics & KQL for storage and VMs
+# Step 16 — Azure Monitor: Logs, Metrics & Alerts
 
-_The "I can find any log in 30 seconds" lab._ 🔎 Phase 4 opens with the single most-used skill of your operations role: writing KQL queries against the Log Analytics workspace that ingests every signal from DSR.
+_The "I can find any log in 30 seconds AND get paged when things break" lab._ 🔎🔔 Phase 4 opens with the single most-used skill of your operations role: querying the Log Analytics workspace, reading platform metrics, and configuring alerts that page you when DSR misbehaves.
 
 > [!NOTE]
-> **Trainee duration:** 120 minutes
-> **Instructor EDE:** 4.0 hours (1h prep + 2h delivery + 1h Q&A buffer)
-> **Lab cost:** under NZD $1 — small workspace, free-tier ingestion volume.
+> **Trainee duration:** 180 minutes
+> **Instructor EDE:** 5.0 hours (1h prep + 3h delivery + 1h Q&A buffer)
+> **Lab cost:** under NZD $1 — small workspace, free-tier ingestion volume, alerts are free for the first few rules.
 > **Prerequisites:** Steps 01–15 complete (this lab pulls together signals from every prior step).
 > **Pairs with:** Module 4 of the DIA training plan (Observability & Reporting).
 
@@ -13,15 +13,19 @@ _The "I can find any log in 30 seconds" lab._ 🔎 Phase 4 opens with the single
 
 ## 📖 Session overview
 
-In Phase 1–3 you saw KQL queries scattered across labs — Resource Graph in Step 02, AzureDiagnostics in Step 13, Heartbeat in Step 12. This lab makes that fluency explicit. You'll create a small workspace, send VM and storage diagnostic data into it, and build the queries you'll actually run during incidents and reporting cycles. By the end you can find any signal across the DSR estate without copy-pasting somebody else's query.
+In Phase 1–3 you saw KQL queries scattered across labs — Resource Graph in Step 02, AzureDiagnostics in Step 13, Heartbeat in Step 12. This lab makes that fluency explicit, then builds on top of it the second half of an operator's day: **metrics and alerts**. You'll create a small workspace, send VM and storage signals into it, build the queries you'll run during incidents and reporting cycles, then wire those signals into **metric alerts**, **log alerts**, and **action groups** that page the on-call.
+
+By the end you can both find any signal across the DSR estate AND be notified automatically when one of them breaches.
 
 **What you'll learn**
 - Log Analytics workspace structure: tables, retention, ingestion rate, daily caps.
 - The five tables that matter most for our role: `Heartbeat`, `AzureDiagnostics`, `AzureMetrics`, `Syslog`, `StorageBlobLogs`.
 - KQL fundamentals: `where`, `project`, `summarize`, `extend`, `bin`, `join`, `render`.
-- How to **save queries** as functions and pin them to a dashboard.
-- How to **read existing DSR queries** in the runbooks without retyping them.
-- The cost model — what makes a query expensive and how to scope it.
+- The **Azure Monitor metrics** blade — platform metrics vs custom metrics, splitting, multi-resource charts.
+- **Metric alerts** vs **log (scheduled-query) alerts** — when to use which.
+- **Action groups** — email, SMS, Teams webhook, ITSM ticket.
+- How to pin saved queries and metric charts to dashboards (Step 17 builds on this).
+- The cost model — what makes a query expensive, what alerts cost.
 
 ## 💡 Jargon buster
 
@@ -36,6 +40,10 @@ In Phase 1–3 you saw KQL queries scattered across labs — Resource Graph in S
 | **Retention** | How long the table keeps data. Default 30 days; can extend per table. |
 | **Ingestion cap** | A hard daily ceiling to stop runaway costs. |
 | **KQL** | Kusto Query Language — read-only, Splunk-like, very fast for time-bounded queries. |
+| **Platform metric** | A pre-aggregated numeric series emitted free by every Azure resource (CPU%, Transactions, Latency). 1-minute granularity, 93-day retention. |
+| **Metric alert** | An alert that fires when a platform metric breaches a threshold. Cheap (~NZD $0.20/month per signal), evaluates every minute. |
+| **Log (scheduled-query) alert** | An alert that runs a KQL query on a schedule and fires on the result. Powerful but slower (5-min minimum) and costs per evaluation. |
+| **Action group** | A reusable bundle of "what to do when an alert fires" — emails, SMS, Teams webhook, runbook, ITSM ticket. |
 
 ## 📚 Prepare in advance — Microsoft Learn
 
@@ -44,8 +52,10 @@ In Phase 1–3 you saw KQL queries scattered across labs — Resource Graph in S
 | [Introduction to Kusto Query Language](https://learn.microsoft.com/training/modules/intro-to-kusto/) | The core mental model — same dialect as Resource Graph and App Insights. |
 | [Analyze your Azure infrastructure with Log Analytics](https://learn.microsoft.com/training/modules/analyze-infrastructure-log-data/) | Practical query patterns for ops. |
 | [Write efficient KQL queries](https://learn.microsoft.com/azure/data-explorer/kusto/query/best-practices) | Cost and performance shaping — read this once. |
+| [Improve incident response with alerts on Azure](https://learn.microsoft.com/training/modules/incident-response-with-alerting-on-azure/) | Metric vs log alerts, action groups, alert processing rules. |
+| [Analyze metrics from your Azure resource](https://learn.microsoft.com/training/modules/analyze-azure-infrastructure-by-using-azure-monitor-logs/) | The metrics blade — splitting, multi-resource, pinning. |
 
-About **2.5 hours** of optional pre-reading.
+About **4 hours** of optional pre-reading.
 
 ## 🧱 Foundational primer
 
@@ -216,12 +226,123 @@ Usage
 
 Use this to spot a runaway ingest source. Common culprits: a VM with verbose diagnostic logs, a misconfigured Diagnostic Setting sending Audit data unintentionally.
 
+## ⌨️ Activity 8 — The Azure Monitor metrics blade
+
+Logs and metrics are two different pipelines. **Metrics** are pre-aggregated, free, 1-minute granularity, 93-day retention — perfect for fast charts and cheap alerting. You don't need a Diagnostic Setting; every Azure resource emits platform metrics by default.
+
+1. Portal → **Monitor → Metrics**.
+2. **Scope:** pick the storage account from Step 05.
+3. **Metric namespace:** *Account*. **Metric:** `Transactions`. **Aggregation:** Sum.
+4. The chart appears. Change time range to **Last 24 hours**.
+5. Click **Apply splitting → API name** — now you see Read/Write/Delete broken out.
+6. Click **+ Add metric → Availability** (Avg). You now have a two-line chart.
+7. Click **Save to dashboard → Pin to dashboard**. You'll reuse this in Step 17 (Workbooks).
+
+Repeat for a VM:
+
+1. Scope: your lab VM. Metric: `Percentage CPU` (Avg). Splitting: none.
+2. Add a second chart for `Available Memory Bytes`.
+3. Add `Disk Read Operations/Sec` + `Disk Write Operations/Sec` as a third chart.
+
+> [!TIP]
+> The metrics blade has a **Multi-resource** mode — pick all `STANLNZN*` accounts at once and chart Transactions across all of them on one canvas. This is exactly the view you want during a "is it just one account or all of them?" incident.
+
+## ⌨️ Activity 9 — Create a metric alert (storage availability)
+
+Goal: page on-call when storage availability drops below 99% for 5 consecutive minutes.
+
+1. Portal → **Monitor → Alerts → + Create → Alert rule**.
+2. **Scope:** your lab storage account.
+3. **Condition → See all signals → Availability** (Platform metric).
+4. Threshold: **Static**, **Less than 99**, aggregation **Average**, granularity **1 minute**, evaluation frequency **1 minute**.
+5. **Actions:** click **+ Create action group** (next activity creates one — circle back here after).
+6. **Details:**
+   - Severity: **2 — Warning**
+   - Name: `alert-stg-availability-lab`
+   - Description: "Storage availability < 99% over 5 min"
+7. Save.
+
+Cost: ~NZD $0.20/month per signal monitored. DSR runs ~10 of these in production.
+
+## ⌨️ Activity 10 — Create an action group
+
+Action groups define **what happens** when an alert fires. They're reusable across alert rules.
+
+1. Portal → **Monitor → Alerts → Action groups → + Create**.
+2. RG: `rg-labs-foundations-<initials>`. Name: `ag-lab-oncall-<initials>`. Display name (12 chars max): `LabOnCall`.
+3. **Notifications tab:**
+   - Email: your address. Name: `me`.
+   - (Optional) SMS: your mobile. Country code 64 for NZ.
+4. **Actions tab (optional but real-world):**
+   - **Webhook → Teams incoming webhook URL** (if you have one for your team channel).
+   - **ITSM** if DIA uses ServiceNow / Jira to receive alerts.
+   - **Automation runbook** to auto-remediate (e.g. restart a VM).
+5. Create. Test it: **Test action group → Email** → confirm you receive the test mail.
+
+In production DSR runs at least three action groups:
+- `ag-anl-prd-critical` — pages on-call (SMS + Teams + ITSM ticket).
+- `ag-anl-prd-warning` — Teams + email only.
+- `ag-anl-prd-cost` — email to FinOps mailbox for budget alerts.
+
+Now go back to your alert rule from Activity 9 and attach `LabOnCall`.
+
+## ⌨️ Activity 11 — Create a log (scheduled-query) alert
+
+Use this when the condition is too complex for a single metric — e.g. "more than 50 5xx storage errors against any single account in the last 15 min".
+
+1. Workspace → **Logs**. Paste:
+
+```kql
+StorageBlobLogs
+| where TimeGenerated > ago(15m)
+| where StatusCode >= 500
+| summarize errors = count() by AccountName
+| where errors > 50
+```
+
+2. Run it once to confirm syntax.
+3. **+ New alert rule** (top of the query window).
+4. **Condition:**
+   - Measurement: **Number of results**.
+   - Operator: **Greater than 0**.
+   - Frequency: 5 min. Lookback: 15 min.
+5. **Actions:** attach `LabOnCall`.
+6. **Details:** Severity 2, name `alert-stg-5xx-burst-lab`.
+7. Save.
+
+Cost: ~NZD $1.50/month per rule (5-min frequency). Production DSR runs ~6 of these.
+
+## ⌨️ Activity 12 — Activity Log alerts (audit)
+
+Different beast: alerts on **control-plane events** like "someone deleted a storage account".
+
+1. Portal → **Monitor → Alerts → + Create → Alert rule**.
+2. **Scope:** subscription level.
+3. **Condition → See all signals → Activity Log → Administrative → Delete Storage Account**.
+4. Action: `LabOnCall`. Severity: **0 — Critical**.
+5. Save.
+
+This is a free signal — no metric, no log query — but covers the worst kinds of "who deleted prod?" events.
+
+## ⌨️ Activity 13 — Inspect alert state and history
+
+1. Portal → **Monitor → Alerts → Alerts (fired)** — see currently firing.
+2. **Alert rules** — see all rules across the sub.
+3. Click any rule → **History** — past fires, ack'd state, resolved time.
+4. **Action groups → your group → Action history** — was the email/SMS actually delivered?
+
+> [!TIP]
+> When triaging an incident, always check **Alert history** first to see whether monitoring caught it. If a real outage didn't fire an alert, you have a monitoring gap to fix afterwards.
+
 ## 🦾 Now your turn!
 
 1. Write the KQL for "show every storage account in the workspace, with its 95th-percentile blob op latency over the last 24 hours, sorted descending".
 2. Save your "five weekly queries" as functions named `Anl1HeartbeatGaps`, `Anl2StorageErrors`, etc. (Use a consistent prefix.)
 3. Find the **Log Analytics ingestion alerts** feature — set up an alert when daily ingestion exceeds 5 GB.
 4. Read the existing DSR runbook section for "AGW backend unhealthy" — what's the saved function name? Run it for the last hour.
+5. **Build a metric alert** for "VM CPU > 90% for 10 minutes" on your lab VM, using `LabOnCall`.
+6. **Build a log alert** for "any Heartbeat gap > 10 minutes" on any VM in the workspace.
+7. Trigger one of your alerts on purpose (e.g. stress the VM CPU with `stress-ng`) and confirm you receive the notification end-to-end.
 
 ## ✅ Success checklist
 
@@ -230,22 +351,37 @@ Use this to spot a runaway ingest source. Common culprits: a VM with verbose dia
 - [ ] You've wired a VM and a storage account into your workspace.
 - [ ] You can save and reuse a function.
 - [ ] You can spot a query that's expensive (no time filter, scans wide tables).
-- [ ] You've **deleted** the lab workspace if it isn't needed beyond the lab.
+- [ ] You can read a platform metric chart with splitting and multi-resource scope.
+- [ ] You've created **at least one metric alert**, **one log alert**, and **one Activity Log alert**.
+- [ ] You've created an **action group** and tested it (received a real email/SMS).
+- [ ] You can explain when to use a metric alert vs a log alert.
+- [ ] You've **deleted** the lab workspace and alert rules if they aren't needed beyond the lab.
 
 ## 📚 Self-serve refresher
 
 - [KQL quick reference](https://learn.microsoft.com/azure/data-explorer/kql-quick-reference) — every operator on one page.
 - [Diagnostic Settings reference](https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings) — what categories ship to which table.
+- [Azure Monitor alerts overview](https://learn.microsoft.com/azure/azure-monitor/alerts/alerts-overview) — metric vs log vs activity log, action groups, alert processing rules.
+- [Supported metrics with Azure Monitor](https://learn.microsoft.com/azure/azure-monitor/reference/supported-metrics/metrics-index) — every platform metric, by resource type.
 
 ## 💰 Cost note
 
 - Workspace itself: free.
 - Per GB ingestion: ~NZD $4.30/GB after free 5 GB/month tier. Lab volume <100 MB: $0.
 - Retention beyond 31 days: per-GB-month fee. Default 30 days = free.
+- Metric alerts: ~NZD $0.20/month per signal monitored.
+- Log alerts: ~NZD $1.50/month per rule at 5-min frequency.
+- Activity Log alerts: free.
+- Action group: free; SMS has per-message charge (~NZD $0.05).
 
 ```bash
 # Cleanup (only if you don't want to keep the workspace)
 az monitor log-analytics workspace delete -g rg-labs-foundations-<your-initials> -n law-lab-<initials> --yes
+
+# Delete lab alert rules
+az monitor metrics alert delete -g rg-labs-foundations-<your-initials> -n alert-stg-availability-lab
+az monitor scheduled-query delete -g rg-labs-foundations-<your-initials> -n alert-stg-5xx-burst-lab
+az monitor action-group delete -g rg-labs-foundations-<your-initials> -n ag-lab-oncall-<your-initials>
 ```
 
 ---

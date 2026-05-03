@@ -50,7 +50,7 @@ Starts at zero Azure knowledge; finishes at "I can operate our preservation syst
 ### Observability & Cost
 | # | Module |
 |---|---|
-| 16 | [Log Analytics & KQL for storage and VMs](step-16-log-analytics-kql.md) |
+| 16 | [Azure Monitor: Logs, Metrics & Alerts](step-16-log-analytics-kql.md) |
 | 17 | [Azure Monitor Workbooks](step-17-workbooks.md) |
 | 18 | [Cost Management for an application owner](step-18-cost-management.md) |
 
