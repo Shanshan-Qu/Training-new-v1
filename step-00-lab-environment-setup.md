@@ -1,34 +1,43 @@
-# Lab environment setup — your personal Azure sandbox
+# Step 00 — Lab environment setup (your DIA sandbox)
 
 _Read this once, before Step 01. 30–45 minutes._ ✈️
 
 Every lab in this curriculum is hands-on. To run them safely you need your **own** Azure subscription — separate from production DSR — so you can deploy, break, and tear down without risk. This page walks you through getting one and verifying it works.
 
 > [!IMPORTANT]
-> **Do NOT use the production DSR subscription (`dsr-anl-prd`) for any lab.** Use a personal training subscription. All labs include teardown commands so the cost stays under NZD $30 end-to-end.
+> **Do NOT use the production DSR subscription (`dsr-anl-prd`) for any lab.** Use the DIA-issued sandbox below. All labs include teardown commands so DIA's training spend stays minimal.
 
 ---
 
-## 1. Pick a sandbox option
+## 1. Request your DIA-issued sandbox
 
-| Option | Best for | Cost | How |
-|---|---|---|---|
-| **Azure free trial** | Anyone without existing Azure access | $0 (NZD ~$300 credit, 30 days) | Sign up at [azure.microsoft.com/free](https://azure.microsoft.com/free). Requires phone + credit card for verification (no charge unless you exceed the credit). |
-| **DIA-issued sandbox** | If DIA Cloud Platform has provisioned one | $0 — paid by DIA | Ask your team lead or open a request with Cloud Platform: "Sandbox subscription for Preservation Team training, 12 weeks, contributor scope." |
-| **Visual Studio / Microsoft Partner credits** | If you already have an MSDN/VS subscription | Included monthly credit | Sign in at [portal.azure.com](https://portal.azure.com) with your VS account. |
-| **Microsoft Learn Sandbox** | Single MS Learn modules only | Free, 1-hour windows | Activated automatically inside MS Learn modules — does NOT work for these labs (no resource persistence). |
+The Preservation Team uses a **DIA-issued sandbox subscription** for all training labs. It is paid for by DIA, scoped per-trainee, and keeps the same subscription for all 24 modules so your resources persist between sessions.
 
-**Recommendation for the team:** request a **DIA-issued sandbox** so you keep the same subscription for all 24 modules and the cost is zero out-of-pocket.
+**How to request it:**
+
+Contact your team lead or raise a request with **DIA Cloud Platform** with the following details:
+
+> **Subject:** Sandbox subscription for Preservation Team training
+>
+> **Purpose:** 12-week Azure training programme for the Archives Library Digital Preservation Team.
+> **Scope needed:** Contributor on a dedicated sandbox subscription (not DSR PRD/UAT/DEV).
+> **Duration:** 12 weeks from start date.
+> **Tagging:** `purpose=dsr-training`, `owner=<your-email>`, `app_name=training`, `env=lab`.
+
+You should receive: a subscription name (something like `sub-dia-sandbox-<initials>`), confirmation of Contributor RBAC, and the Microsoft Entra tenant to sign in to.
+
+> [!TIP]
+> If your sandbox isn't ready by the time the training starts, ask Cloud Platform whether you can temporarily share another trainee's sandbox with **Reader** access so you don't fall behind.
 
 ---
 
 ## 2. Sign in and verify
 
 1. Open [portal.azure.com](https://portal.azure.com) in your browser.
-2. Sign in with the account from step 1.
+2. Sign in with your DIA work account.
 3. Top-right profile → confirm:
-   - The **directory name** (DIA tenant or your personal tenant)
-   - The **subscription name** (use Switch Directory if you see the wrong one)
+   - The **directory name** is the DIA tenant
+   - The **subscription name** matches the sandbox Cloud Platform issued you (use Switch Directory if you see the wrong one)
 4. Open **Cloud Shell** (the `>_` icon in the top bar). Choose **Bash**. Accept the storage prompt — it costs ~NZD $0.05/month and persists your scripts across sessions.
 5. Run:
 
@@ -36,7 +45,7 @@ Every lab in this curriculum is hands-on. To run them safely you need your **own
    az account show --output table
    ```
 
-   ✅ You should see your subscription name + ID. Save the ID — you'll reference it.
+   ✅ You should see your sandbox subscription name + ID. Save the ID — you'll reference it.
 
 ---
 
@@ -121,8 +130,8 @@ az group list --output table
 
 Before you start Step 01, confirm:
 
-- [ ] You have a personal training Azure subscription (not production)
-- [ ] You can sign in to [portal.azure.com](https://portal.azure.com)
+- [ ] DIA Cloud Platform has issued you a sandbox subscription (not production)
+- [ ] You can sign in to [portal.azure.com](https://portal.azure.com) and see the sandbox
 - [ ] You can open Cloud Shell and `az account show` works
 - [ ] You have a Microsoft Learn account (work email)
 - [ ] You've requested Reader on DSR DEV/UAT (acknowledgement is enough — actual grant can come later)
@@ -133,9 +142,9 @@ Before you start Step 01, confirm:
 
 ## 💰 Total cost expectation across all 24 labs
 
-- **Free trial / DIA sandbox / MPN credits:** $0 out-of-pocket (well within NZD $300 trial credit).
-- **Pay-as-you-go:** ~NZD $20–30 if you tear down between labs.
-- The single most expensive lab is **Step 09 (Azure Files NFS)** at ~NZD $3 if left running >2 hours. Tear down promptly.
+All training spend lands on the DIA-issued sandbox subscription — **$0 out-of-pocket** for trainees. Estimated total spend on the sandbox if every lab is torn down promptly: **~NZD $20–30** across 24 modules.
+
+The single most expensive lab is **Step 09 (Azure Files NFS)** at ~NZD $3 if left running >2 hours. Tear down promptly.
 
 Each lab page has its own cost note + a **Cleanup** command at the end — always run it.
 

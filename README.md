@@ -7,7 +7,7 @@ The curriculum is grounded in the **DIA DSR DPS Azure Application Landing Zone D
 Full timing / EDE accounting is maintained in a separate internal Word document (not in this repo).
 
 > [!IMPORTANT]
-> **Before Step 01**, every trainee must set up their own personal Azure sandbox. Read [lab-environment-setup.md](lab-environment-setup.md) and complete its checklist first.
+> **Before Step 01**, every trainee must request a DIA-issued sandbox subscription. Read [Step 00 — Lab environment setup](step-00-lab-environment-setup.md) and complete its checklist first.
 
 ---
 
@@ -75,7 +75,7 @@ Starts at zero Azure knowledge; finishes at "I can operate our preservation syst
 
 ## 🚦 How to start
 
-1. **Set up your Azure sandbox** — follow [lab-environment-setup.md](lab-environment-setup.md). Don't skip this; every later lab assumes it.
+1. **Set up your sandbox** — follow [Step 00 — Lab environment setup](step-00-lab-environment-setup.md). Don't skip this; every later lab assumes it.
 2. Work through the **Foundations** stream (Modules 01–05) first — every later lab assumes it.
 3. Follow stream order: Storage → Applications → Observability & Cost → Read-only ops → Capstones.
 4. Each module is self-contained markdown — usable for live sessions, self-paced study, or reference for new starters.
