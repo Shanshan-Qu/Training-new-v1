@@ -1,266 +1,180 @@
-# Step 11 — Blob inventory
+# Step 11 — Blob inventory & capacity reporting
 
-_The "what's actually in our storage?" lab._ 📋
+_The "where did all the storage go?" lab._ 📊 Sets up Blob Inventory — the weekly CSV that powers DSR's capacity-by-tier reporting, the Monthly Cost Report, and any "how much is at Cold tier?" question from leadership.
 
 > [!NOTE]
-> **Duration:** 90 minutes
-> **Lab cost:** < NZD $1
-> **Pairs with:** Module 11 of the training plan
+> **Trainee duration:** 90 minutes
+> **Instructor EDE:** 3.5 hours (1h prep + 1.5h delivery + 1h Q&A buffer)
+> **Lab cost:** under NZD $0.50 — one inventory rule and the resulting CSV.
+> **Prerequisites:** Steps 05 + 06 complete.
+> **Pairs with:** Module 2 + Module 5 of the DIA training plan (Storage / Reporting). **Closes Phase 2** — you'll use the inventory CSVs in Phase 4 (Workbooks) and Phase 5 (Capstones).
 
 ---
 
 ## 📖 Session overview
 
-DSR runs **weekly Blob Inventory jobs** on every blob storage account (per § 9.16.1.6 of the design). Each job produces a CSV (or Parquet) listing every blob in the account — name, size, tier, last modified, encryption scope, lease status, and tags. The reports are kept for 365 days. They're the foundation for capacity-by-tier reporting, audit trails, and lifecycle verification.
+Storage Insights gives near-real-time metrics, but for *blob-level* reporting (count by tier, last access date, individual blob size) you need **Blob Inventory**: a scheduled job that writes a CSV (or Parquet) of every blob in a storage account to a destination container, with all the properties you ask for. DSR runs weekly inventory on each storage account; the resulting CSVs feed the Monthly Cost Report and the capacity-by-tier dashboard. This lab gets you fluent in authoring inventory rules, reading the output, and querying it with KQL or Excel.
 
-This session teaches you how to *consume* the inventories that already exist — not how to set them up.
+**What you'll learn**
+- How **Blob Inventory** works (scheduled job, output format, destination container).
+- How to author a **rule**: filters, fields, schedule.
+- How to **read** the resulting CSV — the columns that matter (Name, Size, Tier, LastModified, AccessTier, Snapshot, etc.).
+- How to **import the CSV** into KQL (Log Analytics) for capacity-by-tier queries, or into Excel for tabular reporting.
+- The DSR weekly pattern: rule per storage account, output to a dedicated `inventory` container, retention 90 days.
+- How to spot anomalies (sudden tier shift, unexpected blob growth, snapshot bloat).
 
-## 🎯 What you'll learn
+## 💡 Jargon buster
 
-- What the **Blob Inventory** report actually contains
-- How to **find** the latest inventory CSV
-- How to **read** an inventory CSV with KQL or Excel
-- How to build a **capacity-by-tier** report from the inventory
-- How to build a **capacity-by-prefix** report (Storage Group breakdown)
-- How to **schedule** weekly delivery of inventory-derived reports
+| Term | Plain meaning |
+|---|---|
+| **Blob Inventory** | An Azure Storage feature that writes a CSV/Parquet listing of every blob in an account on a schedule. |
+| **Rule** | A single inventory definition: which container, which fields, which schedule. |
+| **Manifest** | The summary file produced alongside each inventory run. |
+| **Inventory CSV** | The actual blob listing — one row per blob (and optionally per version/snapshot). |
+| **Schema fields** | The columns to include — Name, Size, AccessTier, etc. Choose minimal to keep CSV small. |
+| **Inventory run** | One execution of the rule; produces one CSV + manifest in the destination container. |
 
-## 📚 Before this session — MS Learn pre-work
+## 📚 Prepare in advance — Microsoft Learn
 
-| Module | Time | Why this matters |
-|---|---|---|
-| [Use Azure Storage blob inventory](https://learn.microsoft.com/azure/storage/blobs/blob-inventory) (article) | 25 min | What inventories contain, format options |
-| [Get started with KQL](https://learn.microsoft.com/training/modules/analyze-monitor-data-kusto-query-language/) | 30 min | If you didn't complete it for Module 16 yet |
+| Module | Why it matters for ANL |
+|---|---|
+| [Calculate blob count and total size with inventory](https://learn.microsoft.com/azure/storage/blobs/calculate-blob-count-size) | The exact pattern for the Monthly Cost Report. |
+| [Enable Azure Storage blob inventory reports](https://learn.microsoft.com/azure/storage/blobs/blob-inventory) | The reference for every field. |
+| [Power Query for Excel](https://support.microsoft.com/office/power-query-overview-and-learning-ed614c81-4b00-4291-bd3a-55d80767f81d) | Read the CSV into a refreshable Excel workbook. |
 
-## 🔤 Acronyms used
-
-- **CSV** = Comma-Separated Values
-- **Parquet** = a columnar binary format (smaller files, faster querying than CSV)
-
-## ⏱️ EDE accounting
-
-- Trainee self-paced: 90 min
-- Instructor-led delivery: 1.5h
-- Prep work: 55 min
-- Q&A: 30 min
-- **Total EDE per trainee: ~4.5h**
-
-## 💰 Cost note
-
-- One Standard storage account with inventory enabled: < NZD $1.
-
----
+About **1.5 hours** of optional pre-reading.
 
 ## 🧱 Foundational primer
 
-### What an inventory job produces
+- **Inventory runs daily or weekly.** Pick weekly for typical capacity reporting; daily only for high-velocity accounts.
+- **Output is per-rule, per-run.** Each run writes a folder dated `YYYY/MM/DD/HH-MM-SS/<rule-name>/` in the destination container.
+- **Schema is configurable.** Minimal: Name, Tier, Size. Add what you need; every column adds CSV size and cost.
+- **Versions and snapshots are *optional* in the listing.** Include them when you want to see version overhead.
+- **The CSV is the source of truth for capacity reporting.** Cost Management aggregates differently and lags 24–48h.
+- **Inventory CSVs are themselves blobs** — they accrue cost. Apply lifecycle rule on the inventory container to expire old reports.
+- **Use Parquet for KQL ingestion at scale.** CSV is human-readable; Parquet is columnar and faster for big accounts.
 
-Each weekly run writes a CSV (or Parquet) to a designated container. The schema is configurable — DSR's typical schema:
+## ⌨️ Activity 1 — Author your first inventory rule
 
-| Column | Example |
-|---|---|
-| `Name` | `stct-permrp-01/NLNZ_IE/2024/05/file.warc` |
-| `Creation-Time` | 2024-05-12T11:23:47Z |
-| `Last-Modified` | 2024-05-12T11:23:47Z |
-| `Content-Length` | 1048576 (bytes) |
-| `Access Tier` | Hot / Cool / Cold |
-| `Access Tier Inferred` | true / false |
-| `BlobType` | BlockBlob |
-| `Encryption Scope` | (DSR uses CMK) |
-| `Has Legal Hold` | true / false |
-| `Lease Status` | unlocked |
-| `Tags` | (custom blob tags) |
-
-### Inventory location in DSR
-
-Each blob storage account has a dedicated **inventory container** (e.g. `inventory-reports`). The job writes to:
-
-```
-{account}.blob.core.windows.net/inventory-reports/{rule-name}/{run-id}/
-```
-
-Retention: 365 days (PRD). Older reports are auto-deleted.
-
----
-
-## ⌨️ Activity 1 — Inspect DSR's inventory configuration (read-only)
-
-If you have Reader on DSR DEV/UAT/PRD:
-
-1. Portal → `stanlnznblobprdrosi01` → **Blob inventory**.
-2. **Inventory rules** → list active rules, schedule, target container, format.
-3. Click any rule → see schema (columns) and prefix scope.
-4. **Inventory reports** tab → see the latest run output.
-5. Download a recent CSV (small if filtered by prefix).
-
-## ⌨️ Activity 2 — Set up inventory on your training account
-
-```bash
-RG=rg-training-inv-<your-initials>
-az group create -n $RG -l australiaeast --tags purpose=dsr-training
-
-SA=sttraininv<your-initials>$RANDOM
-az storage account create -n $SA -g $RG -l australiaeast \
-  --sku Standard_LRS --kind StorageV2
-
-KEY=$(az storage account keys list -n $SA -g $RG --query '[0].value' -o tsv)
-
-# Source: where the data lives
-az storage container create -n preservation --account-name $SA --account-key $KEY
-
-# Destination: where the inventory CSV is written
-az storage container create -n inventory-reports --account-name $SA --account-key $KEY
-
-# Upload some sample blobs
-for tier in hot cool cold; do
-  for i in 1 2 3; do
-    echo "sample-$tier-$i" > /tmp/$tier-$i.txt
-    az storage blob upload -c preservation \
-      -n preservation/$tier-prefix/sample-$i.txt -f /tmp/$tier-$i.txt \
-      --account-name $SA --account-key $KEY
-  done
-done
-```
-
-Now configure inventory via portal (CLI for inventory is verbose):
-
-1. Portal → your account → **Blob inventory** → **+ Add inventory rule**.
-2. Name: `weekly-anl-style`
-3. Container: `inventory-reports`
-4. Object type: Blob
-5. Schedule: **Daily** (lab — production uses weekly)
-6. Format: **CSV**
-7. Schema fields: select Name, Last-Modified, Content-Length, Access Tier, Has Legal Hold, BlobType
-8. Filter prefix: leave blank (capture everything)
-9. Save.
+1. Storage account → **Blob inventory → + Add a rule**.
+2. Name: `lab-weekly-inv`. Object type: **Blob** (uncheck Container/Version unless you need them).
+3. Output container: **+ Create new** → name `inventory`. Output format: **CSV**. Schedule: **Weekly**.
+4. Filter — Blob types: BlockBlob. Prefix: leave blank to inventory all.
+5. Schema fields — at minimum:
+   - `Name`
+   - `Content-Length`  (size in bytes)
+   - `BlobType`
+   - `AccessTier`
+   - `LastModified`
+   - `Creation-Time`
+6. Save.
 
 > [!TIP]
-> The first run executes within ~24 hours of saving. For a faster lab, you can simulate the output below.
+> Pick the schema fields the report consumer actually uses. The bigger the schema, the bigger the CSV, the more storage and read transactions cost.
 
-## ⌨️ Activity 3 — Read the inventory CSV (lab simulation)
+## ⌨️ Activity 2 — Trigger an immediate run (read-only walkthrough)
 
-If you can't wait 24h, here's a sample CSV inventory output to practise with:
+Inventory runs are triggered by the schedule — there's no "run now" button. To force one:
+1. Edit the rule's schedule from Weekly → Daily → Save → wait until next 1 AM UTC. (Don't actually do this in lab; we'll just wait for the weekly slot.)
+2. Or use the CLI: `az storage account blob-inventory-policy create/show` to inspect the policy JSON.
+
+For the rest of this lab, use the **sample CSV** below (we'd otherwise need to wait a week):
 
 ```csv
-Name,Last-Modified,Content-Length,Access Tier,Access Tier Inferred,BlobType,Has Legal Hold
-preservation/hot-prefix/sample-1.txt,2026-05-02T01:00:00Z,16,Hot,true,BlockBlob,false
-preservation/hot-prefix/sample-2.txt,2026-05-02T01:00:00Z,16,Hot,true,BlockBlob,false
-preservation/cool-prefix/sample-1.txt,2026-05-01T01:00:00Z,16,Cool,false,BlockBlob,false
-preservation/cool-prefix/sample-2.txt,2026-05-01T01:00:00Z,16,Cool,false,BlockBlob,false
-preservation/cold-prefix/sample-1.txt,2026-04-30T01:00:00Z,16,Cold,false,BlockBlob,false
+Name,Content-Length,BlobType,AccessTier,LastModified,Creation-Time
+container1/wod/2023/jan/page1.warc,524288000,BlockBlob,Cool,2026-04-15T10:23:01.0000000Z,2023-01-12T10:23:01.0000000Z
+container1/wod/2024/jul/page2.warc,318767104,BlockBlob,Hot,2026-04-30T08:11:20.0000000Z,2024-07-08T08:11:20.0000000Z
+container1/ie/aip/00012345.zip,1073741824,BlockBlob,Cold,2026-01-02T22:01:45.0000000Z,2022-08-19T22:01:45.0000000Z
+... (production has millions of rows)
 ```
 
-Save as `/tmp/inventory.csv`.
+## ⌨️ Activity 3 — Capacity-by-tier in Excel
 
-## ⌨️ Activity 4 — Capacity-by-tier (Excel)
+1. Save the sample CSV to your laptop.
+2. Excel → Data → From Text/CSV → import.
+3. Pivot table: Rows = AccessTier; Values = Sum of Content-Length / 1024^3 (GiB).
+4. You now have GB-by-tier in seconds. Add a column for cost-per-tier (Hot $0.03, Cool $0.018, Cold $0.006) and you have the cost-by-tier breakdown for the Monthly Cost Report.
 
-Open `/tmp/inventory.csv` in Excel. Pivot table:
+## ⌨️ Activity 4 — Capacity-by-tier in KQL (production pattern)
 
-- Rows: Access Tier
-- Values: Sum of Content-Length, Count of Name
+When the inventory CSVs are ingested to a Log Analytics workspace (via a small Logic App or Data Factory pipeline — DIA Platform owns this part), you query them like this:
 
-Result:
-
-```
-Tier   | Total bytes | Blob count
-Hot    | 32          | 2
-Cool   | 32          | 2
-Cold   | 16          | 1
-```
-
-This is your **capacity-by-tier weekly report**.
-
-## ⌨️ Activity 5 — Capacity-by-prefix using KQL (advanced)
-
-Upload the CSV to Log Analytics or query directly with `externaldata`:
-
-```kusto
-externaldata (Name:string, LastModified:datetime, ContentLength:long, AccessTier:string, AccessTierInferred:bool, BlobType:string, HasLegalHold:bool)
-[
-  h@"https://<SA>.blob.core.windows.net/inventory-reports/.../inventory.csv"
-]
-with(format='csv', ignoreFirstRecord=true)
-| extend Prefix = tostring(split(Name, '/')[1])
-| summarize TotalBytes = sum(ContentLength), BlobCount = count() by Prefix, AccessTier
-| order by Prefix asc, AccessTier asc
+```kql
+StorageBlobInventory_CL
+| where TimeGenerated > ago(7d)
+| where AccountName_s == "stanlnznblobprdwod01"
+| summarize totalGB = sum(Content_Length_d) / pow(1024, 3) by AccessTier_s
+| order by totalGB desc
 ```
 
-Production use:
+Or by month for trend:
 
-```kusto
-| extend StorageGroup = case(
-    Name startswith "stct-permrp-01/NLNZ_IE/", "NLNZ_IE",
-    Name startswith "stct-permrp-01/NLNZ_File/", "NLNZ_File",
-    Name startswith "stct-permrp-01/Metadata/", "Metadata",
-    Name startswith "stct-permrp-01/SIP/", "SIP",
-    Name startswith "stct-permrp-01/ANZ_IE/", "ANZ_IE",
-    "Other")
-| summarize TotalGB = sum(ContentLength) / 1024 / 1024 / 1024, BlobCount = count() by StorageGroup, AccessTier
+```kql
+StorageBlobInventory_CL
+| where AccountName_s == "stanlnznblobprdwod01"
+| extend month = startofmonth(TimeGenerated)
+| summarize totalGB = sum(Content_Length_d)/pow(1024,3) by month, AccessTier_s
+| render columnchart kind=stacked
 ```
 
-✅ This breaks down DSR by Storage Group and tier — exactly what you'd email weekly.
+## ⌨️ Activity 5 — Set retention on the inventory container
 
-## ⌨️ Activity 6 — Verify legal hold from inventory
+Inventory CSVs are blobs themselves — apply a lifecycle rule.
 
-Inventory includes the `Has Legal Hold` column — use it as a backup verification of Module 10's hold check:
+1. Storage account → **Lifecycle management → + Add rule**.
+2. Name: `expire-inventory-csvs-after-90d`. Filter prefix: `inventory/`.
+3. Action: delete after 90 days since modification.
+4. Save.
 
-```kusto
-... 
-| where HasLegalHold == false
-| where Name startswith "wod-archive/"
-| count
+This is the DSR pattern — keep 90 days of weekly inventories online; archive longer history out of band if needed.
+
+## ⌨️ Activity 6 — Spot anomalies
+
+In the Monthly Cost Report, you'll compare two adjacent inventories:
+
+```kql
+let curr = StorageBlobInventory_CL | where TimeGenerated between (ago(7d) .. now())
+            | summarize totalGB_now = sum(Content_Length_d)/pow(1024,3) by AccessTier_s;
+let prev = StorageBlobInventory_CL | where TimeGenerated between (ago(35d) .. ago(28d))
+            | summarize totalGB_prev = sum(Content_Length_d)/pow(1024,3) by AccessTier_s;
+curr | join prev on AccessTier_s
+| project AccessTier_s, totalGB_now, totalGB_prev,
+          delta_GB = totalGB_now - totalGB_prev,
+          delta_pct = (totalGB_now - totalGB_prev) / totalGB_prev * 100
 ```
 
-Result should always be **0**. Anything else = ALERT.
-
-## ⌨️ Activity 7 — Schedule weekly delivery
-
-Two options:
-
-| Method | Setup | Best for |
-|---|---|---|
-| Logic App | Watches the inventory container, processes the CSV, emails a summary | Code-light, easy to maintain |
-| Azure Automation Runbook | PowerShell script, scheduled weekly | Fits DSR's existing snapshot Runbook pattern |
-| Power BI | Connects to the inventory CSV, refreshes weekly, embedded in Teams | Visual reports |
-
-In production, DSR uses the Runbook pattern. The Preservation Team subscribes to its email output.
-
-## ⌨️ Activity 8 — Tear down
-
-```bash
-az group delete -n $RG --yes --no-wait
-```
-
----
+Any tier with a >20% MoM change is worth flagging in the report.
 
 ## 🦾 Now your turn!
 
-Build the **weekly inventory consumer** — pseudo-script:
-
-1. Find the latest CSV in `inventory-reports/`
-2. Compute capacity-by-tier and capacity-by-storage-group
-3. Compare to last week (delta)
-4. Flag if any tier shifted unexpectedly (>20% change)
-5. Email the team
-
-The exact implementation depends on language — but you should sketch the logic.
-
----
+1. Add a **VersionId** column to your inventory schema and re-run. The CSV now has one row per version — what does the size delta look like vs. base blobs only?
+2. Author a second inventory rule with prefix filter `wod/` only. Compare CSV sizes — should be smaller.
+3. Find the manifest file for one of your runs. Open it and identify: number of objects, total size, schema, completion timestamp.
+4. Write the KQL that answers: "Of the WOD storage account's content, what fraction is older than 365 days but still on Hot tier?"
 
 ## ✅ Success checklist
 
-- [ ] You've inspected DSR's inventory rules
-- [ ] You've configured an inventory rule on your training account
-- [ ] You've read an inventory CSV in Excel and KQL
-- [ ] You've built capacity-by-tier and capacity-by-prefix reports
-- [ ] You've used inventory to verify legal hold
-- [ ] You know how the weekly delivery is scheduled in DSR
+- [ ] You can author an inventory rule and explain every field.
+- [ ] You can read a CSV and produce capacity-by-tier in Excel.
+- [ ] You can write a KQL query that aggregates the inventory by tier.
+- [ ] You understand inventory CSVs are themselves blobs and need their own retention.
+- [ ] You can spot a 20% MoM change between two inventory snapshots.
 
----
+## 📚 Self-serve refresher
+
+- [Inventory schema reference](https://learn.microsoft.com/azure/storage/blobs/blob-inventory#inventory-schema) — every field documented.
+- [Power Query — load CSV from Azure Storage](https://learn.microsoft.com/power-query/connectors/azureblobstorage) — for the Excel-based reports.
 
 ## 💰 Cost note
 
-< NZD $1. Inventory writes are tiny (a few MB per week per account).
+- Inventory rule: free to define.
+- Each run: charged per object enumerated (~$0.002 per 10K objects). For a 50M-object DSR account, ~$10 per run.
+- Output CSVs: regular blob storage cost.
+- 90-day retention via lifecycle: also negligible.
+
+**Cleanup:** disable your inventory rule (or leave it — it's nearly free). Delete the `inventory` container if you want a clean account.
 
 ---
 
-➡️ **Next:** [Step 12 — Rosetta architecture walkthrough](step-12-rosetta-architecture.md)
+⬅️ **Previous:** [Step 10 — Immutability & legal hold](step-10-immutability.md)
+➡️ **Next:** [Step 12 — Rosetta architecture walkthrough](step-12-rosetta-architecture.md) (Phase 3 begins)

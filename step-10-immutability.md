@@ -1,266 +1,175 @@
 # Step 10 — Immutability & legal hold
 
-_The "WOD must never change" lab._ 🔒
+_The "this blob shall not be deleted, by anyone, ever" lab._ ⚖️ Builds the WORM (write-once-read-many) policy fluency the team needs for compliance: time-based retention, legal holds, applying and verifying holds, and recognising what an audit needs.
 
 > [!NOTE]
-> **Duration:** 75 minutes
-> **Lab cost:** < NZD $1
-> **Pairs with:** Module 10 of the training plan
+> **Trainee duration:** 75 minutes
+> **Instructor EDE:** 3.25 hours (1h prep + 1.25h delivery + 1h Q&A buffer)
+> **Lab cost:** under NZD $0.50 — reuses your test storage account.
+> **Prerequisites:** Steps 05 + 06 + 09 complete.
+> **Pairs with:** Module 2 of the DIA training plan (Storage).
 
 ---
 
 ## 📖 Session overview
 
-The **Whole-of-Domain (WOD) archive** is held under a legal hold tag named `WholeOfDomainArchiveHold` (per § 9.15 of the design). Loss of this hold = compliance breach. This session covers immutability — what it is, the difference between **time-based retention** and **legal hold**, how to apply both, and how to verify the WOD legal hold is still in place. The last point is critical: regular verification is the Preservation Team's responsibility.
+Some of DIA's preserved content is subject to legal hold or statutory retention — items must remain unalterable for years or indefinitely, even by Owner-level identities. Azure achieves this through **immutability policies** at the container or blob version level. This lab walks the two flavours (time-based retention + legal hold), shows how to apply and verify them, and how to recognise the impact on lifecycle and deletion operations.
 
-## 🎯 What you'll learn
+**What you'll learn**
+- The difference between **time-based retention** and **legal hold**.
+- The two **scope levels**: container-level (legacy) and **version-level** (current).
+- How a policy progresses through **Unlocked** → **Locked** state and what that means.
+- How retention interacts with versioning, lifecycle, and soft delete.
+- How to **verify** a hold is in place (the audit team's question).
+- DSR's pattern: container-level time-based retention with legal hold for active investigations.
 
-- The difference between **time-based retention** and **legal hold**
-- Container-level vs version-level immutability scope
-- How to **apply** a legal hold tag
-- How to **verify** a legal hold is in place (the weekly check)
-- What happens when someone tries to delete a legally-held blob
-- The escalation path if a hold is found removed
-- How DSR's WOD account uses this exact pattern
+## 💡 Jargon buster
 
-## 📚 Before this session — MS Learn pre-work
+| Term | Plain meaning |
+|---|---|
+| **WORM** | Write Once Read Many — once written, can't be modified or deleted. |
+| **Time-based retention** | Blob is immutable for N days from creation/version date. After that, deletable. |
+| **Legal hold** | Blob is immutable as long as the hold tag exists. Has no automatic expiry. |
+| **Container-level policy** | Applied to the whole container; affects every blob inside. Legacy approach. |
+| **Version-level policy** | Applied per blob version; finer control. Current best practice. |
+| **Unlocked policy** | Reversible — can be modified or removed. Used during testing. |
+| **Locked policy** | Permanent — once locked, retention can only be **extended**, never shortened or removed. |
+| **Hold tag** | A short string label identifying the legal hold (e.g. `case-12345`, `audit-2026`). |
 
-| Module | Time | Why this matters |
-|---|---|---|
-| [Configure immutable storage](https://learn.microsoft.com/azure/storage/blobs/immutable-storage-overview) (article) | 25 min | Concepts and terminology |
-| [Manage immutable blobs](https://learn.microsoft.com/azure/storage/blobs/immutable-policy-configure-version-scope) (article) | 25 min | The CLI/PowerShell commands you'll use |
+## 📚 Prepare in advance — Microsoft Learn
 
-## 🔤 Acronyms used
+| Module | Why it matters for ANL |
+|---|---|
+| [Immutable storage for blobs](https://learn.microsoft.com/azure/storage/blobs/immutable-storage-overview) | The exact mechanism DSR uses. |
+| [Configure immutability policies](https://learn.microsoft.com/azure/storage/blobs/immutable-policy-configure-version-scope) | Step-by-step for version-level policies. |
+| [Compliance with WORM storage](https://learn.microsoft.com/azure/compliance/offerings/offering-cohasset-immutable-blob-storage) | DIA's audit/compliance reference. |
 
-- **WORM** = Write Once Read Many (the regulatory term)
-
-## ⏱️ EDE accounting
-
-- Trainee self-paced: 75 min
-- Instructor-led delivery: 1.25h
-- Prep work: 1h
-- Q&A: 30 min
-- **Total EDE per trainee: ~4h**
-
-## 💰 Cost note
-
-- < NZD $1.
-
----
+About **1.5 hours** of optional pre-reading.
 
 ## 🧱 Foundational primer
 
-### Two flavours of immutability
+- **Time-based + legal hold can coexist.** A blob can have a 5-year retention *and* a legal hold; both must be released for the blob to become deletable.
+- **A locked policy cannot be shortened or removed.** Even Owner cannot. This is the point of the feature.
+- **Immutability survives subscription cancellation.** Microsoft cannot delete the data while a locked policy is active.
+- **Lifecycle rules cannot delete immutable blobs.** A "delete after 1 year" rule will skip blobs whose retention hasn't elapsed.
+- **Versioning + immutability is the strongest pairing.** Every version is independently immutable.
+- **Legal hold is the operational tool**: cheap, applies in seconds, removable when the case closes. Use this for active matters.
+- **Time-based is the policy tool**: applied at scope, doesn't change as cases come and go.
 
-| Type | Stops what? | Removable? |
-|---|---|---|
-| **Time-based retention** | Delete and modify until N days have passed | Auto-expires; cannot be removed early in `Locked` state |
-| **Legal hold** | Delete and modify forever, until tag removed | Removable by anyone with `Storage Blob Data Owner` |
+## ⌨️ Activity 1 — Container-level legal hold
 
-WOD uses **legal hold** (indefinite, removable only by authorised actors).
+1. Storage account → **Containers → + Container → Name: legal-test**.
+2. Open `legal-test` → **Access policy → + Add policy → Legal hold**.
+3. Tag: `lab-test`. Save.
+4. Upload a small file to the container. Try to delete it. **Error: "Cannot delete blob because legal hold is set."**
 
-### Scope: container vs version
+## ⌨️ Activity 2 — Remove the legal hold
 
-- **Container-scoped** (legacy): the policy applies to all blobs in the container.
-- **Version-scoped** (newer, recommended for WOD): the policy applies to specific blob versions; supports versioning + immutability together.
+1. Same container → **Access policy → Legal hold → Remove**. (Tag `lab-test` removed.)
+2. Try to delete the blob again. Now it works.
 
-DSR uses version-scoped policies for WOD.
+## ⌨️ Activity 3 — Time-based retention (container-level)
 
-### What "you can't modify or delete" actually means
+1. **+ Container → Name: retention-test**.
+2. **Access policy → + Add policy → Time-based retention → 7 days**. Save.
+3. Upload a blob. Try to delete. **Error: blob protected.**
+4. Note the **policy state: Unlocked**. Click **... → Edit policy** — you can change it (this is testing mode).
+5. Try **Lock policy**. Once locked, you can extend retention but not shorten it.
 
-Operations blocked when a hold is in place:
+> [!IMPORTANT]
+> Production retention policies are always locked. Only DIA Platform / Compliance can apply locked retention to production storage. **Don't lock anything in lab unless you're certain — locked = irreversible.**
 
-- Delete blob
-- Delete container
-- Overwrite blob (Put Blob, Put Block List)
-- Set blob tier (in some configurations)
-- Snapshot delete (snapshots inherit hold)
+## ⌨️ Activity 4 — Version-level immutability
 
-Operations still allowed:
+This is the modern approach.
 
-- Read blob
-- List blob
-- Set blob metadata (in some configurations)
-- Snapshot create
+1. Confirm versioning is on (Step 09 enabled it).
+2. Storage account → **Data protection → Version-level immutability**: **Enabled by default**. (You may need to first re-create the container with version-level immutability allowed.)
+3. New container `version-immut-test` with version-level immutability allowed at creation.
+4. Upload a blob. Click the blob → **Manage policy → + Add policy** → set retention 7 days, leave Unlocked.
+5. Try to delete the blob's *current* version. Blocked.
+6. Older / newer versions can have separate policies. This is the point.
 
----
+## ⌨️ Activity 5 — Verify a hold is in place (audit query)
 
-## ⌨️ Activity 1 — Inspect WOD's legal hold (read-only)
-
-If you have Reader on DSR DEV/UAT/PRD:
-
-1. Portal → `stanlnznblobprdwod01` → **Containers** → click the WOD container.
-2. **Access policy** tab → see the legal hold tag.
-3. Confirm: tag = `WholeOfDomainArchiveHold`, status = enabled.
-
-If you do not have Reader, skip to Activity 2.
-
-## ⌨️ Activity 2 — Deploy a WOD-style account in your training sub
-
-```bash
-RG=rg-training-immut-<your-initials>
-az group create -n $RG -l australiaeast --tags purpose=dsr-training
-
-SA=sttrainwod<your-initials>$RANDOM
-az storage account create -n $SA -g $RG -l australiaeast \
-  --sku Standard_LRS --kind StorageV2
-
-KEY=$(az storage account keys list -n $SA -g $RG --query '[0].value' -o tsv)
-az storage container create -n wod-archive --account-name $SA --account-key $KEY
-
-# Upload a sample blob
-echo "archived web crawl" > /tmp/crawl.txt
-az storage blob upload -c wod-archive -n crawl.txt -f /tmp/crawl.txt \
-  --account-name $SA --account-key $KEY
+```kql
+resources
+| where type == "microsoft.storage/storageaccounts/blobservices/containers"
+| extend acct = tostring(split(id, "/")[8]),
+         container = name
+| project acct, container,
+          legalHold = properties.hasLegalHold,
+          immutability = properties.hasImmutabilityPolicy
+| where legalHold == true or immutability == true
 ```
 
-## ⌨️ Activity 3 — Apply a legal hold tag
+Run against DSR subs. Every result is a "this container has a hold" — exactly what the audit team needs.
+
+## ⌨️ Activity 6 — Apply a legal hold via CLI (operational pattern)
 
 ```bash
+SA=<your storage account>
+
+# Add a legal hold
 az storage container legal-hold set \
-  --account-name $SA --account-key $KEY \
-  --container-name wod-archive \
-  --tags WholeOfDomainArchiveHold
+  --account-name $SA \
+  --container-name legal-test \
+  --tags case-12345 audit-2026 \
+  --auth-mode login
 
 # Verify
 az storage container legal-hold show \
-  --account-name $SA --account-key $KEY \
-  --container-name wod-archive \
-  --output table
-```
+  --account-name $SA \
+  --container-name legal-test \
+  --auth-mode login
 
-✅ Tag applied. The container is now in legal hold.
-
-## ⌨️ Activity 4 — Try to delete a held blob
-
-```bash
-az storage blob delete -c wod-archive -n crawl.txt \
-  --account-name $SA --account-key $KEY
-```
-
-❌ This fails:
-
-```
-The blob has an active legal hold and cannot be modified.
-```
-
-✅ The hold works.
-
-## ⌨️ Activity 5 — Try to overwrite a held blob
-
-```bash
-echo "tampered content" > /tmp/crawl.txt
-az storage blob upload -c wod-archive -n crawl.txt -f /tmp/crawl.txt \
-  --account-name $SA --account-key $KEY --overwrite
-```
-
-❌ Same — fails. Immutability blocks overwrite.
-
-## ⌨️ Activity 6 — The weekly hold-verification check (production)
-
-This is the check that should run every Monday, alerting the Preservation Team if the hold is missing:
-
-```bash
-RESULT=$(az storage container legal-hold show \
-  --account-name $SA --account-key $KEY \
-  --container-name wod-archive \
-  --query "tags[?contains(@,'WholeOfDomainArchiveHold')] | length(@)" -o tsv)
-
-if [ "$RESULT" -ge "1" ]; then
-  echo "OK: WholeOfDomainArchiveHold present"
-else
-  echo "ALERT: hold missing — escalate to Cloud Security"
-fi
-```
-
-Wrap this in an Azure Automation Runbook and schedule weekly. Or:
-
-In Log Analytics:
-
-```kusto
-AzureActivity
-| where TimeGenerated > ago(7d)
-| where OperationNameValue contains "legalHold"
-| project TimeGenerated, Caller, OperationNameValue, ActivityStatusValue, Properties
-```
-
-This shows any legal-hold-related activity in the last 7 days. Any unexpected `Set` or `Delete` event = investigation.
-
-## ⌨️ Activity 7 — Time-based retention (for comparison)
-
-WOD uses legal hold, but version-scoped time-based is good to understand:
-
-```bash
-# Enable versioning first (required for version-scoped policy)
-az storage account blob-service-properties update \
-  --account-name $SA -g $RG --enable-versioning true
-
-# Apply a 7-day version-scoped policy in unlocked state
-az storage container immutability-policy create \
-  --account-name $SA --resource-group $RG \
-  --container-name wod-archive \
-  --period 7 \
-  --allow-protected-append-writes false
-```
-
-Inspect in portal: container → **Access policy** → see the immutability policy.
-
-> [!IMPORTANT]
-> An **unlocked** time-based policy can be removed. A **locked** policy cannot — only expires by time. WOD's policy must be locked in production.
-
-## ⌨️ Activity 8 — Remove the legal hold (cleanup only)
-
-```bash
+# Remove (when case closes)
 az storage container legal-hold clear \
-  --account-name $SA --account-key $KEY \
-  --container-name wod-archive \
-  --tags WholeOfDomainArchiveHold
-
-# Now delete works
-az storage blob delete -c wod-archive -n crawl.txt \
-  --account-name $SA --account-key $KEY
-
-az group delete -n $RG --yes --no-wait
+  --account-name $SA \
+  --container-name legal-test \
+  --tags case-12345 audit-2026 \
+  --auth-mode login
 ```
 
----
+In production this is the operational runbook for "investigation X has started" / "case X closed".
+
+## ⌨️ Activity 7 — Interaction with lifecycle
+
+1. Author a lifecycle rule on `legal-test` that says "delete after 1 day".
+2. Apply a legal hold (Activity 6).
+3. Wait a day (or simulate). The lifecycle rule will run but **skip** the immutable blob.
+4. Remove the hold. The next lifecycle run will delete the blob.
+
+This is exactly how DSR retains material under hold even when standard lifecycle would normally clean it.
 
 ## 🦾 Now your turn!
 
-Build the **weekly hold-verification report** as a saved KQL query that:
-
-- Confirms the WOD legal hold tag is active on `stanlnznblobprdwod01`
-- Lists any legal-hold modification activity in the last 7 days
-- Flags as ALERT if any `Clear` or `SetLegalHold` event is found from outside DIA Cloud Security or Storage Owner accounts
-
-Schedule this query as a **Log Analytics alert** with email notification to the Preservation Team.
-
----
+1. Apply both a time-based retention policy *and* a legal hold to the same blob version. Verify both are present in `az storage blob show`.
+2. Find a Resource Graph query that returns every container with a *locked* immutability policy in the subscription. (Hint: `properties.immutableStorageWithVersioning` — keys vary by API version.)
+3. Write a one-paragraph SOP for "applying a legal hold for a Police request": which container, which tag format, who approves, how to verify.
+4. Read the storage account's **Activity Log** (Step 03) for any `setLegalHold` events. Who applied them?
 
 ## ✅ Success checklist
 
-- [ ] You can name the difference between time-based retention and legal hold
-- [ ] You've applied and removed a legal hold in your lab
-- [ ] You've verified that delete and overwrite are blocked
-- [ ] You've written the weekly hold-verification check
-- [ ] You know the escalation path if the hold is found missing
+- [ ] You can name the two immutability flavours (time-based vs legal hold) and explain the difference.
+- [ ] You've applied and removed both kinds of hold.
+- [ ] You understand "Unlocked" vs "Locked" and why production is always locked.
+- [ ] You can verify a hold exists via Portal, CLI, and Resource Graph.
+- [ ] You understand that lifecycle rules skip immutable blobs.
 
----
+## 📚 Self-serve refresher
 
-## 🚨 Escalation path — hold found missing
-
-1. Confirm via CLI (Activity 6) that the hold is in fact removed (not just a UI glitch).
-2. Pull the Activity Log for the storage account for the last 14 days.
-3. Identify who removed the hold (`Caller` field).
-4. **Escalate immediately** to DIA Cloud Security and the Archives Library Manager.
-5. Re-apply the hold *only* under explicit instruction.
-
----
+- [Immutability scope and migration](https://learn.microsoft.com/azure/storage/blobs/immutable-storage-overview) — when to use container vs version scope.
+- [Manage legal holds](https://learn.microsoft.com/azure/storage/blobs/immutable-legal-hold-overview) — operational reference.
 
 ## 💰 Cost note
 
-< NZD $1.
+- Immutability is **free**.
+- Indirect cost: data under hold cannot be lifecycle-deleted, so storage continues until the hold is released.
+
+**Cleanup:** before deleting any test container, **remove all holds first**. The portal will refuse to delete a container with a locked policy — by design.
 
 ---
 
-➡️ **Next:** [Step 11 — Blob inventory](step-11-blob-inventory.md)
+⬅️ **Previous:** [Step 09 — Data protection posture](step-09-data-protection.md)
+➡️ **Next:** [Step 11 — Blob inventory & capacity reporting](step-11-blob-inventory.md)

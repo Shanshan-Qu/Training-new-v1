@@ -1,274 +1,173 @@
 # Step 09 — Data protection posture
 
-_The "what's protecting our data, and how do I prove it?" lab._ 🛡️
+_The "what stops accidental deletion" lab._ 🛡️ Builds the recoverability mental model: snapshots, soft delete, versioning, point-in-time restore, change feed — and how to *prove* a storage account is properly protected.
 
 > [!NOTE]
-> **Duration:** 90 minutes
-> **Lab cost:** < NZD $1
-> **Pairs with:** Module 9 of the training plan
+> **Trainee duration:** 90 minutes
+> **Instructor EDE:** 3.5 hours (1h prep + 1.5h delivery + 1h Q&A buffer)
+> **Lab cost:** under NZD $0.50 — reuses your test storage account.
+> **Prerequisites:** Steps 05 + 06 complete.
+> **Pairs with:** Module 2 of the DIA training plan (Storage). **Note:** backup *configuration* is owned by DIA Platform Team, but the Preservation Team owns *posture awareness* — you'll be asked "is X protected?" and need to be able to read the answer.
 
 ---
 
 ## 📖 Session overview
 
-DSR uses six layered data-protection features at the storage account level: **soft delete, snapshots, versioning, point-in-time restore, change feed, and blob inventory**. They overlap and complement each other. This session walks through each one — what it does, where it's enabled in DSR (per § 9.16 of the design), how to verify it's still on, and how to *consume* it (e.g. find a deleted blob's snapshot).
+DSR runs a multi-layer data protection model. Some layers (Recovery Services Vault backup of files / VMs) are owned by DIA Platform; others (blob soft delete, versioning, point-in-time restore) sit on the storage account itself and are part of your daily read. This lab walks every layer of storage-account-level protection, shows you how to verify it's enabled, and how to *use* it to recover an accidentally deleted blob — read-only on production.
 
-## 🎯 What you'll learn
+**What you'll learn**
+- The five storage-account protection features: **soft delete (blob)**, **soft delete (container)**, **versioning**, **change feed**, **point-in-time restore**.
+- How each one helps recovery — and what each one **does not** protect against.
+- How to verify a storage account is protected (one Resource Graph query for the audit team).
+- How to recover a deleted blob using soft delete or versioning.
+- The interaction with lifecycle rules (versions cost money — you've seen this in Step 06).
 
-- What each of the six features does and which DSR account uses what
-- How **soft delete** retention windows work (Files 31 days; Blob 365 PRD / 31 UAT / 7 DEV)
-- How **snapshots** are scheduled (daily 11 PM via Azure Automation Runbook) and retained (31 days)
-- How **versioning** is configured ("Keep all Versions" in PRD)
-- What **Point-in-Time Restore (PITR)** is — and that it works only for Hot/Cool, **not Cold**
-- How to read the **Change Feed** for forensic queries
-- How **Blob Inventory** generates weekly CSV reports (covered in detail in Module 11)
+## 💡 Jargon buster
 
-## 📚 Before this session — MS Learn pre-work
+| Term | Plain meaning |
+|---|---|
+| **Soft delete (blob)** | Deleted blobs are kept hidden for N days before permanent deletion. Recoverable by you. |
+| **Soft delete (container)** | Deleted containers retained for N days. (Recovers the *container* including its blobs.) |
+| **Versioning** | Every overwrite creates a new immutable copy of the blob; previous versions remain queryable. |
+| **Change feed** | A log of every change to the storage account, kept as ordered append blobs. Useful for forensic queries and incremental ingest. |
+| **Point-in-time restore (PITR)** | Roll the *whole* storage account (or container range) back to a point in time. Requires versioning + change feed + soft delete enabled first. |
+| **Snapshot (blob)** | A read-only copy of a blob taken explicitly. Older mechanism; mostly superseded by versioning. |
+| **Recovery Services Vault** | Azure's separate backup service. Protects VMs, file shares, SQL. **Not** what protects blobs — blob protection lives on the account. |
 
-| Module | Time | Why this matters |
-|---|---|---|
-| [Protect your data with Azure Storage features](https://learn.microsoft.com/training/modules/protect-data-blob-storage/) | 30 min | Covers soft delete, versioning, PITR |
-| [Manage Azure Blob Storage lifecycle](https://learn.microsoft.com/training/modules/manage-azure-blob-storage-lifecycle/) | 30 min | Lifecycle interaction with versioning |
+## 📚 Prepare in advance — Microsoft Learn
 
-## 🔤 Acronyms used
+| Module | Why it matters for ANL |
+|---|---|
+| [Protect data with soft delete and versioning](https://learn.microsoft.com/training/modules/protect-data-blob-storage/) | The exact protection layers DSR uses. |
+| [Point-in-time restore for block blobs](https://learn.microsoft.com/azure/storage/blobs/point-in-time-restore-overview) | The "roll back the account" feature. |
+| [Blob change feed](https://learn.microsoft.com/azure/storage/blobs/storage-blob-change-feed) | What feeds the WOD audit and inventory pipelines. |
 
-- **PITR** = Point-in-Time Restore
-
-## ⏱️ EDE accounting
-
-- Trainee self-paced: 90 min
-- Instructor-led delivery: 1.5h
-- Prep work: 1h
-- Q&A: 30 min
-- **Total EDE per trainee: ~4.5h**
-
-## 💰 Cost note
-
-- One Standard storage account with all six protections enabled: ~NZD $0.05/day
-- Tear down at end → < NZD $1.
-
----
+About **1.5 hours** of optional pre-reading.
 
 ## 🧱 Foundational primer
 
-### The six layers, mapped to DSR
+- **Soft delete is the first line of defence.** It's cheap, automatic, and undoes most accidents.
+- **Versioning protects against overwrite, not delete.** Without soft delete, a deletion still removes all versions.
+- **PITR requires the full stack** (versioning, change feed, blob soft delete) and supports up to **365 days** lookback.
+- **Soft-deleted data is still billed** at the regular tier rate for the retention period. WOD versioning + soft delete is part of why the storage line item looks the way it does.
+- **Change feed is append-only.** The history is immutable; great for audit and reporting.
+- **Account-level snapshots / backup with Azure Backup** is for the VMs, not for blob data. Don't confuse the two.
+- **Restoring is not free.** PITR transactions and rehydration apply. Cost-estimate before invoking.
 
-| Feature | Files (`...file...`) | Blob Rosetta (`...blobprdrosi01`) | Blob WOD (`...blobprdwod01`) |
-|---|---|---|---|
-| Soft delete | 31 days | 365 days (PRD), 31 (UAT), 7 (DEV) | 365 days |
-| Snapshots | Daily 11 PM, 31-day retention | Daily 11 PM, 31-day retention | Daily 11 PM, 31-day retention |
-| Versioning | N/A (Files) | Keep all versions (PRD) | Keep all versions |
-| Point-in-Time Restore | N/A | **Hot/Cool only** — not Cold | Not used (immutability covers it) |
-| Change Feed | N/A | Enabled | Enabled |
-| Blob Inventory | N/A | Weekly, 365-day retention | Weekly, 365-day retention |
+## ⌨️ Activity 1 — Inspect data protection posture across all accounts
 
-### Soft delete vs versioning vs snapshots — what's different?
+```kql
+resources
+| where type == "microsoft.storage/storageaccounts/blobservices"
+| extend acct = tostring(split(id, "/")[8])
+| project acct,
+          softDelete = properties.deleteRetentionPolicy,
+          containerSoftDelete = properties.containerDeleteRetentionPolicy,
+          versioning = properties.isVersioningEnabled,
+          changeFeed = properties.changeFeed.enabled,
+          restorePolicy = properties.restorePolicy
+```
 
-- **Soft delete** = "trash bin". Deleted blob is recoverable for N days.
-- **Versioning** = every overwrite creates a new version; previous version is preserved automatically.
-- **Snapshots** = manual or scheduled point-in-time copies.
-- **PITR** = restore the *whole container* to a specific point in time. Different from per-blob recovery.
-- **Change feed** = an append-only log of every blob operation. Forensic.
-- **Blob inventory** = a periodic report of *what's in the account*. (Different from change feed = *what happened*.)
+You'll see every storage account's protection state in one view. In DSR, the prod accounts should show: blob soft delete 14 days, container soft delete 14 days, versioning enabled, change feed enabled, restore policy enabled (90 days).
+
+## ⌨️ Activity 2 — Enable the full protection stack on your test account
+
+1. Storage account → **Data protection** blade.
+2. Enable: **Soft delete for blobs (14 days)**, **Soft delete for containers (14 days)**, **Versioning**, **Change feed**, **Point-in-time restore (7 days for the lab)**.
+3. Save.
+
+## ⌨️ Activity 3 — Recover a soft-deleted blob
+
+1. Container `lab` → click your test blob from Step 05 → **Delete** (single blob).
+2. Top of the Containers list → toggle **Show deleted blobs**.
+3. The blob appears with status **Deleted, X days remaining**. Right-click → **Undelete**.
+4. Blob is restored.
+
+## ⌨️ Activity 4 — Recover a soft-deleted container
+
+1. **+ Container → Name: doomed**. Upload one blob inside.
+2. Delete the container.
+3. **Containers** blade → **Show deleted containers** toggle.
+4. Right-click `doomed` → **Undelete**.
+5. The container reappears with its blob intact.
+
+## ⌨️ Activity 5 — Versioning in action
+
+1. In container `lab`, upload a small text file `notes.txt`.
+2. Edit a copy locally (change one character) and upload again, replacing.
+3. Click `notes.txt` → **Versions** tab. You see two versions, each with a timestamp.
+4. Click the older version → **Make current version**. The blob now reflects the older content.
+
+## ⌨️ Activity 6 — Read the change feed
+
+The change feed lives at `$blobchangefeed/log/...`. You can list entries via CLI:
+
+```bash
+SA=<your storage account>
+az storage blob list \
+  --account-name $SA \
+  --container-name '$blobchangefeed' \
+  --auth-mode login \
+  --query "[].name" -o tsv | head -10
+```
+
+Each segment is an Avro file you can stream or download. WOD's audit pipeline reads these to know what changed since last run.
+
+## ⌨️ Activity 7 — Point-in-time restore (read-only walkthrough)
+
+1. Storage account → **Data protection → Point-in-time restore for containers → Restore**.
+2. The blade asks: which containers, which timestamp, which destination.
+3. Don't click Restore (it costs and we don't have meaningful data to restore). The point is recognise the UI and the inputs.
 
 > [!IMPORTANT]
-> PITR works only on **Hot or Cool** blobs. Once data has tiered to **Cold**, PITR cannot restore it. This is why DSR also keeps long soft-delete + versioning windows.
+> PITR is for **bulk** recovery — e.g. someone ran a delete script. For single blobs, soft delete + versioning is faster and cheaper.
 
----
+## ⌨️ Activity 8 — Resource Graph audit query (compliance)
 
-## ⌨️ Activity 1 — Inspect each protection in DSR (read-only)
+The audit team will ask: "Show me every storage account in DSR with versioning *not* enabled."
 
-If you have Reader on DSR DEV:
-
-1. Portal → `stanlnznblobprdrosi01` (DEV equivalent) → **Data protection** blade.
-2. For each toggle, note:
-   - Soft delete: enabled, retention days
-   - Versioning: enabled, retention
-   - PITR: enabled, restore window
-   - Change feed: enabled, retention
-3. **Containers** → click any → **Snapshots** tab → see existing snapshots.
-
-## ⌨️ Activity 2 — Deploy a fully-protected account (production-like)
-
-```bash
-RG=rg-training-protect-<your-initials>
-az group create -n $RG -l australiaeast --tags purpose=dsr-training
-
-SA=sttrainprot<your-initials>$RANDOM
-az storage account create -n $SA -g $RG -l australiaeast \
-  --sku Standard_LRS --kind StorageV2 --access-tier Hot
-
-# Enable blob soft delete (7 days for lab)
-az storage account blob-service-properties update \
-  --account-name $SA -g $RG \
-  --enable-delete-retention true \
-  --delete-retention-days 7
-
-# Enable container soft delete
-az storage account blob-service-properties update \
-  --account-name $SA -g $RG \
-  --enable-container-delete-retention true \
-  --container-delete-retention-days 7
-
-# Enable versioning
-az storage account blob-service-properties update \
-  --account-name $SA -g $RG \
-  --enable-versioning true
-
-# Enable change feed (retention 7 days for lab)
-az storage account blob-service-properties update \
-  --account-name $SA -g $RG \
-  --enable-change-feed true \
-  --change-feed-retention-days 7
-
-# Enable PITR (restore window must be < soft-delete window)
-az storage account blob-service-properties update \
-  --account-name $SA -g $RG \
-  --enable-restore-policy true \
-  --restore-days 6
+```kql
+resources
+| where type == "microsoft.storage/storageaccounts/blobservices"
+| extend acctName = tostring(split(id, "/")[8])
+| extend versioning = tobool(properties.isVersioningEnabled),
+         softDelete = tobool(properties.deleteRetentionPolicy.enabled)
+| where versioning == false or softDelete == false
+| project acctName, versioning, softDelete, id
 ```
 
-## ⌨️ Activity 3 — Test soft delete
-
-```bash
-KEY=$(az storage account keys list -n $SA -g $RG --query '[0].value' -o tsv)
-
-az storage container create -n preservation --account-name $SA --account-key $KEY
-echo "important data" > /tmp/important.txt
-az storage blob upload -c preservation -n important.txt -f /tmp/important.txt \
-  --account-name $SA --account-key $KEY
-
-# Delete it
-az storage blob delete -c preservation -n important.txt \
-  --account-name $SA --account-key $KEY
-
-# Try to list — soft-deleted blobs are hidden by default
-az storage blob list -c preservation \
-  --account-name $SA --account-key $KEY \
-  --output table
-
-# List INCLUDING deleted
-az storage blob list -c preservation \
-  --account-name $SA --account-key $KEY \
-  --include d \
-  --output table
-
-# Recover
-az storage blob undelete -c preservation -n important.txt \
-  --account-name $SA --account-key $KEY
-```
-
-✅ The blob is restored.
-
-## ⌨️ Activity 4 — Test versioning
-
-```bash
-# Overwrite the blob 3 times
-for i in 1 2 3; do
-  echo "version $i" > /tmp/important.txt
-  az storage blob upload -c preservation -n important.txt -f /tmp/important.txt \
-    --account-name $SA --account-key $KEY --overwrite
-done
-
-# List versions
-az storage blob list -c preservation -n important.txt \
-  --account-name $SA --account-key $KEY \
-  --include v \
-  --query "[].{name:name, version:versionId, isCurrent:isCurrentVersion, modified:properties.lastModified}" \
-  --output table
-```
-
-✅ You see 3 versions.
-
-In the portal: Container → blob → **Versions** tab → list, download, promote to current.
-
-## ⌨️ Activity 5 — Take a manual snapshot
-
-```bash
-az storage blob snapshot -c preservation -n important.txt \
-  --account-name $SA --account-key $KEY
-
-az storage blob list -c preservation -n important.txt \
-  --account-name $SA --account-key $KEY \
-  --include s \
-  --query "[].{name:name, snapshot:snapshot}" \
-  --output table
-```
-
-In production, this happens automatically via an Azure Automation Runbook scheduled at 23:00 NZST daily (per § 9.16.1.2).
-
-## ⌨️ Activity 6 — Use Change Feed for forensics
-
-Change Feed is an append-only log. Files appear under `$blobchangefeed/log/`.
-
-```bash
-# Wait ~5 min for change feed to populate, then:
-az storage blob list -c '$blobchangefeed' \
-  --account-name $SA --account-key $KEY \
-  --output table
-```
-
-You'll see Avro files containing every blob operation. Tools like Azure Storage Explorer or `azure-storage-blobchangefeed` Python SDK parse them.
-
-In production, this is how you'd answer "show me every delete on the WOD account in the last 24 hours" — useful for early-warning ransomware detection.
-
-## ⌨️ Activity 7 — Test Point-in-Time Restore
-
-```bash
-# Note the current time, wait a minute
-RESTORE_POINT=$(date -u -d '1 minute ago' +%Y-%m-%dT%H:%M:%SZ)
-
-# Make some changes
-echo "post-restore-point change" > /tmp/important.txt
-az storage blob upload -c preservation -n important.txt -f /tmp/important.txt \
-  --account-name $SA --account-key $KEY --overwrite
-
-# Restore the container to the earlier point in time
-az storage blob restore -g $RG --account-name $SA \
-  --time-to-restore $RESTORE_POINT \
-  --blob-range preservation/important.txt preservation/important.txt~~~
-```
-
-> [!IMPORTANT]
-> PITR runs at the **container** level, not the blob level. You specify a range of blob names (alphabetical) to restore.
-
-## ⌨️ Activity 8 — Tear down
-
-```bash
-az group delete -n $RG --yes --no-wait
-```
-
----
+Every result is a finding — escalate to whoever owns that storage account.
 
 ## 🦾 Now your turn!
 
-Write a Resource Graph query that lists all DSR storage accounts and shows whether each protection feature is **enabled** or **disabled**. Sample columns:
-
-```
-name | softDelete | versioning | changeFeed | pitr | inventory
-```
-
-Hint: blob service properties are at `microsoft.storage/storageaccounts/blobservices`.
-
-This is your **weekly data-protection compliance check**.
-
----
+1. Tweak your soft delete to 7 days. Write the CLI command (`az storage account blob-service-properties update`) that achieves this.
+2. From the change feed, find the entry corresponding to your `notes.txt` overwrite in Activity 5. (Hint: download the Avro segment and inspect with `avro-tools` or a Python script.)
+3. Disable versioning temporarily, then re-enable. What happens to existing versions? (Spoiler: they remain.)
+4. Find the cost of soft-deleted storage in Cost Management. Group by **Meter** = `Soft Delete`.
 
 ## ✅ Success checklist
 
-- [ ] You can name the six data-protection features and what each does
-- [ ] You've deployed an account with all six enabled
-- [ ] You've tested soft delete, versioning, snapshot, and PITR
-- [ ] You've examined the change feed log structure
-- [ ] You know PITR is Hot/Cool only — not Cold
-- [ ] You have a saved compliance-check query
+- [ ] You can name the five blob protection features and what each protects against.
+- [ ] You've recovered a soft-deleted blob and a soft-deleted container.
+- [ ] You can roll back a blob to a previous version.
+- [ ] You can write a Resource Graph query that finds storage accounts with insufficient protection.
+- [ ] You understand that PITR requires the full stack (versioning + change feed + soft delete).
 
----
+## 📚 Self-serve refresher
+
+- [Soft delete for blobs](https://learn.microsoft.com/azure/storage/blobs/soft-delete-blob-overview) — exact retention rules.
+- [Versioning vs soft delete vs snapshots — when to use each](https://learn.microsoft.com/azure/storage/blobs/data-protection-overview) — picking the right tool.
 
 ## 💰 Cost note
 
-< NZD $1.
+- Soft delete: regular storage rates × retention period for any deleted blob.
+- Versioning: regular rates × every version retained. Pair with lifecycle rules to expire old versions.
+- Change feed: append blobs are very cheap.
+- PITR: free to enable; costs only on actual restore.
+
+**Cleanup:** clean up `doomed` again if you re-deleted it, and remove `notes.txt` versions if you don't need them. Or leave the lot — the costs are negligible until you hit GBs of versions.
 
 ---
 
+⬅️ **Previous:** [Step 08 — Azure Files (NFS & SMB)](step-08-azure-files.md)
 ➡️ **Next:** [Step 10 — Immutability & legal hold](step-10-immutability.md)

@@ -1,211 +1,159 @@
 # Step 01 — Azure foundations
 
-_The "what is this thing called Azure?" lab._ 🏗️
+_The "what is Azure made of, anyway?" lab._ 🧭 Builds the mental model every later lab depends on: tenant, subscription, resource group, region, RBAC, ARM, naming and tagging — all anchored to the DIA DSR landing zone you'll be operating.
 
 > [!NOTE]
-> **Duration:** 90 minutes
-> **Lab cost:** < NZD $0.50 (one Standard storage account, torn down at end)
-> **Pairs with:** Module 1 of the training plan
+> **Trainee duration:** 90 minutes
+> **Instructor EDE:** 3.5 hours (1h prep + 1.5h delivery + 1h Q&A buffer)
+> **Lab cost:** under NZD $0.50 — almost everything used here is free metadata. Deployable in your own Azure free-trial subscription.
+> **Prerequisites:** an Azure account (free trial is fine), a modern browser, your DIA work email allowed to sign in to a personal subscription.
+> **Pairs with:** Module 1 of the DIA training plan (Foundations).
 
 ---
 
 ## 📖 Session overview
 
-This session introduces the core building blocks of Azure — the platform that holds the DSR landing zone. It covers how Microsoft organises resources in Azure (tenants, subscriptions, resource groups), how regions and redundancy zones work, and how DIA's naming and tagging conventions map onto these concepts.
+This session introduces the building blocks of Azure: how Microsoft organises a customer's cloud, where access lives, and how DIA's DSR landing zone is shaped. By the end, you'll be able to log in to your own Azure subscription, navigate the portal, and recognise the resource hierarchy you'll see every day in the DSR environment.
 
-By the end, you'll have created your own resource group, deployed a storage account, and torn it down — all the way through the lifecycle of an Azure resource. You'll also understand why DSR resources are named the way they are.
+**What you'll learn**
+- The difference between a **Microsoft Entra tenant**, a **subscription**, a **resource group**, and a **resource** — and how DIA uses each.
+- What an **Azure region** is and why DSR uses **NZ North**.
+- The basics of **Azure Resource Manager (ARM)** — the engine behind every click in the portal.
+- How **Role-Based Access Control (RBAC)** decides who can do what.
+- How DIA's **naming and tagging standards** (`rg-dia-anl-nzn-*`, `app_name=anl`) make the environment readable.
 
-## 🎯 What you'll learn
+## 💡 Jargon buster
 
-- The difference between a **tenant**, **subscription**, **resource group**, and **resource**
-- How **Azure regions** and **Availability Zones** provide redundancy (and why DSR uses NZ North + ZRS)
-- How **Azure RBAC** works — Owner vs Contributor vs Reader
-- How DIA's naming standard (`rg-dia-anl-nzn-{net,stor,app,svc,mgt}-<env>`) and tagging standard (`app_name=anl`, `org_name=dia`) work
-- How to deploy your first resource into your own training subscription
-- How to read the **JSON view** of any Azure resource (the source of truth)
+| Term | Plain meaning |
+|---|---|
+| **Tenant** | Your organisation's identity boundary in Microsoft cloud (DIA has one, Microsoft has another). |
+| **Subscription** | A billing container. DSR has three: DEV, UAT, PRD. |
+| **Resource Group (RG)** | A folder for related resources. Everything inside one RG is usually deleted together. |
+| **Resource** | A single thing — a VM, a storage account, a key vault. |
+| **ARM** | Azure Resource Manager — the API everything in Azure goes through. |
+| **RBAC** | Role-Based Access Control — who can read, write, or own each resource. |
+| **Region** | A datacentre location. NZ North = Auckland. |
+| **Tag** | A key-value label on a resource. DSR uses `app_name=anl`, `org_name=dia` for cost reporting and filtering. |
 
-## 📚 Before this session — MS Learn pre-work
+## 📚 Prepare in advance — Microsoft Learn
 
-| Module | Time | Why this matters |
-|---|---|---|
-| [Describe cloud computing](https://learn.microsoft.com/training/modules/describe-cloud-compute/) | 30 min | Mental model for what "the cloud" actually is |
-| [Describe Azure architecture and services](https://learn.microsoft.com/training/modules/azure-architecture-fundamentals/describe-core-architectural-components-of-azure/) | 45 min | Regions, subscriptions, resource groups, ARM |
-| [Describe Azure identity, access, and security](https://learn.microsoft.com/training/modules/describe-azure-identity-access-security/) | 30 min | RBAC, Entra ID basics — sets up Module 3 |
+| Module | Why it matters for ANL |
+|---|---|
+| [Describe Azure architecture and services](https://learn.microsoft.com/training/paths/azure-fundamentals-describe-azure-architecture-services/) | The big picture: regions, AZs, subscriptions, governance — the same concepts DSR uses. |
+| [Azure resource manager and resource groups](https://learn.microsoft.com/training/modules/control-and-organize-with-azure-resource-manager/) | Every Portal click is ARM under the hood. |
+| [Configure role-based access control (RBAC)](https://learn.microsoft.com/training/modules/secure-azure-resources-with-rbac/) | DSR uses RBAC to keep your team read-only on most things. |
+| [Apply and manage tags on Azure resources](https://learn.microsoft.com/training/modules/control-azure-services-with-cli/) | DSR's `app_name=anl` tag is what makes the cost report split work. |
 
-## 🔤 Acronyms used
-
-- **ARM** = Azure Resource Manager. The API that deploys everything in Azure. Every "create resource" click eventually becomes an ARM call.
-- **AZ** = Availability Zone. A physically separate datacentre within a region.
-- **CLI** = Command-Line Interface
-- **GRS / LRS / ZRS** = Redundancy options for storage (Geo / Locally / Zone redundant)
-- **RBAC** = Role-Based Access Control
-- **RG** = Resource Group
-
-## ⏱️ EDE accounting
-
-- Trainee self-paced: 90 min
-- Instructor-led delivery: 1.5h
-- Prep work (MS Learn): 1.75h
-- Q&A: 30 min
-- **Total EDE per trainee: ~5h**
-
-## 💰 Cost note
-
-- Standard LRS storage account: ~NZD $0.03/day if left running.
-- This lab tears down at the end — total cost should be < $0.50.
-
----
+About **2 hours** of optional pre-reading. Not required to start the lab.
 
 ## 🧱 Foundational primer
 
-If you read nothing else, read this:
+- **Tenant ⊃ Subscription ⊃ Resource Group ⊃ Resource.** Memorise the nesting. Each level has its own access controls.
+- **Subscriptions cost money, RGs don't.** A resource group is just an organisational folder; the resources inside it are billable.
+- **Region matters.** NZ North (Auckland) keeps DIA data in-country, satisfies sovereignty, and is the closest datacentre to most DIA users. NZ North has no paired region — important when we discuss backup later.
+- **Everything is ARM.** Whether you click in the portal, run an Azure CLI command, or apply a Terraform plan, it all becomes a JSON template sent to ARM.
+- **Names are immutable.** Once a resource is created, its name is fixed. DIA enforces a naming convention so you can read a name and know what it is.
+- **Tags are how cost gets split.** Without tags, Cost Management can only show "Azure cost = $X." With tags, it can show "ANL cost = $X."
+- **Reader is your friend.** Most of the time, your Preservation Team account will hold `Reader` on production. That's intentional.
 
-- **Tenant** = your DIA identity directory in Azure. Holds all users, groups, and apps.
-- **Subscription** = a billing boundary. DSR has 3: DEV, UAT, PRD.
-- **Resource Group (RG)** = a folder that holds related resources. Has a region. Resources inside can be in any region, but the RG's region is where its metadata lives.
-- **Resource** = an actual thing — a VM, a storage account, a network. Lives inside an RG.
-- **Region** = a geographic area (e.g. `australiaeast`, `newzealandnorth`). Resources live in a region.
-- **Availability Zone (AZ)** = a physically separate datacentre within a region. ZRS storage replicates across 3 AZs.
-- **ARM template / Bicep / Terraform** = three ways to describe resources as code instead of clicking. Behind the scenes, all of them call the same ARM API.
+## ⌨️ Activity 1 — Sign in and explore the tenant
 
-> [!IMPORTANT]
-> NZ North has **no paired region** for cross-region replication, which is why the DSR design uses **ZRS** (zone-redundant) for production data and recommends an asynchronous secondary copy out-of-region.
-
-## 🏷️ DIA naming standard (memorise this)
-
-```
-rg-dia-anl-nzn-{net|stor|app|svc|mgt}-<env>
-```
-
-| Part | Means |
-|---|---|
-| `rg` | resource group |
-| `dia` | organisation |
-| `anl` | app name (Archives & National Library) |
-| `nzn` | region (NZ North) |
-| `net|stor|app|svc|mgt` | category (network / storage / application / shared services / management) |
-| `<env>` | `dev`, `uat`, or `prd` |
-
-## 🏷️ DIA tagging standard
-
-| Tag | Value | Why |
-|---|---|---|
-| `app_name` | `anl` | Slice cost reports by app |
-| `org_name` | `dia` | Multi-tenant cost segregation |
-| `env` | `dev` / `uat` / `prd` | Filter and policy by environment |
-
----
-
-## ⌨️ Activity 1 — Sign in and inspect your subscription
-
-```bash
-az login
-az account show --output table
-```
-
-Note the **Subscription ID** — you'll use it later.
-
-## ⌨️ Activity 2 — Create a resource group
-
-In Cloud Shell:
-
-```bash
-az group create \
-  --name rg-training-foundations-<your-initials> \
-  --location australiaeast \
-  --tags purpose=dsr-training app_name=training env=lab
-```
-
-Replace `<your-initials>` (e.g. `sq` for Shanshan Qu).
-
-✅ You'll see JSON output confirming the group was created.
-
-## ⌨️ Activity 3 — Inspect the resource group in the portal
-
-1. [portal.azure.com](https://portal.azure.com) → search `rg-training-foundations-<your-initials>`.
-2. Note the **Location**, **Subscription**, and **Tags**.
-3. Click **JSON View** (top right). This is the source of truth for any Azure resource.
+1. Go to <https://portal.azure.com> and sign in with your Azure account.
+2. Top-right → click your name → **Switch directory**. Note the directory (tenant) name shown — this is the boundary for your identity.
+3. Top-left search bar → type **Microsoft Entra ID** → open it. This is the identity service. (You don't need to change anything; just look.)
+4. Left menu → **Overview**. Note the **Tenant ID** (a GUID). Every Azure resource ultimately lives inside one tenant.
 
 > [!TIP]
-> Whenever a resource is "weird" or behaving unexpectedly, check JSON View first. The portal sometimes hides fields that JSON shows.
+> The tenant is also called the "directory". They are the same thing.
 
-## ⌨️ Activity 4 — Deploy a storage account
+## ⌨️ Activity 2 — Explore subscriptions
 
-```bash
-az storage account create \
-  --name sttraining<your-initials>$RANDOM \
-  --resource-group rg-training-foundations-<your-initials> \
-  --location australiaeast \
-  --sku Standard_LRS \
-  --kind StorageV2 \
-  --tags purpose=dsr-training app_name=training env=lab
-```
+1. Search bar → **Subscriptions** → open it.
+2. You'll see at least your free-trial subscription. In production DIA has 3 subscriptions for ANL: DEV, UAT, PRD.
+3. Click your subscription → **Overview**. Note the **Subscription ID** (a GUID).
+4. Left menu → **Resource providers**. Each provider is a category of services Azure can give you (storage, networking, etc.). Note that they need to be **registered** before you can use them — registration is a one-off click that happens automatically the first time you create a resource of that kind.
+
+## ⌨️ Activity 3 — Create your first resource group
+
+1. Search bar → **Resource groups** → **+ Create**.
+2. Subscription: your trial. Region: **Australia East** (closest available; in production DIA uses NZ North).
+3. Name: `rg-labs-foundations-<your-initials>`.
+4. Click **Review + create** → **Create**.
+5. Click the new RG → **Tags** → add:
+   - `purpose` = `dsr-training`
+   - `owner` = your-email@dia.govt.nz
+   - `app_name` = `lab`
+6. Save.
 
 > [!IMPORTANT]
-> Storage account names must be **3–24 lowercase letters/digits, globally unique**. The `$RANDOM` adds a random number to avoid collisions.
+> Always tag resources you create. The `purpose=dsr-training` + `owner=<you>` tags are what makes cleanup safe — you can search and delete only resources tagged with your email.
 
-## ⌨️ Activity 5 — Inspect the storage account
+## ⌨️ Activity 4 — Read your role assignments
 
-In the portal, find the new storage account. Note:
+1. On the RG you just created → **Access control (IAM)** → **Role assignments**.
+2. Find yourself in the list. You should see role **Owner** at the subscription scope.
+3. Click your name → see the role detail. Owner = full read + write + delete + grant access to others.
+4. Now mentally compare this to production: in DSR, your account would have **Reader** at the resource group level for most things. That means: can see, cannot change.
 
-- **Performance:** Standard
-- **Redundancy:** LRS (Locally Redundant — copies in one datacentre)
-- **Account kind:** StorageV2 (the modern, recommended kind)
-- **Endpoints:** Blob, File, Queue, Table — all four sub-services live in one account
+> [!TIP]
+> RBAC is **inherited downward**. If you're Reader at subscription level, you're Reader on every RG, every resource, automatically. You can be granted *additional* access at lower scopes but cannot be granted *less*.
 
-Compare with what production uses (per the design doc):
+## ⌨️ Activity 5 — Decode a DIA resource name
 
-| DSR account | Kind | Redundancy | Used for |
-|---|---|---|---|
-| `stanlnznfileprdrosi01` | StorageV2 | **ZRS** | NFS Premium for Rosetta |
-| `stanlnznblobprdrosi01` | StorageV2 | **ZRS** | Blob for Rosetta storage groups |
-| `stanlnznblobprdwod01` | StorageV2 | **ZRS** | Blob for WOD with legal hold |
+DSR resource names follow a strict pattern:
 
-## ⌨️ Activity 6 — Look at role assignments
-
-1. In the storage account → **Access control (IAM)** → **Role assignments**.
-2. You should see your account listed as **Owner** at the subscription level (inherited).
-
-You'll learn more about RBAC in Module 3 — for now, just note where the menu is.
-
-## ⌨️ Activity 7 — Tear down
-
-```bash
-az group delete --name rg-training-foundations-<your-initials> --yes --no-wait
+```
+rg-dia-anl-nzn-stor-prd
 ```
 
-✅ The whole RG and everything in it deletes asynchronously. No more cost.
+Break it down:
 
----
+| Segment | Meaning |
+|---|---|
+| `rg-` | Resource group (resource type prefix) |
+| `dia` | Organisation: Department of Internal Affairs |
+| `anl` | Application: Archives & National Library |
+| `nzn` | Region: NZ North |
+| `stor` | Function: storage |
+| `prd` | Environment: production |
+
+**Practice:** decode these aloud (answers in the success checklist).
+
+1. `vm-rosirep01-prd`
+2. `stanlnznblobprdwod01`
+3. `kv-anl-nzn-mgt-uat`
 
 ## 🦾 Now your turn!
 
-Without using the portal, deploy a **second** storage account into a new resource group named per DIA's naming standard, with all the right tags. Then list it using:
+In your `rg-labs-foundations-<your-initials>` resource group:
 
-```bash
-az storage account list --output table --query "[?tags.purpose=='dsr-training']"
-```
-
-✅ Your second account should show up with all tags applied.
-
-Tear down both groups when done.
-
----
+1. Create a **Storage account** with the smallest config: Standard, LRS, Hot tier, no geo-redundancy. Call it something with `lab` in the name (must be globally unique, all lowercase, no hyphens).
+2. Add the same three tags you used on the RG.
+3. In the storage account → **Overview** → click the **Resource ID** at the top right (the `/subscriptions/.../...` path). Notice the structure: `/subscriptions/<subId>/resourceGroups/<rg>/providers/Microsoft.Storage/storageAccounts/<name>`.
+4. That string is what ARM uses for everything. Every tool, script, and API call resolves a resource by this path.
 
 ## ✅ Success checklist
 
-- [ ] You can sign in and see your subscription
-- [ ] You created a resource group following DIA's naming convention
-- [ ] You deployed and inspected a Standard storage account
-- [ ] You can read JSON view on any resource
-- [ ] You torn down everything created
+- [ ] You can name the four levels of the Azure hierarchy in order (tenant → subscription → RG → resource).
+- [ ] Your `rg-labs-foundations-<your-initials>` resource group exists with three tags.
+- [ ] Your test storage account is created inside that RG.
+- [ ] You can decode the three DSR names above.
+  - *Answers: (1) Repository VM 01 in production; (2) ANL NZ North blob storage account for WOD in production; (3) Key Vault for ANL in NZ North management RG, UAT environment.*
+- [ ] You can explain in one sentence why DIA tags resources with `app_name`.
 
----
+## 📚 Self-serve refresher (for new starters / your future self)
+
+- [Azure Fundamentals certification path (AZ-900)](https://learn.microsoft.com/certifications/azure-fundamentals/) — free, 8–12 hours, end-to-end recap of everything in this lab.
+- [Resource naming best practices](https://learn.microsoft.com/azure/cloud-adoption-framework/ready/azure-best-practices/resource-naming) — why DIA's pattern looks the way it does.
 
 ## 💰 Cost note
 
-If you torn down at the end of the lab (and you should), the total cost is well under NZD $0.50.
+- Resource group: free.
+- Storage account empty: ~NZD $0.05/month minimum.
+- All resources in this lab can be deleted together by deleting the resource group.
+
+**Cleanup:** Search → Resource groups → click your RG → **Delete resource group** → type the name to confirm. Every resource inside disappears together.
 
 ---
 
-➡️ **Next:** [Step 02 — Azure Portal foundations](step-02-portal-foundations.md)
+➡️ **Next:** [Step 02 — Portal & Cloud Shell tour](step-02-portal-and-cloud-shell.md)

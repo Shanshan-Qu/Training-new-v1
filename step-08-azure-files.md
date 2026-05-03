@@ -1,270 +1,215 @@
-# Step 08 — Azure Files: NFS vs SMB
+# Step 08 — Azure Files (NFS & SMB)
 
-_The "Rosetta's hot path runs through here" lab._ 📂
+_The "shared filesystems for Rosetta" lab._ 📁 Builds the working knowledge of Azure Files the team needs to operate `stanlnznfileprdrosi01/02` — NFS vs SMB, mounting, POSIX/Kerberos permissions, performance, and throttling.
 
 > [!NOTE]
-> **Duration:** 120 minutes
-> **Lab cost:** < NZD $3 (Premium FileStorage is the largest single cost in the series)
-> **Pairs with:** Module 8 of the training plan
+> **Trainee duration:** 120 minutes
+> **Instructor EDE:** 4.0 hours (1h prep + 2h delivery + 1h Q&A buffer)
+> **Lab cost:** under NZD $5 — one Premium FileStorage account (NFS or SMB) for the duration of the lab. **Delete promptly after.**
+> **Prerequisites:** Steps 01–05 complete. A Linux VM you can SSH to (or a small Cloud Shell mount).
+> **Pairs with:** Module 2 of the DIA training plan (Storage).
 
 ---
 
 ## 📖 Session overview
 
-Azure Files is a managed file share service. DSR uses two flavours:
+Rosetta uses Azure Files for shared deposit / IE staging directories. Two file shares live on dedicated FileStorage accounts (`stanlnznfileprdrosi01` and `02`). Your team needs to be able to: read share configuration, recognise NFS vs SMB shares, recognise the **performance tier**, troubleshoot mount problems with read-only diagnostics, and understand **throttling** and IOPS limits. We won't deploy Rosetta itself — we'll deploy a lab share, mount it, and exercise the same operations Rosetta does.
 
-- **`stanlnznfileprdrosi01`** — **Premium NFS v4.1** — Rosetta's hot path, mounted by RHEL VMs.
-- **`stanlnznfileprdrosi02`** — **Standard SMB** — admin shares, less performance-critical.
+**What you'll learn**
+- The two **share protocols**: SMB (Windows-style) and NFS v4.1 (Linux-style).
+- The **performance tiers**: Standard (transaction-priced) and Premium (provisioned IOPS / GiB).
+- How **provisioned size** drives **IOPS, throughput, burst** on Premium.
+- The two **identity / auth options**: storage-account key vs Active Directory (Kerberos / Entra Domain Services).
+- POSIX vs ACL permission models.
+- How to read **throttling metrics** and what to do about them.
+- The DSR pattern: NFS v4.1 Premium with Private Endpoint.
 
-You'll mount both kinds, understand the permissions models (POSIX vs Kerberos), watch performance metrics, and learn how throttling presents itself — because when Rosetta slows down, this is often where you look first.
+## 💡 Jargon buster
 
-## 🎯 What you'll learn
+| Term | Plain meaning |
+|---|---|
+| **SMB** | Server Message Block — the Windows file-sharing protocol. Works on Linux too. |
+| **NFS v4.1** | Network File System — Unix/Linux file-sharing protocol. DSR uses this for Rosetta. |
+| **FileStorage account kind** | A specialised storage account kind that supports Premium file shares. |
+| **Provisioned size** | On Premium, you pre-pay for X GiB; IOPS/throughput scale with X. |
+| **IOPS** | I/O operations per second — how many reads/writes per second the share allows. |
+| **Burst credits** | Allowance to exceed baseline IOPS for short periods. |
+| **Throttling** | When you exceed IOPS/throughput, the share returns errors or slows responses (HTTP 503, NFS slow). |
+| **Mount** | Attaching the file share to a VM so it appears as a local folder. |
+| **POSIX** | Standard Unix file permissions (owner/group/other × read/write/execute). |
+| **Kerberos** | The Microsoft-Entra/AD authentication protocol — required for SMB-with-AD shares. |
 
-- The differences between **NFS v4.1** and **SMB 3.x** protocols on Azure Files
-- How to **mount** each from a Linux VM
-- POSIX permissions (UID/GID) for NFS vs **Kerberos** for SMB
-- How to read **share-level metrics** (latency, throttling, IOPS, throughput)
-- How to spot **throttling events** and what to do
-- DSR-specific mount options (per § 9.12 of the design)
+## 📚 Prepare in advance — Microsoft Learn
 
-## 📚 Before this session — MS Learn pre-work
+| Module | Why it matters for ANL |
+|---|---|
+| [Azure Files overview](https://learn.microsoft.com/azure/storage/files/storage-files-introduction) | The model behind every share. |
+| [NFS file shares in Azure Files](https://learn.microsoft.com/azure/storage/files/files-nfs-protocol) | The protocol DSR uses for Rosetta. |
+| [Premium file shares performance](https://learn.microsoft.com/azure/storage/files/understand-performance) | IOPS / throughput / burst — what to watch on metrics. |
+| [Troubleshoot Azure Files mounting](https://learn.microsoft.com/azure/storage/files/storage-troubleshoot-linux-file-connection-problems) | The exact runbook for "share won't mount". |
 
-| Module | Time | Why this matters |
-|---|---|---|
-| [Introduction to Azure Files](https://learn.microsoft.com/training/modules/intro-to-azure-files/) | 30 min | NFS vs SMB, premium vs standard |
-| [Configure Azure Files](https://learn.microsoft.com/training/modules/configure-azure-files-file-sync/) | 45 min | Hands-on overview |
-
-## 🔤 Acronyms used
-
-- **GID / UID** = Group / User Identifier (POSIX numeric IDs)
-- **IOPS** = Input/Output Operations Per Second
-- **NFS** = Network File System
-- **SMB** = Server Message Block (Windows-native file protocol; Linux supports it)
-- **SSSD** = System Security Services Daemon (Linux integration with AD)
-
-## ⏱️ EDE accounting
-
-- Trainee self-paced: 2h
-- Instructor-led delivery: 2h
-- Prep work: 1.25h
-- Q&A: 30 min
-- **Total EDE per trainee: ~6h**
-
-## 💰 Cost note
-
-- Premium FileStorage account (100 GiB minimum): ~NZD $0.50/day if left running
-- Small RHEL B2s VM: ~NZD $0.20/day
-- Tear down within 1–2 hours: total < NZD $3.
-
----
+About **2.5 hours** of optional pre-reading.
 
 ## 🧱 Foundational primer
 
-### NFS v4.1 vs SMB 3.x on Azure Files
+- **Premium NFS shares** require a **FileStorage** kind storage account, **NFS v4.1** protocol, and **disabled "secure transfer required"** (encrypts in transit at the network layer instead).
+- **NFS shares are Linux-only** at mount time; SMB shares mount on Windows or Linux.
+- **Premium IOPS = 3,000 + (4 × GiB) baseline**, with **10,000 + (200 × GiB) burst** for up to 1 hour. Bigger share = more IOPS.
+- **Standard tier shares are billed by transactions and storage**, like blob storage. Cheaper at low traffic, surprisingly expensive at high traffic.
+- **NFS uses POSIX permissions** (uid/gid). The mounting client must have UID/GID that match what Rosetta expects.
+- **SMB with Entra Domain Services** uses Kerberos. The VM must be domain-joined.
+- **Private endpoint is mandatory in DSR.** Public access on the file share = audit finding.
+- **Throttling shows up as latency** — not always errors. Watch the **`Transactions`** and **`SuccessE2ELatency`** metrics together.
 
-| | NFS v4.1 | SMB 3.x |
+## ⌨️ Activity 1 — Read the production file share config
+
+Resource Graph:
+
+```kql
+resources
+| where type == "microsoft.storage/storageaccounts"
+| where kind == "FileStorage"
+| project name,
+          sku = sku.name,
+          provisionedIOPS = properties.fileShareProperties,
+          location, resourceGroup, subscriptionId
+```
+
+You'll see DSR's two `stanlnznfileprdrosi01/02` accounts (when you have Reader on the prod sub). Note: kind = FileStorage, sku = Premium_LRS or Premium_ZRS.
+
+To read the share inside:
+
+```kql
+resources
+| where type == "microsoft.storage/storageaccounts/fileservices/shares"
+| where name has "stanlnznfileprd"
+| project name,
+          shareQuota = properties.shareQuota,
+          enabledProtocols = properties.enabledProtocols,
+          rootSquash = properties.rootSquash
+```
+
+## ⌨️ Activity 2 — Create your own NFS Premium file share
+
+1. Portal → **Storage accounts → + Create**.
+2. RG: `rg-labs-foundations-<your-initials>`. Name: `stlabnfsprm<initials><nn>`.
+3. Region: Australia East. **Performance: Premium**. Premium account type: **File shares**.
+4. Replication: ZRS.
+5. **Advanced** tab → **Secure transfer required: Disabled** (required for NFS).
+6. **Networking → Public network access: Enabled from selected networks** + add your IP. (Production = Disabled with Private Endpoint only.)
+7. Create.
+
+8. Open the new account → **File shares → + File share**.
+9. Name: `lab-nfs`. Provisioned capacity: 100 GiB (minimum on Premium).
+10. **Protocol: NFS**. **Root squash: NoRootSquash** (lab only — production uses RootSquash).
+11. Create.
+
+> [!IMPORTANT]
+> The 100 GiB minimum on Premium is **prepaid**. It costs about NZD $20/month. **Delete the account at the end of this lab.**
+
+## ⌨️ Activity 3 — Mount the share from a Linux client
+
+You need a Linux VM. Cheapest option: deploy a tiny Standard B1s Ubuntu VM in the **same VNet** as a Private Endpoint (or use public access + your IP for this lab).
+
+```bash
+# On the Linux VM
+sudo apt update && sudo apt install -y nfs-common
+sudo mkdir -p /mnt/lab-nfs
+
+SA=<your storage account>
+sudo mount -t nfs -o vers=4,minorversion=1,sec=sys $SA.file.core.windows.net:/$SA/lab-nfs /mnt/lab-nfs
+
+# Test
+sudo touch /mnt/lab-nfs/hello.txt
+ls -l /mnt/lab-nfs
+```
+
+If the mount fails, the most common causes are:
+
+| Symptom | Likely cause | Fix |
 |---|---|---|
-| Account kind | Premium FileStorage | StorageV2 (Standard or Premium) |
-| Authentication | POSIX UID/GID + IP firewall | NTLM, Kerberos (AD), or shared key |
-| Mounting from | Linux | Linux + Windows |
-| Encryption in transit | NFS over TLS *(preview)* / IPSec | SMB 3.x channel encryption (always) |
-| Used in DSR | Premium NFS, Rosetta hot path (`...rosi01`) | Standard SMB, admin shares (`...rosi02`) |
+| Permission denied | Storage firewall blocking client IP | Check Networking → IP allowlist. |
+| No route to host | Private Endpoint DNS not resolving | Check DNS resolves to private IP. |
+| Stale file handle | NFS server restarted | `umount -f` then re-mount. |
+| Slow performance | Throttling / undersized share | Check Metrics → Provisioned IOPS exhaustion. |
 
-### DSR-specific mount options (per § 9.12)
+## ⌨️ Activity 4 — Read share metrics
 
-For NFS:
+1. Storage account → **Metrics**.
+2. Metric: `Transactions`. Aggregation: Sum. Add filter: ResponseType = `SuccessThrottlingError`.
+3. If the count is non-zero, you're being throttled — the workload exceeds provisioned IOPS.
+4. Also chart `SuccessE2ELatency` and `Egress` (data read from share).
 
-```bash
-mount -t nfs -o vers=4,minorversion=1,sec=sys,nconnect=4 \
-  stanlnznfileprdrosi01.file.core.windows.net:/stanlnznfileprdrosi01/permanent /mnt/permanent
+In production this is your first read for "Rosetta is slow today" tickets.
+
+## ⌨️ Activity 5 — Inspect throttling on a real account (read-only on DSR)
+
+```kql
+AzureMetrics
+| where Resource has "stanlnznfileprd"
+| where MetricName == "Transactions"
+| where parse_json(Properties).ResponseType == "SuccessThrottlingError"
+| summarize throttled = sum(Total) by Resource, bin(TimeGenerated, 5m)
+| order by TimeGenerated desc
 ```
 
-Notes:
-- `vers=4,minorversion=1` — required for Premium NFS
-- `sec=sys` — POSIX UID/GID auth (no Kerberos)
-- `nconnect=4` — multiplexes I/O across 4 TCP connections (boosts throughput up to 4x)
+Throttling spikes correlate to deposit batches or backup runs — often expected, but the workbook in Step 17 will surface them.
 
-### Throttling rules (Premium FileStorage)
+## ⌨️ Activity 6 — Read POSIX permissions
 
-Premium provisions IOPS and throughput per share, by share size:
-
-| Share size | Baseline IOPS | Burst IOPS | Throughput MiB/s |
-|---|---|---|---|
-| 100 GiB | 400 | 4,000 | 110 |
-| 1 TiB | 4,000 | 10,000 | 200 |
-| 10 TiB | 10,000 | 30,000 | 1,000 |
-
-Hit the limit → throttled → operations queue or fail. Visible as `ServerBusy` in metrics.
-
----
-
-## ⌨️ Activity 1 — Inspect DSR Files accounts (read-only)
-
-1. Portal → `stanlnznfileprdrosi01` → **Overview**. Confirm: kind = **FileStorage**, performance = **Premium**, redundancy = **ZRS**.
-2. **File shares** → see `permanent`, etc.
-3. Click into `permanent` → **Settings** → note: protocol = NFS, root squash setting, snapshot count.
-4. Repeat for `stanlnznfileprdrosi02` (Standard SMB).
-
-## ⌨️ Activity 2 — Deploy a Premium NFS share in your training sub
+On the mounted share:
 
 ```bash
-RG=rg-training-files-<your-initials>
-az group create -n $RG -l australiaeast --tags purpose=dsr-training
-
-# Premium FileStorage account, NFS-capable
-SA=sttrainnfs<your-initials>$RANDOM
-az storage account create -n $SA -g $RG -l australiaeast \
-  --sku Premium_ZRS --kind FileStorage \
-  --enable-large-file-share \
-  --default-action Deny  # Firewall blocks public
-
-# Allow your IP for mounting (replace with your IP)
-MY_IP=$(curl -s https://api.ipify.org)
-az storage account network-rule add -n $SA -g $RG --ip-address $MY_IP
-
-# Disable secure transfer (NFS doesn't support TLS in production GA yet)
-az storage account update -n $SA -g $RG --https-only false
-
-# Create the NFS share (100 GiB minimum)
-az storage share-rm create \
-  --storage-account $SA \
-  --name preservation \
-  --quota 100 \
-  --enabled-protocols NFS \
-  --root-squash NoRootSquash
+ls -ln /mnt/lab-nfs        # numeric uid/gid
+sudo chown 1001:1001 /mnt/lab-nfs/hello.txt
+ls -ln /mnt/lab-nfs/hello.txt
 ```
 
-## ⌨️ Activity 3 — Spin up a small RHEL VM to mount from
+In production, the Rosetta service account runs as a specific UID (e.g. 60000). The share must have files owned by 60000 or readable by 60000's group. UID mismatches are a common cause of "Rosetta can't see the file".
 
-```bash
-az vm create -g $RG -n vm-trainfile-<your-initials> \
-  --image RedHat:RHEL:9-lvm-gen2:latest \
-  --size Standard_B2s \
-  --admin-username azureuser \
-  --generate-ssh-keys \
-  --public-ip-sku Standard \
-  --tags purpose=dsr-training
+## ⌨️ Activity 7 — Increase share quota and watch IOPS rise
 
-# Get the public IP
-VM_IP=$(az vm show -g $RG -n vm-trainfile-<your-initials> -d --query publicIps -o tsv)
-echo "VM at $VM_IP"
-```
+1. File share → **Quota → Increase to 500 GiB**.
+2. Note in the portal: provisioned IOPS goes from 3,400 → 5,000; burst from 10,200 → 110,000.
+3. This is how you scale capacity for Rosetta during deposit-heavy days — the actual change is small and reversible.
 
-## ⌨️ Activity 4 — Mount the NFS share
-
-```bash
-ssh azureuser@$VM_IP
-
-# On the VM:
-sudo dnf install -y nfs-utils
-sudo mkdir -p /mnt/preservation
-sudo mount -t nfs -o vers=4,minorversion=1,sec=sys,nconnect=4 \
-  <SA>.file.core.windows.net:/<SA>/preservation /mnt/preservation
-
-mount | grep preservation
-df -h /mnt/preservation
-
-# Test write
-sudo touch /mnt/preservation/hello.txt
-ls -la /mnt/preservation/
-```
-
-✅ You see the share mounted, ~100 GiB, and a file written.
-
-## ⌨️ Activity 5 — Performance metrics
-
-In the portal, on the storage account → **Insights** (Storage Insights):
-
-- Latency (success/failure)
-- Transactions
-- Egress / Ingress
-- Availability
-- Used capacity
-
-Generate some load from the VM:
-
-```bash
-# Sequential write test
-sudo dd if=/dev/zero of=/mnt/preservation/test.bin bs=1M count=500 conv=fsync
-```
-
-Watch the metrics tick up.
-
-## ⌨️ Activity 6 — Simulate throttling
-
-```bash
-# Multiple parallel writes to push IOPS
-for i in {1..10}; do
-  sudo dd if=/dev/zero of=/mnt/preservation/test-$i.bin bs=4k count=10000 oflag=direct &
-done
-wait
-```
-
-In Storage Insights → look for **Transactions / Server-side latency**. Spike = pressure. Repeated `ServerBusy` responses = actual throttling.
-
-## ⌨️ Activity 7 — Inspect a Standard SMB share
-
-DSR's `stanlnznfileprdrosi02` uses SMB. SMB on Linux uses Kerberos for AD auth.
-
-For training, mount with shared key:
-
-```bash
-SA_SMB=sttrainsmb<your-initials>$RANDOM
-az storage account create -n $SA_SMB -g $RG -l australiaeast \
-  --sku Standard_ZRS --kind StorageV2
-
-az storage share create -n adminshare --account-name $SA_SMB
-
-KEY=$(az storage account keys list -n $SA_SMB -g $RG --query '[0].value' -o tsv)
-
-# On your VM:
-sudo dnf install -y cifs-utils
-sudo mkdir -p /mnt/admin
-sudo mount -t cifs //$SA_SMB.file.core.windows.net/adminshare /mnt/admin \
-  -o vers=3.1.1,username=$SA_SMB,password=$KEY,uid=1000,gid=1000,serverino,nosharesock,actimeo=30
-
-mount | grep admin
-sudo touch /mnt/admin/hello.txt
-```
-
-In production, DSR uses Kerberos (via `SSSD`) instead of shared key — but the mount semantics are the same.
-
-## ⌨️ Activity 8 — Tear down
-
-```bash
-exit  # leave the VM
-az group delete -n $RG --yes --no-wait
-```
-
----
+> [!TIP]
+> You can also resize via Cloud Shell: `az storage share update --name lab-nfs --account-name $SA --quota 500`. In DSR, all resize operations go through change control — but the *recognise* step is yours.
 
 ## 🦾 Now your turn!
 
-Write a KQL query for Log Analytics that returns:
-
-- Total `ServerBusy` (throttled) responses on `stanlnznfileprdrosi01` over the last 7 days
-- Grouped by hour
-- Rendered as a column chart
-
-Hint: the table is `StorageFileLogs`, the field is `StatusCode`.
-
----
+1. Run a small load test: copy 10,000 small files into the share with `dd` or a simple loop, then watch the metric `Transactions` and `SuccessE2ELatency`. Was throttling triggered?
+2. From Resource Graph, write a query that returns every Premium FileStorage account in the subscription and its provisioned size.
+3. Mount the same share on a *second* Linux client (or via Cloud Shell). What happens to file locks if both write the same file? (NFS v4.1 supports byte-range locks — try `flock`.)
+4. Find the share's **soft delete** setting. Is it enabled? (DSR has 14-day soft delete on production file shares.)
 
 ## ✅ Success checklist
 
-- [ ] You've inspected both DSR Files accounts in production
-- [ ] You've deployed and mounted a Premium NFS share with DSR's mount options
-- [ ] You've deployed and mounted a Standard SMB share
-- [ ] You've watched performance metrics under load
-- [ ] You know how to spot throttling
-- [ ] You torn down everything
+- [ ] You can name the two share protocols and which DSR uses for Rosetta.
+- [ ] You can name the formula for Premium baseline IOPS (`3000 + 4 × GiB`).
+- [ ] You can mount an NFS v4.1 share from Linux.
+- [ ] You can read throttling metrics and explain "Rosetta is slow" with data.
+- [ ] You understand POSIX UID/GID and how the wrong UID causes access errors.
+- [ ] You've cleaned up — Premium accounts are not free to leave running.
 
----
+## 📚 Self-serve refresher
+
+- [Mount NFS file share on Linux](https://learn.microsoft.com/azure/storage/files/storage-files-how-to-mount-nfs-shares) — the mount runbook.
+- [Performance and scale targets](https://learn.microsoft.com/azure/storage/files/storage-files-scale-targets) — current IOPS/throughput formulas.
+- [Troubleshoot Azure Files performance](https://learn.microsoft.com/azure/storage/files/storage-troubleshooting-files-performance) — when latency spikes.
 
 ## 💰 Cost note
 
-< NZD $3 if torn down within 1–2 hours.
+- Premium FileStorage minimum: 100 GiB ≈ NZD $20/month.
+- A few hours of Premium share for the lab: ~NZD $0.10 if deleted promptly.
+- **Cleanup is critical here.** Delete the storage account itself, not just the share — Premium accounts are billed even with empty shares.
+
+```bash
+# Cleanup
+az storage account delete -g rg-labs-foundations-<your-initials> -n <your account> --yes
+```
 
 ---
 
+⬅️ **Previous:** [Step 07 — Cold tier retrieval & rehydration cost](step-07-cold-retrieval.md)
 ➡️ **Next:** [Step 09 — Data protection posture](step-09-data-protection.md)
