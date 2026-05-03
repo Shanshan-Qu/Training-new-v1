@@ -362,16 +362,85 @@ This is a free signal — no metric, no log query — but covers the worst kinds
 - [Diagnostic Settings reference](https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings) — what categories ship to which table.
 - [Azure Monitor alerts overview](https://learn.microsoft.com/azure/azure-monitor/alerts/alerts-overview) — metric vs log vs activity log, action groups, alert processing rules.
 - [Supported metrics with Azure Monitor](https://learn.microsoft.com/azure/azure-monitor/reference/supported-metrics/metrics-index) — every platform metric, by resource type.
+- [Azure Monitor pricing](https://azure.microsoft.com/en-us/pricing/details/monitor/) — authoritative source for the numbers in the cost table below.
+- [Log Analytics cost calculator + table tier guide](https://learn.microsoft.com/azure/azure-monitor/logs/cost-logs) — when to use Analytics vs Basic vs Auxiliary logs.
 
-## 💰 Cost note
+## 💰 Cost note — Azure Monitor (LAW + Logs + Alerts)
 
-- Workspace itself: free.
-- Per GB ingestion: ~NZD $4.30/GB after free 5 GB/month tier. Lab volume <100 MB: $0.
-- Retention beyond 31 days: per-GB-month fee. Default 30 days = free.
-- Metric alerts: ~NZD $0.20/month per signal monitored.
-- Log alerts: ~NZD $1.50/month per rule at 5-min frequency.
-- Activity Log alerts: free.
-- Action group: free; SMS has per-message charge (~NZD $0.05).
+Azure Monitor charges across **four** independent dimensions. Most surprises in the bill come from #2 (ingestion) and #4 (log alerts).
+
+### 1. Log Analytics workspace (LAW) itself
+
+| Item | Price (Australia East, NZD) | Notes |
+|---|---|---|
+| Workspace creation/existence | **Free** | You are charged only on ingestion + retention. |
+| Pay-as-you-go ingestion | **~NZD $4.30 / GB** | Above the free tier. |
+| Free tier | First **5 GB / workspace / month** | Enough for the whole lab (lab volume <100 MB). |
+| Commitment tiers (100 GB/day +) | ~15–30% discount | DSR PROD is a candidate when ingestion stabilises. |
+| Basic Logs | **~NZD $0.85 / GB** ingest, **$0.0075/GB** scanned | Cheap for verbose, rarely-queried tables (e.g. `StorageBlobLogs` raw). 8-day retention. |
+| Auxiliary Logs (preview) | Even cheaper than Basic | Long-term archive of low-value logs. |
+
+### 2. Log retention (the silent line item)
+
+| Tier | Free retention | Beyond | Cost beyond free |
+|---|---|---|---|
+| Analytics Logs (default) | **31 days free** | Per GB-month | ~NZD $0.18 / GB / month |
+| Sentinel-enabled workspace | **90 days free** | Per GB-month | ~NZD $0.18 / GB / month |
+| Archive tier | n/a | 1 day to 12 years | ~NZD $0.04 / GB / month + per-GB restore fee |
+
+> [!IMPORTANT]
+> DSR's policy is **90-day analytics + 2-year archive** for `StorageBlobLogs` and `AzureActivity`. That's where most of Azure Monitor's monthly spend lives.
+
+### 3. Metrics
+
+| Item | Price | Notes |
+|---|---|---|
+| Platform metrics (CPU, availability, etc.) | **Free** | Always-on, 93-day retention. |
+| Custom metrics ingested via API/AMA | ~NZD $0.40 / 1M time-series samples | Rare for DSR. |
+| Metrics queries via API | First 1M calls free, then ~NZD $1 / 1M calls | Negligible for portal users. |
+
+### 4. Alerts
+
+| Alert type | Price (per rule, per month) | Latency | DSR usage |
+|---|---|---|---|
+| **Metric alert** | ~NZD $0.20 per signal | ~1 min | ~10 in DSR PROD (storage availability, AGW health, VM CPU) |
+| **Log (scheduled-query) alert** — 5-min frequency | ~NZD $1.50 | 5 min min | ~6 in DSR PROD (5xx bursts, soft-delete misuse, immutability changes) |
+| **Log alert** — 1-min frequency | ~NZD $4.50 | 1 min | Use sparingly |
+| **Activity Log alert** | **Free** | seconds | Use freely (e.g. "storage account deleted") |
+| **Smart Detection** (App Insights) | Free | varies | Off for DSR |
+
+### 5. Action groups & notifications
+
+| Channel | Price | Notes |
+|---|---|---|
+| Action group itself | **Free** | |
+| Email | **Free** | First 1,000 / month then negligible |
+| Push notification (mobile app) | Free | First 1,000 / month |
+| SMS | ~NZD $0.05 / message (NZ/AU) | Country-rated |
+| Voice call | ~NZD $0.20 / call (NZ/AU) | Use for sev-1 only |
+| Webhook / Logic App / Function | Free from action group; **target service** charges separately | |
+
+### Lab cost summary (this module)
+
+- LAW workspace: **$0** (well under the 5 GB/month free tier).
+- Lab alerts (3 rules, deleted at the end): **<$0.05** total prorated.
+- Action group: **$0**.
+- **Total expected lab spend: under NZD $0.50.**
+
+### DSR PROD monthly estimate (for context)
+
+| Bucket | Estimate | Notes |
+|---|---|---|
+| LAW ingestion (~30 GB/day) | ~NZD $3,300 / month | Mostly `StorageBlobLogs` + `AzureActivity` + AGW logs |
+| 90-day analytics retention | ~NZD $480 / month | |
+| 2-year archive | ~NZD $260 / month | |
+| Metric alerts (~10) | ~NZD $2 / month | |
+| Log alerts (~6 @ 5-min) | ~NZD $9 / month | |
+| Action groups + email | $0 | |
+| **Total Azure Monitor (PROD)** | **~NZD $4,050 / month** | Largest single dimension is ingestion — see Step 19 for cost optimisation levers. |
+
+> [!TIP]
+> The single biggest ingestion saver is **moving `StorageBlobLogs` to Basic Logs** (when query patterns allow). In DSR that would cut ingestion cost by ~40%. We test this hypothesis in Step 19.
 
 ```bash
 # Cleanup (only if you don't want to keep the workspace)
