@@ -4,7 +4,7 @@ Self-paced and instructor-led Azure training for the **Archives Library Digital 
 
 The curriculum is grounded in the **DIA DSR DPS Azure Application Landing Zone Design** and the team's BAU responsibilities: storage operations and the preservation applications (Rosetta + Whole-of-Domain archive).
 
-For full timing/EDE accounting, see [DIA-DPS-Training-Plan-and-EDE-Hours.docx](DIA-DPS-Training-Plan-and-EDE-Hours.docx).
+Full timing / EDE accounting is maintained in a separate internal Word document (not in this repo).
 
 > [!IMPORTANT]
 > **Before Step 01**, every trainee must set up their own personal Azure sandbox. Read [lab-environment-setup.md](lab-environment-setup.md) and complete its checklist first.
