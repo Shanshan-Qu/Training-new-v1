@@ -1,7 +1,7 @@
-# Step 10 — Application Gateway + WAF for operators
+# Step 09 — Application Gateway + WAF for operators
 
 > [!IMPORTANT]
-> **STATUS: TRIMMED (per Emma, 11-May-2026).** App Gateway / WAF is mostly owned by **Service Reliability / Platforms team**, not Digital Preservation. Reduce to a focused **"Rosetta-down triage" mini-section**: backend-health read, where to escalate, how to read a blocked-request entry. Drop AGW deployment, listener/rule authoring, and certificate rotation deep-dive.
+> **STATUS: TRIMMED.** App Gateway / WAF is mostly owned by **Service Reliability / Platforms team**, not Digital Preservation. Reduce to a focused **"Rosetta-down triage" mini-section**: backend-health read, where to escalate, how to read a blocked-request entry. Drop AGW deployment, listener/rule authoring, and certificate rotation deep-dive.
 
 _The "front door of Rosetta" lab._ 🚪 Builds operator-level fluency in Application Gateway and WAF: backend health, certificate management, blocked-request review, and how to triage "Rosetta is down" tickets without write access.
 
@@ -202,5 +202,5 @@ az network public-ip delete -g rg-labs-foundations-<your-initials> -n <your AGW 
 
 ---
 
-⬅️ **Previous:** [Step 09 — Blob inventory & capacity reporting](step-09-blob-inventory.md)
-➡️ **Next:** [Step 11 — WOD container operations](step-11-wod-container-ops.md) _(Step 11 scope is TBC — confirm with Emma)_
+⬅️ **Previous:** [Step 08 — Blob inventory & capacity reporting](step-08-blob-inventory.md)
+➡️ **Next:** [Step 10 — WOD container operations](step-10-wod-container-ops.md) _(Step 10 scope is TBC — confirm before scheduling)_

@@ -1,7 +1,7 @@
-# Step 11 — WOD container operations
+# Step 10 — WOD container operations
 
 > [!WARNING]
-> **STATUS: TBC (per Emma, 11-May-2026).** Pending confirmation from Emma whether WOD container ops (PODMAN, blobfuse2, NGINX) sits with the DP team. Do **not** schedule until confirmed.
+> **STATUS: TBC.** Pending confirmation whether WOD container ops (PODMAN, blobfuse2, NGINX) sits with the DP team. Do **not** schedule until confirmed.
 
 _The "web archive in containers" lab._ 🕸️ Builds working knowledge of the Web On-Demand stack: PODMAN containers running NGINX, pyweb, and OutbackCDX, with `blobfuse2` mounting `stanlnznblobprdwod01` for content access.
 
@@ -229,5 +229,5 @@ az network nic delete -g rg-labs-foundations-<your-initials> -n vm-wod-labVMNic
 
 ---
 
-⬅️ **Previous:** [Step 10 — Application Gateway + WAF for operators](step-10-app-gateway-waf.md)
-➡️ **Next:** [Step 12 — Operational Visibility & Alerts](step-12-operational-visibility.md) (Phase 4 begins)
+⬅️ **Previous:** [Step 09 — Application Gateway + WAF for operators](step-09-app-gateway-waf.md)
+➡️ **Next:** [Step 11 — Operational Visibility & Alerts](step-11-operational-visibility.md) (Phase 4 begins)

@@ -6,7 +6,7 @@ _The "I'm not configuring this, I just need to read it" lab._ 🌐 Builds enough
 > **Trainee duration:** 90 minutes
 > **Lab cost:** under NZD $1 — small VNet, NSG, and a single private endpoint. All free or near-free.
 > **Prerequisites:** Steps 00–02 complete.
-> **Pairs with:** Module 1 of the DIA training plan (Foundations) — addresses Emma's "Guardrails & Governance" feedback by showing where network controls live.
+> **Pairs with:** Module 1 of the DIA training plan (Foundations) — addresses the "Guardrails & Governance" requirement by showing where network controls live.
 
 ---
 
@@ -210,4 +210,4 @@ az network private-endpoint delete -g rg-labs-foundations-<your-initials> -n pe-
 ---
 
 ⬅️ **Previous:** [Step 03 — Guardrails, governance & audit](step-03-governance-guardrails.md)
-➡️ **Next:** [Step 05 — Storage accounts deep-dive](step-05-storage-accounts-deep-dive.md) (Phase 2 begins)
+➡️ **Next:** [Step 05 — Storage accounts & tier management](step-05-storage-accounts-and-tiers.md) (Phase 2 begins)

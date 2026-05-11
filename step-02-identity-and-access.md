@@ -6,7 +6,7 @@ _The "who can do what" lab._ 🔐 Builds the access mindset Preservation needs: 
 > **Trainee duration:** 75 minutes
 > **Lab cost:** under NZD $0.50 — only a small test storage account is reused.
 > **Prerequisites:** Step 00 + 02 complete; a test storage account in your `rg-labs-foundations-<your-initials>`.
-> **Pairs with:** Module 1 of the DIA training plan (Foundations) — addresses Emma's "RBAC visibility for audit" feedback.
+> **Pairs with:** Module 1 of the DIA training plan (Foundations) — addresses the "RBAC visibility for audit" requirement.
 
 ---
 

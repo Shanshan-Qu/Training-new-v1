@@ -1,12 +1,12 @@
 # Step 03 — Guardrails, governance & audit (lite)
 
 > [!NOTE]
-> **This is the lite version (per Emma, 11-May-2026).** Platforms team owns guardrails at DIA. Scope is **awareness-only**: read existing resource locks, query the Activity Log for "who did what when", recognise when a policy has blocked a deployment. Policy authoring, Defender for Cloud compliance, and weekly Resource Graph audit packs are **out of scope** for the DP team.
+> **This is the lite version.** Platforms team owns guardrails at DIA. Scope is **awareness-only**: read existing resource locks, query the Activity Log for "who did what when", recognise when a policy has blocked a deployment. Policy authoring and weekly Resource Graph audit packs are **out of scope** for the DP team.
 
 _The "what stops me breaking production?" lab._ 🛡️ Awareness-only coverage of the guardrails Platforms applies to the DSR landing zone, and the two operations the DP team actually performs: read the Activity Log, apply/remove a resource lock.
 
 > [!NOTE]
-> **Trainee duration:** 45 minutes
+> **Trainee duration:** 60 minutes
 > **Lab cost:** under NZD $0.50 — only one resource for lock testing.
 > **Prerequisites:** Steps 00–02 (subscription, portal navigation, identity).
 > **Pairs with:** Module 1 of the DIA training plan (Foundations).
@@ -20,7 +20,7 @@ Azure and DIA put guardrails in place so that mistakes don't escalate into outag
 The most important takeaway: **the Preservation Team reads governance signals; other DIA teams act on them.**
 
 **What you'll learn**
-- The four governance pillars in Azure: **Policy**, **RBAC**, **Resource Locks**, **Defender for Cloud** — and who owns each at DIA (awareness only).
+- The three governance pillars in Azure that the DP team interacts with: **Policy**, **RBAC**, **Resource Locks** — and who owns each at DIA (awareness only).
 - How to recognise the `RequestDisallowedByPolicy` error and where to escalate.
 - How to read the **Activity Log** to answer "who did what when".
 - How to apply and remove **resource locks** (`CanNotDelete`, `ReadOnly`).
@@ -39,21 +39,20 @@ The most important takeaway: **the Preservation Team reads governance signals; o
 
 | Module | Why it matters for ANL |
 |---|---|
-| [Describe Azure governance and compliance features](https://learn.microsoft.com/training/modules/describe-features-tools-azure-for-governance-compliance/) | The big-picture map: Policy, Locks, Cost Mgmt, Defender. |
+| [Describe Azure governance and compliance features](https://learn.microsoft.com/training/modules/describe-features-tools-azure-for-governance-compliance/) | The big-picture map: Policy, Locks, Cost Mgmt. |
 | [Manage resource locks](https://learn.microsoft.com/azure/azure-resource-manager/management/lock-resources) (article) | Hands-on with the CLI/portal lock commands. |
 
 About **45 minutes** of optional pre-reading.
 
 ## 🧱 Foundational primer
 
-### The four governance pillars
+### The three governance pillars you'll interact with
 
 | Pillar | What it does | Owner at DIA |
 |---|---|---|
 | **Azure Policy** | Auto-enforce or audit rules | Cloud Governance |
 | **RBAC** (Step 02) | Who can do what | Cloud Governance + Platform |
 | **Resource Locks** | Prevent accidental delete/modify | Resource owner — your team can apply |
-| **Microsoft Defender for Cloud** | Posture & threat detection | Cloud Security |
 
 ### Likely policies you'll see effects of (you don't author these)
 
@@ -98,7 +97,7 @@ Every change writes who (`caller`), what (`operationName`), when (`eventTimestam
 
 In production, this is how DIA Cloud Governance proves "no one outside the Platform team modified the storage accounts last quarter."
 
-You can also query it via KQL once shipped to Log Analytics (you'll do this in Step 12):
+You can also query it via KQL once shipped to Log Analytics (you'll do this in Step 11):
 
 ```kql
 AzureActivity
@@ -147,7 +146,7 @@ In production, the WOD storage account `stanlnznblobprdwod01` has a `CanNotDelet
 
 ## ✅ Success checklist
 
-- [ ] You can name the four governance pillars and the DIA owner of each.
+- [ ] You can name the three governance pillars and the DIA owner of each.
 - [ ] You can read an existing Azure Policy assignment without changing it.
 - [ ] You've applied and removed both `CanNotDelete` and `ReadOnly` locks.
 - [ ] You've used the Activity Log to find who did what.
@@ -166,7 +165,6 @@ In production, the WOD storage account `stanlnznblobprdwod01` has a `CanNotDelet
 | Policy unexpectedly denies a legitimate deploy (`RequestDisallowedByPolicy`) | DIA Cloud Governance |
 | Lock missing where one is required (e.g. WOD) | DIA Platform + log incident |
 | Activity Log shows unauthorised change | DIA Cloud Security + your team lead |
-| Defender for Cloud alert on DSR storage | DIA Cloud Security (you do **not** investigate) |
 
 ## 💰 Cost note
 

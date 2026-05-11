@@ -1,11 +1,11 @@
-# Step 17 — Capstone: Incident triage tabletop
+# Step 16 — Capstone: Incident triage tabletop
 
 _The "did everything you learned actually stick?" lab._ 🏆 The final Capstone — four scenarios run as a tabletop exercise. No new content, just the ability to navigate the tools you've built across all 22 prior steps under realistic time pressure.
 
 > [!NOTE]
 > **Trainee duration:** 180 minutes (four scenarios × ~45 min each)
 > **Lab cost:** $0 — read-only across the existing estate.
-> **Prerequisites:** Steps 00–15 complete. Confidence in KQL, the Workbooks, and Backup Center.
+> **Prerequisites:** Steps 00–14 complete. Confidence in KQL, the Workbooks, and Backup Center.
 > **Pairs with:** Module 3 + Module 4 of the DIA training plan (Application Operations + Observability). **Closes the programme.**
 
 ---
@@ -41,10 +41,9 @@ The goal is fluency, not completeness. You won't fix anything; you'll know exact
 
 ## 📚 Prepare in advance
 
-- Have the **Weekly Health Workbook** (Step 15) open in one tab.
-- Have **Backup Center** (Step 12) open in another.
-- Have **Defender for Cloud → Alerts** (Step 12) open in a third.
-- Have the **DSR Application Operations runbook** open in a fourth.
+- Have the **Weekly Health Workbook** (Step 14) open in one tab.
+- Have **Backup Center** (Step 11) open in another.
+- Have the **DSR Application Operations runbook** open in a third.
 - Whiteboard or shared notes doc for the tabletop facilitator.
 
 ## 🧱 Foundational principles
@@ -133,7 +132,7 @@ VMs are down → Cloud Platform. Probe path returns 5xx but VM seems alive → a
 2. Likely culprit: **Storage → Read transactions and/or Cold/Archive retrieval**.
 3. Open the storage account in question → Insights → transactions by tier.
 4. KQL: `StorageBlobLogs | where TimeGenerated >= datetime(<sunday>) | where StatusCode < 300 | summarize MB = sum(ResponseBodySize)/1024/1024 by Uri | top 20 by MB desc`. Identify the URIs.
-5. Match URIs to a blob tier (Step 09 inventory join). If they were Cold/Archive, that explains the spike.
+5. Match URIs to a blob tier (Step 08 inventory join). If they were Cold/Archive, that explains the spike.
 6. Talk to the application owner / curator: was a planned bulk export run? If yes, expected. If no, investigate.
 
 ### Communication
@@ -240,5 +239,5 @@ Ka pai.
 
 ---
 
-⬅️ **Previous:** [Step 16 — Capstone: Monthly Cost Report](step-16-capstone-monthly-cost.md)
+⬅️ **Previous:** [Step 15 — Capstone: Monthly Cost Report](step-15-capstone-monthly-cost.md)
 ➡️ **Next:** _Programme complete._ Move on to advanced specialisation (your choice — security, FinOps, automation, application engineering)._

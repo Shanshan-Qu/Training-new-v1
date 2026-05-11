@@ -156,11 +156,11 @@ Before you start Step 01, confirm:
 
 ---
 
-## 💰 Total cost expectation across all 18 modules
+## 💰 Total cost expectation across all 17 modules
 
-All training spend lands on the shared DIA-issued sandbox subscription — **$0 out-of-pocket** for trainees. Estimated total spend on the sandbox **per trainee** if every lab is torn down promptly: **~NZD $15–25** across the 18 modules (Steps 00–17).
+All training spend lands on the shared DIA-issued sandbox subscription — **$0 out-of-pocket** for trainees. Estimated total spend on the sandbox **per trainee** if every lab is torn down promptly: **~NZD $15–25** across the 17 modules (Steps 00–16).
 
-The single most expensive lab is **Step 07 (Azure Files NFS)** at ~NZD $3 if left running >2 hours. Tear down promptly.
+The single most expensive lab is **Step 09 (Application Gateway + WAF)** at ~NZD $5 if left running >2 hours. Tear down promptly.
 
 Each lab page has its own cost note + a **Cleanup** command at the end — always run it. Because the sandbox is shared, **leaving resources running affects every trainee's combined bill** — cleanup is a courtesy, not just hygiene.
 

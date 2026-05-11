@@ -1,4 +1,4 @@
-# Step 08 — Data protection posture
+# Step 07 — Data protection posture
 
 _The "what stops accidental deletion" lab._ 🛡️ Builds the recoverability mental model: snapshots, soft delete, versioning, point-in-time restore, change feed — and how to *prove* a storage account is properly protected.
 
@@ -168,5 +168,5 @@ Every result is a finding — escalate to whoever owns that storage account.
 
 ---
 
-⬅️ **Previous:** [Step 07 — Azure Files (NFS & SMB)](step-07-azure-files.md)
-➡️ **Next:** [Step 09 — Blob inventory & capacity reporting](step-09-blob-inventory.md)
+⬅️ **Previous:** [Step 06 — Azure Files (DSR operational view)](step-06-azure-files.md)
+➡️ **Next:** [Step 08 — Blob inventory & capacity reporting](step-08-blob-inventory.md)

@@ -23,7 +23,7 @@ Starts at zero Azure knowledge; finishes at "I can operate our preservation syst
 
 ## 🗺️ Curriculum
 
-The plan was revised on 11-May-2026 to align with the DP team's actual scope (per Emma's feedback). Modules outside DP ownership — AZ-900-level foundations, immutability, Rosetta architecture, Oracle administration — have been removed; closely related observability topics have been consolidated.
+The plan was revised on 11-May-2026 to align with the DP team's actual scope. Modules outside DP ownership — AZ-900-level foundations, immutability, Rosetta architecture, Oracle administration — have been removed; closely related observability topics have been consolidated.
 
 ### Phase 1 — Foundations
 | # | Module | Notes |
@@ -37,31 +37,30 @@ The plan was revised on 11-May-2026 to align with the DP team's actual scope (pe
 ### Phase 2 — Storage
 | # | Module | Notes |
 |---|---|---|
-| 05 | [Storage accounts deep-dive](step-05-storage-accounts-deep-dive.md) | Includes Hot/Cool/Cold lifecycle (Archive tier excluded — not used at DIA) |
-| 06 | [Cold tier retrieval & rehydration cost](step-06-cold-retrieval.md) | |
-| 07 | [Azure Files (NFS & SMB)](step-07-azure-files.md) | Trimmed — DSR-specific items only |
-| 08 | [Data protection posture](step-08-data-protection.md) | |
-| 09 | [Blob inventory & capacity reporting](step-09-blob-inventory.md) | |
+| 05 | [Storage accounts & tier management](step-05-storage-accounts-and-tiers.md) | Merged former 05+06. Hot/Cool/Cold only — **Archive not used at DIA** |
+| 06 | [Azure Files (DSR operational view)](step-06-azure-files.md) | Trimmed — DSR-specific items only |
+| 07 | [Data protection posture](step-07-data-protection.md) | |
+| 08 | [Blob inventory & capacity reporting](step-08-blob-inventory.md) | |
 
 ### Phase 3 — Applications
 | # | Module | Notes |
 |---|---|---|
-| 10 | [Application Gateway + WAF for operators](step-10-app-gateway-waf.md) | Trimmed — Rosetta-down triage only (Service Reliability owns the rest) |
-| 11 | [WOD container operations](step-11-wod-container-ops.md) | **TBC** — confirm scope with Emma before scheduling |
+| 09 | [Application Gateway + WAF for operators](step-09-app-gateway-waf.md) | Trimmed — Rosetta-down triage only (Service Reliability owns the rest) |
+| 10 | [WOD container operations](step-10-wod-container-ops.md) | **TBC** — confirm scope before scheduling |
 
 ### Phase 4 — Observability & Cost
 | # | Module | Notes |
 |---|---|---|
-| 12 | [Operational Visibility & Alerts](step-12-operational-visibility.md) | Azure Monitor + Backup Center + Defender for Storage awareness, consolidated |
-| 13 | [Azure Monitor Workbooks](step-13-workbooks.md) | |
-| 14 | [Cost Management for an application owner](step-14-cost-management.md) | |
+| 11 | [Operational Visibility & Alerts](step-11-operational-visibility.md) | Azure Monitor + Backup Center + Defender for Storage awareness, consolidated |
+| 12 | [Azure Monitor Workbooks](step-12-workbooks.md) | |
+| 13 | [Cost Management for an application owner](step-13-cost-management.md) | |
 
 ### Phase 5 — Capstones
 | # | Module | Notes |
 |---|---|---|
-| 15 | [Capstone: Weekly Health Report](step-15-capstone-weekly-health.md) | Co-design workshop — team defines KPIs live |
-| 16 | [Capstone: Monthly Cost Report](step-16-capstone-monthly-cost.md) | |
-| 17 | [Capstone: Incident triage tabletop](step-17-capstone-incident-triage.md) | |
+| 14 | [Capstone: Weekly Health Report](step-14-capstone-weekly-health.md) | Co-design workshop — team defines KPIs live |
+| 15 | [Capstone: Monthly Cost Report](step-15-capstone-monthly-cost.md) | |
+| 16 | [Capstone: Incident triage tabletop](step-16-capstone-incident-triage.md) | |
 
 ---
 

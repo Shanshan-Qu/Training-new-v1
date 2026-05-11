@@ -1,4 +1,4 @@
-# Step 09 — Blob inventory & capacity reporting
+# Step 08 — Blob inventory & capacity reporting
 
 _The "where did all the storage go?" lab._ 📊 Sets up Blob Inventory — the weekly CSV that powers DSR's capacity-by-tier reporting, the Monthly Cost Report, and any "how much is at Cold tier?" question from leadership.
 
@@ -175,5 +175,5 @@ Any tier with a >20% MoM change is worth flagging in the report.
 
 ---
 
-⬅️ **Previous:** [Step 08 — Data protection posture](step-08-data-protection.md)
-➡️ **Next:** [Step 10 — Application Gateway + WAF for operators](step-10-app-gateway-waf.md) _(Phase 3 begins)_
+⬅️ **Previous:** [Step 07 — Data protection posture](step-07-data-protection.md)
+➡️ **Next:** [Step 09 — Application Gateway + WAF for operators](step-09-app-gateway-waf.md) _(Phase 3 begins)_
