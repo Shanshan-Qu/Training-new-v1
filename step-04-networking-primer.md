@@ -61,7 +61,7 @@ About **2 hours** of optional pre-reading.
 ## ⌨️ Activity 1 — Create a tiny lab VNet
 
 1. Search → **Virtual networks → + Create**.
-2. Subscription: trial. RG: `rg-labs-foundations-<your-initials>`. Name: `vnet-labs-net`. Region: Australia East.
+2. Subscription: the shared training sandbox. RG: `rg-labs-foundations-<your-initials>`. Name: `vnet-labs-net`. Region: Australia East.
 3. **IP Addresses** tab. Address space: `10.99.0.0/16`. Replace the default subnet with two subnets:
    - `snet-app` — `10.99.1.0/24`
    - `snet-pe`  — `10.99.2.0/24` (this is where the private endpoint will go)
@@ -108,7 +108,7 @@ When Rosetta can't connect to Oracle, your first read of the network is exactly 
 ## ⌨️ Activity 4 — Create a Private Endpoint to your storage account
 
 1. Open a test storage account in your `rg-labs-foundations-<your-initials>` (create a small one if you don't have one yet) → **Networking → Private endpoint connections → + Private endpoint**.
-2. Subscription / RG / region: trial / labs RG / Australia East. Name: `pe-storage-labs`.
+2. Subscription / RG / region: sandbox / labs RG / Australia East. Name: `pe-storage-labs`.
 3. Resource: storage account, target sub-resource: **blob**.
 4. Virtual network: `vnet-labs-net`. Subnet: `snet-pe`.
 5. **Integrate with Private DNS zone**: Yes (this auto-creates a private DNS zone `privatelink.blob.core.windows.net`).
@@ -130,7 +130,7 @@ Now that we have a private endpoint, we can disable public access.
 ## ⌨️ Activity 6 — Network Watcher: Connection Troubleshoot (read-only)
 
 1. Search → **Network Watcher → Connection troubleshoot**.
-2. Source: pick any VM (you don't have one in your trial — skip this on real DSR with a Reader-level VM source).
+2. Source: pick any VM (you may not have one in the sandbox yet — if not, run this against the real DSR DEV/UAT estate where you have Reader on a VM).
 3. Destination: `stanlnznblobprdrosi01.blob.core.windows.net` (or your test storage account's URL), port 443.
 4. **Check** — Network Watcher will show the path, latency, and whether any NSG / firewall rule blocks it.
 

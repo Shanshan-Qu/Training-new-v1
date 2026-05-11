@@ -5,7 +5,7 @@ _The "where did the money go this month?" lab._ 🏆 Builds the second team-owne
 > [!NOTE]
 > **Trainee duration:** 180 minutes
 > **Lab cost:** $0 — uses the export from Step 12 and the inventory from Step 08.
-> **Prerequisites:** Steps 12 (Cost Management) + 12 (Operational Visibility) + 13 (Workbooks) complete. The scheduled cost export and a working blob inventory must be in place.
+> **Prerequisites:** Steps 10 (Operational Visibility) + 11 (Workbooks) + 12 (Cost Management) complete. The scheduled cost export and a working blob inventory must be in place.
 > **Pairs with:** Module 5 of the DIA training plan (Reporting). **Capstone — output is a real deliverable.**
 
 ---
@@ -199,15 +199,14 @@ StorageBlobInventory_CL
 | where AccountName_s in (<your ANL accounts>)
 | summarize totalGB = sum(Content_Length_d)/pow(1024,3) by AccessTier_s
 | extend monthlyCost_NZD = case(
-    AccessTier_s == "Hot",     totalGB * 0.045,    // ZRS Hot per GiB
-    AccessTier_s == "Cool",    totalGB * 0.024,
-    AccessTier_s == "Cold",    totalGB * 0.0125,
-    AccessTier_s == "Archive", totalGB * 0.003,
-    0.0)
+    AccessTier_s == "Hot",  totalGB * 0.022,    // ZRS Hot per GiB (indicative, AUE)
+    AccessTier_s == "Cool", totalGB * 0.012,
+    AccessTier_s == "Cold", totalGB * 0.0036,
+    0.0)                                         // Archive intentionally excluded — DIA does not use it
 | order by monthlyCost_NZD desc
 ```
 
-This is the answer to "should we move more to Cool/Archive?". Confirm prices in the live pricing page before publishing — they change.
+This is the answer to "should we move more to Cool or Cold?". Confirm prices in the live pricing page before publishing — they change. **Do not add an Archive line** — DIA does not use Archive (see Step 05).
 
 ## ⌨️ Activity 10 — Publish
 

@@ -39,7 +39,7 @@ The Azure portal is large. Without the right shortcuts, finding a specific resou
 |---|---|
 | [Tour the Azure portal](https://learn.microsoft.com/training/modules/tour-azure-portal/) | The team's daily home base. |
 | [Introduction to Azure Cloud Shell](https://learn.microsoft.com/azure/cloud-shell/overview) | No-install access for ad-hoc commands. |
-| [Introduction to Azure Resource Graph](https://learn.microsoft.com/training/modules/intro-to-governance/) | The fastest way to find things across DSR's three subs. |
+| [Introduction to Azure Resource Graph](https://learn.microsoft.com/azure/governance/resource-graph/overview) | The fastest way to find things across DSR's three subs. |
 | [Get started with Azure CLI](https://learn.microsoft.com/cli/azure/get-started-with-azure-cli) | The CLI is what scripts and runbooks use under the hood. |
 
 About **1.5 hours** of optional pre-reading.

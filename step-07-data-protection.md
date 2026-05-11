@@ -5,7 +5,7 @@ _The "what stops accidental deletion" lab._ 🛡️ Builds the recoverability me
 > [!NOTE]
 > **Trainee duration:** 90 minutes
 > **Lab cost:** under NZD $0.50 — reuses your test storage account.
-> **Prerequisites:** Steps 04 + 06 complete.
+> **Prerequisites:** Steps 04 + 06 complete. **You will reuse the lab storage account (and the `lab` container + test blob) you created in Step 05** — no new storage account is provisioned in this lab. If you cleaned that up, redo Step 05 Activities 1–3 before starting (~5 minutes).
 > **Pairs with:** Module 2 of the DIA training plan (Storage). **Note:** backup *configuration* is owned by DIA Platform Team, but the Preservation Team owns *posture awareness* — you'll be asked "is X protected?" and need to be able to read the answer.
 
 ---

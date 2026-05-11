@@ -5,7 +5,7 @@ _The "who can do what" lab._ 🔐 Builds the access mindset Preservation needs: 
 > [!NOTE]
 > **Trainee duration:** 75 minutes
 > **Lab cost:** under NZD $0.50 — only a small test storage account is reused.
-> **Prerequisites:** Step 00 + 02 complete; a test storage account in your `rg-labs-foundations-<your-initials>`.
+> **Prerequisites:** Steps 00 + 01 complete; a test storage account in your `rg-labs-foundations-<your-initials>`.
 > **Pairs with:** Module 1 of the DIA training plan (Foundations) — addresses the "RBAC visibility for audit" requirement.
 
 ---
@@ -42,8 +42,8 @@ Your team will mostly hold Reader-level access in DSR. Knowing how access works 
 |---|---|
 | [Configure role-based access control (RBAC)](https://learn.microsoft.com/training/modules/secure-azure-resources-with-rbac/) | The core access model in DSR. |
 | [Microsoft Entra built-in roles](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles) | The role catalogue — bookmark this. |
-| [Manage service principals](https://learn.microsoft.com/training/modules/secure-azure-resources-with-rbac/) | DSR has SPs for every automation pipeline. |
-| [Plan a Privileged Identity Management deployment](https://learn.microsoft.com/azure/active-directory/privileged-identity-management/pim-deployment-plan) | DIA uses PIM for sensitive subscriptions. |
+| [Application and service principal objects in Microsoft Entra](https://learn.microsoft.com/entra/identity-platform/app-objects-and-service-principals) | DSR has SPs for every automation pipeline. |
+| [Plan a Privileged Identity Management deployment](https://learn.microsoft.com/entra/id-governance/privileged-identity-management/pim-deployment-plan) | DIA uses PIM for sensitive subscriptions. |
 
 About **2 hours** of optional pre-reading.
 
@@ -55,7 +55,7 @@ About **2 hours** of optional pre-reading.
 - **Built-in roles are usually enough.** Custom roles exist but are rare and need governance approval at DIA.
 - **"Owner" is a security concern.** It implies full control plus the ability to grant access to others. Limit it.
 - **Data plane vs management plane.** You can have permission to manage a storage account (`Storage Account Contributor`) but no permission to read its data — those are different roles. Critical distinction.
-- **Activity Log keeps 90 days.** For longer retention, DSR exports it to Log Analytics (90-day retention) and Splunk.
+- **Activity Log keeps 90 days** in the portal. For longer retention, DSR exports it to Log Analytics (extended retention per the workspace policy) and Splunk.
 
 ## ⌨️ Activity 1 — Inspect role assignments at three scopes
 

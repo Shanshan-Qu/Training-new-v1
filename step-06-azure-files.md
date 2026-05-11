@@ -8,7 +8,7 @@ _The "shared filesystems for Rosetta" lab._ 📁 Operational view of Azure Files
 > [!NOTE]
 > **Trainee duration:** 60 minutes
 > **Lab cost:** $0 — read-only against production + a metrics chart on the lab storage account from Step 05.
-> **Prerequisites:** Steps 00–05 complete. Reader on the DSR production subscription.
+> **Prerequisites:** Steps 00–05 complete. Reader on the DSR production subscription. The production Azure Files storage accounts (`stanlnznfileprdrosi01` and `stanlnznfileprdrosi02`) must already be provisioned and accessible — this lab is read-only against them and does **not** cover provisioning a new FileStorage account or share.
 > **Pairs with:** Module 2 of the DIA training plan (Storage).
 
 ---

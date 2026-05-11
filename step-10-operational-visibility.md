@@ -341,6 +341,90 @@ This is a free signal — no metric, no log query — but covers the worst kinds
 > [!TIP]
 > When triaging an incident, always check **Alert history** first to see whether monitoring caught it. If a real outage didn't fire an alert, you have a monitoring gap to fix afterwards.
 
+## ⌨️ Activity 14 — Backup Center (read-only ops)
+
+> [!NOTE]
+> **Ownership:** Backup *configuration* (policies, vault setup, enabling protection) sits with **DIA Platform**. The Preservation / Service Reliability team owns **posture awareness** — reading the dashboard, spotting failed jobs, escalating. That's all this activity covers. *Pending final ownership confirmation between DP and Service Reliability.*
+
+Backup Center is the single pane across every Recovery Services Vault and Backup Vault in the tenant. You don't *configure* backup here in your role — but you absolutely need to be able to answer "did last night's backup succeed?" in 30 seconds.
+
+1. Portal → search **Backup center**.
+2. **Overview** tile — read the headline numbers:
+   - **Backup instances** — how many items are protected (VMs, file shares, SQL, blobs).
+   - **Jobs (last 24h)** — green = succeeded, red = failed, amber = in-progress.
+   - **Alerts** — any active backup alerts (failed restore, soft-delete disabled, policy drift).
+3. **Backup instances** blade → filter Datasource type = **Azure File Share** → confirm `stanlnznfileprdrosi01/02` shares are listed and **Last backup status = Completed**.
+4. **Backup jobs** blade → filter Status = **Failed**, last 7 days. Any rows are escalations to DIA Platform.
+5. **Backup policies** blade → read-only walk-through. Note retention, schedule, frequency. Don't edit anything.
+6. **Vaults** blade → click any vault → **Properties → Soft delete** — confirm enabled. (Vault-level soft delete is separate from blob soft delete from Step 07.)
+
+> [!IMPORTANT]
+> A "failed" backup job is **not** an outage in itself — it's a signal to open a ticket with DIA Platform. Two consecutive failures on the same instance is sev-2.
+
+**KQL — backup job state across the estate:**
+
+```kql
+AddonAzureBackupJobs
+| where TimeGenerated > ago(24h)
+| summarize arg_max(TimeGenerated, *) by JobUniqueId
+| summarize count() by JobStatus, BackupItemType
+| order by JobStatus
+```
+
+(Requires the vault's Diagnostic Settings to forward `AzureBackupReport` to the workspace — which DSR has configured in prod. In your lab workspace this table will be empty unless you wire it up.)
+
+## ⌨️ Activity 15 — Defender for Storage (awareness)
+
+> [!NOTE]
+> **Awareness only.** Defender for Storage tuning and incident response is owned by the **DIA Security** team. You need to recognise the alerts when they cross your inbox and know who to forward them to.
+
+Microsoft Defender for Storage is a paid add-on (~NZD $0.04 per 10 K transactions, capped per account) that adds threat detection on top of every storage account. DSR runs it on every production storage account.
+
+**What it watches for:**
+- Anomalous access patterns (unusual IP, unusual geography, unusual user agent).
+- Malware uploaded to a blob container (hash-based scan on upload — opt-in per account).
+- Suspicious external access — e.g. anonymous read against a container that's never been public.
+- Sensitive data exposure — flags containers with PII patterns made public.
+- Access from a Tor exit node or known-malicious IP.
+
+**Where to read its alerts:**
+
+1. Portal → **Microsoft Defender for Cloud → Security alerts**.
+2. Filter Resource type = **Storage account**.
+3. Each alert has: severity, affected resource, MITRE tactic, suggested remediation, and a **Take action** tab.
+
+**KQL — Defender storage alerts in the workspace:**
+
+```kql
+SecurityAlert
+| where TimeGenerated > ago(7d)
+| where ResourceType == "Storage"
+| project TimeGenerated, AlertSeverity, AlertName, CompromisedEntity, Description
+| order by TimeGenerated desc
+```
+
+**Your job when one fires:**
+
+| Severity | Action |
+|---|---|
+| **High** | Page DIA Security immediately. Don't touch the storage account — preserve evidence. |
+| **Medium** | Ticket to DIA Security within the hour. Capture the alert ID and affected resource. |
+| **Low / Informational** | Log it in the weekly ops review. Forward if pattern repeats. |
+
+> [!IMPORTANT]
+> Don't disable Defender for Storage on a production account, ever — even if it's noisy. Tuning is DIA Security's call.
+
+**Verify Defender posture across the estate (Resource Graph):**
+
+```kql
+securityresources
+| where type == "microsoft.security/pricings"
+| where name == "StorageAccounts"
+| project subscriptionId, pricingTier = properties.pricingTier, subPlan = properties.subPlan
+```
+
+Every DSR production subscription should show `pricingTier = Standard`. Anything else is a finding for DIA Security.
+
 ## 🦾 Now your turn!
 
 1. Write the KQL for "show every storage account in the workspace, with its 95th-percentile blob op latency over the last 24 hours, sorted descending".

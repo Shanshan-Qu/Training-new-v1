@@ -110,8 +110,11 @@ AzureActivity
 
 ## ⌨️ Activity 3 — Apply a resource lock
 
+> [!IMPORTANT]
+> **Do not delete `rg-labs-foundations-<your-initials>` for this activity** — it's reused by every later lab. Use a throwaway RG named `rg-lock-test-<your-initials>` instead.
+
 ```bash
-RG=rg-labs-foundations-<your-initials>
+RG=rg-lock-test-<your-initials>
 az group create -n $RG -l australiaeast --tags purpose=dsr-training app_name=training env=lab
 
 az lock create \
@@ -129,7 +132,7 @@ az group delete -n $RG --yes
 
 ❌ Fails with a lock error. ✅ Lock works.
 
-Remove the lock and retry:
+Remove the lock and clean up the throwaway RG:
 
 ```bash
 az lock delete --name protect-from-delete --resource-group $RG
@@ -171,9 +174,10 @@ In production, the WOD storage account `stanlnznblobprdwod01` has a `CanNotDelet
 Under NZD $0.50 — locks, policies, Activity Log are all free; one resource group with no resources costs nothing.
 
 ```bash
-# Cleanup
-az lock delete --name protect-from-delete --resource-group rg-labs-foundations-<your-initials> 2>/dev/null
-az group delete -n rg-labs-foundations-<your-initials> --yes --no-wait
+# Cleanup — only the throwaway RG used by this lab.
+# Do NOT delete rg-labs-foundations-<your-initials> — every later lab uses it.
+az lock delete --name protect-from-delete --resource-group rg-lock-test-<your-initials> 2>/dev/null
+az group delete -n rg-lock-test-<your-initials> --yes --no-wait
 ```
 
 ---

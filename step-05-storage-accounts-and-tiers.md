@@ -245,7 +245,7 @@ You should see `stanlnznblobprdrosi01`, `stanlnznfileprdrosi01`, `stanlnznblobpr
 2. Build a **retrieval cost estimator** (a small Workbook or spreadsheet) with inputs: GB to read, source tier (Hot/Cool/Cold), blob count, egress on/off. Output: NZD estimate.
 3. From CLI, list containers in your account using **Azure AD auth** (`--auth-mode login`), not the account key.
 4. Write a one-paragraph "retrieval plan" template for leadership: scope, ETA, estimated cost, egress destination.
-5. Find your trial subscription's "Bandwidth — Egress (External)" meter for last month in Cost Management.
+5. Find the sandbox subscription's "Bandwidth — Egress (External)" meter for last month in Cost Management (filter to your own RG to see just your share).
 
 ## ✅ Success checklist
 
