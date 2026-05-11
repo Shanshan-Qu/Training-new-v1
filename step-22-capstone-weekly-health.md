@@ -1,4 +1,7 @@
-# Step 22 — Capstone: Weekly Health Report
+# Step 22 — Capstone: Weekly Health Report (co-design workshop)
+
+> [!IMPORTANT]
+> **STATUS: RESHAPED (per Emma, 11-May-2026).** Run this as a **co-design workshop**: the DP team defines the KPIs, layout, and audience for the Weekly Health Report **live in the session**, then we build the Workbook against their spec. Pre-work: ask the team to bring 3–5 candidate KPIs.
 
 _The "Friday morning one-pager" lab._ 🏆 Combines everything from Phase 1–4 into a real, repeatable artefact: the Weekly Health Report your team will publish every Friday.
 
@@ -231,5 +234,5 @@ This is the actual Friday morning ritual. The lab simulates it once.
 
 ---
 
-⬅️ **Previous:** [Step 21 — Defender for Storage (awareness)](step-21-defender-storage.md)
+⬅️ **Previous:** [Step 19 — Cost Management for an application owner](step-19-cost-management.md) _(Steps 20 & 21 merged into Step 17)_
 ➡️ **Next:** [Step 23 — Capstone: Monthly Cost Report](step-23-capstone-monthly-cost.md)

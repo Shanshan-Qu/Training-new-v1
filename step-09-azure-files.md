@@ -1,5 +1,8 @@
 # Step 09 — Azure Files (NFS & SMB)
 
+> [!IMPORTANT]
+> **STATUS: TRIMMED (per Emma, 11-May-2026).** Team is already familiar with POSIX vs ACL and SMB/NFS basics. Cut the generic protocol primer and the permissions theory. Keep only DSR-specific items: `stanlnznfileprdrosi01/02` configuration, mount troubleshooting, throttling/IOPS limits, performance-tier read.
+
 _The "shared filesystems for Rosetta" lab._ 📁 Builds the working knowledge of Azure Files the team needs to operate `stanlnznfileprdrosi01/02` — NFS vs SMB, mounting, POSIX/Kerberos permissions, performance, and throttling.
 
 > [!NOTE]

@@ -158,4 +158,4 @@ These are the resources that show as "(Untagged)" in your environment view. Send
 ---
 
 ⬅️ **Previous:** [Step 18 — Azure Monitor Workbooks](step-18-workbooks.md)
-➡️ **Next:** [Step 20 — Backup Center read-only operations](step-20-backup-center.md)
+➡️ **Next:** [Step 22 — Capstone: Weekly Health Report](step-22-capstone-weekly-health.md) _(Steps 20 Backup Center and 21 Defender for Storage merged into Step 17)_

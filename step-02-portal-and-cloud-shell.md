@@ -5,7 +5,7 @@ _The "find anything in 30 seconds" lab._ 🧭 Builds Portal fluency: search, pin
 > [!NOTE]
 > **Trainee duration:** 60 minutes
 > **Lab cost:** $0 — Cloud Shell uses a small free file share, everything else is metadata.
-> **Prerequisites:** Step 01 complete; your `rg-labs-foundations-<your-initials>` and test storage account from Step 01.
+> **Prerequisites:** [Step 00 — Lab environment setup](step-00-lab-environment-setup.md) complete; your `rg-labs-foundations-<your-initials>` resource group exists in your sandbox subscription.
 > **Pairs with:** Module 1 of the DIA training plan (Foundations).
 
 ---
@@ -57,7 +57,7 @@ About **1.5 hours** of optional pre-reading.
 1. Open <https://portal.azure.com>.
 2. Click the search bar at the top.
 3. Type `storage` — note three result categories: **Resources** (your actual storage accounts), **Services** (the storage account configuration screen), **Marketplace** (things you could create), and **Documentation**.
-4. Click your test storage account from Step 01. Note that you can search by full name, partial name, or even resource type.
+4. Click any storage account you can see in your sandbox subscription (create a small one in your `rg-labs-foundations-<your-initials>` if there isn't one yet). Note that you can search by full name, partial name, or even resource type.
 
 > [!TIP]
 > The search bar is the fastest way to navigate. Avoid clicking through "All services" or the left menu — search is always quicker.
@@ -79,7 +79,7 @@ You can pin individual blades, individual resources, or saved Resource Graph que
 3. Read the JSON. Find:
    - The `id` (the ARM resource path)
    - The `properties.primaryEndpoints` (the actual URLs blob/file/queue/table are reachable on)
-   - The `tags` you added in Step 01
+   - The `tags` you set on the RG in Step 00 (`purpose=dsr-training`, `app_name=training`, `env=lab`)
 4. Click **Copy to clipboard** at the top.
 5. This is the same JSON an ARM template, Bicep file, or Terraform plan would describe. It's the source of truth.
 
@@ -189,9 +189,9 @@ resources
 - Resource Graph queries: free.
 - Portal navigation: free.
 
-**Cleanup:** nothing to clean up beyond Step 01's resource group. The Cloud Shell file share lives in its own RG (`cloud-shell-storage-*`) — leave it; you'll reuse it across all later labs.
+**Cleanup:** nothing to clean up beyond your `rg-labs-foundations-<your-initials>` resource group. The Cloud Shell file share lives in its own RG (`cloud-shell-storage-*`) — leave it; you'll reuse it across all later labs.
 
 ---
 
-⬅️ **Previous:** [Step 01 — Azure foundations](step-01-azure-foundations.md)
+⬅️ **Previous:** [Step 00 — Lab environment setup](step-00-lab-environment-setup.md)
 ➡️ **Next:** [Step 03 — Identity & access for the operator](step-03-identity-and-access.md)

@@ -1,6 +1,6 @@
 # Step 00 — Lab environment setup (your DIA sandbox)
 
-_Read this once, before Step 01. 30–45 minutes._ ✈️
+_Read this once, before you start the training. 30–45 minutes._ ✈️
 
 Every lab in this curriculum is hands-on. To run them safely you need your **own** Azure subscription — separate from production DSR — so you can deploy, break, and tear down without risk. This page walks you through getting one and verifying it works.
 
@@ -75,7 +75,7 @@ Each lab links to MS Learn pre-work modules. To get progress tracking and certif
 
 ## 5. (Optional but recommended) Request Reader on DSR DEV / UAT
 
-Steps 13–16 (Rosetta architecture, AGW + WAF, Oracle, WOD) are easier when you can *look at* the production-like resources. You don't need to change anything — just read.
+Some later labs (e.g. AGW + WAF, WOD) are easier when you can *look at* the production-like resources. You don't need to change anything — just read.
 
 Email your team lead or DIA Core Support requesting:
 
@@ -89,6 +89,9 @@ If access doesn't arrive in time, those labs include screenshots and KQL/CLI sni
 
 Every lab will deploy into a single shared RG so cleanup is one command. Run once:
 
+> [!IMPORTANT]
+> **Your RG name MUST include your initials.** The sandbox subscription is shared across the whole training cohort — if two trainees both create `rg-labs-foundations`, deployments collide and one trainee will overwrite the other's resources. The `<your-initials>` suffix (e.g. `-sq`, `-jb`) keeps every trainee's RG, tags, and lab resources isolated. Use the **same initials** for every later lab (storage accounts, VMs, vaults, workspaces) so cleanup is one `az group delete` at the end.
+
 ```bash
 az group create \
   --name rg-labs-foundations-<your-initials> \
@@ -97,6 +100,14 @@ az group create \
 ```
 
 Replace `<your-initials>` (e.g. `sq` for Shanshan Qu) and `<your-email>`.
+
+Verify your RG name is unique in the subscription before continuing:
+
+```bash
+az group list --query "[?starts_with(name,'rg-labs-foundations')].name" -o tsv
+```
+
+If you see another trainee's RG with the same initials, pick a longer suffix (e.g. add a digit or a second letter from your surname) and re-run `az group create`.
 
 > [!TIP]
 > Most labs use Australia East as the default region (closest to NZ with all features available). New Zealand North also works for most resources but lacks paired-region replication options.
@@ -128,7 +139,7 @@ az group list --output table
 
 ## ✅ Pre-flight checklist
 
-Before you start Step 01, confirm:
+Before you start Step 02, confirm:
 
 - [ ] DIA Cloud Platform has issued you a sandbox subscription (not production)
 - [ ] You can sign in to [portal.azure.com](https://portal.azure.com) and see the sandbox
@@ -136,7 +147,7 @@ Before you start Step 01, confirm:
 - [ ] You have a Microsoft Learn account (work email)
 - [ ] You've requested Reader on DSR DEV/UAT (acknowledgement is enough — actual grant can come later)
 - [ ] Your subscription is tagged `purpose=dsr-training`
-- [ ] You've created `rg-labs-foundations-<your-initials>`
+- [ ] You've created `rg-labs-foundations-<your-initials>` **with your own initials** (not someone else's, not the unsuffixed name)
 
 ---
 
@@ -150,4 +161,4 @@ Each lab page has its own cost note + a **Cleanup** command at the end — alway
 
 ---
 
-➡️ **Next:** [Step 01 — Azure foundations](step-01-azure-foundations.md)
+➡️ **Next:** [Step 02 — Portal & Cloud Shell tour](step-02-portal-and-cloud-shell.md)

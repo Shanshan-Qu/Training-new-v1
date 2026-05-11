@@ -1,5 +1,8 @@
 # Step 15 — Oracle on Azure (read-only ops view)
 
+> [!CAUTION]
+> **STATUS: DROPPED (per Emma, 11-May-2026).** Oracle on Azure not required for the DP team. Session removed from the delivery plan. File retained for future reference only.
+
 _The "I can recognise an Oracle problem when I see one" lab._ 🐘 Builds operational awareness of Rosetta's Oracle backend on Azure VMs: Data Guard sync, RMAN backup status, port 1521 connectivity checks — without ever issuing a SQL command.
 
 > [!NOTE]

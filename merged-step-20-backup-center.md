@@ -1,5 +1,8 @@
 # Step 20 — Backup Center read-only operations
 
+> [!IMPORTANT]
+> **STATUS: MERGED into [Step 17 — Operational Visibility & Alerts](step-17-azure-monitor.md) (per Emma, 11-May-2026).** Ownership of Backup Center may sit with **Service Reliability**, not Digital Preservation — to be confirmed with Emma. In the meantime, this content is folded into Step 17 as a read-only section. Do not deliver as a standalone session.
+
 _The "did last night's backup actually run?" lab._ 🛡️ Builds the operator view of Backup Center — the single pane DSR uses to confirm RPO compliance across VMs, file shares, blobs, and Oracle backups.
 
 > [!NOTE]

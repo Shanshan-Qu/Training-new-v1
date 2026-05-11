@@ -172,5 +172,5 @@ Use this to triage "why did the bill spike last Thursday?" tickets. The answer i
 
 ---
 
-⬅️ **Previous:** [Step 07 — Blob lifecycle management](step-07-blob-lifecycle.md)
+⬅️ **Previous:** [Step 06 — Storage accounts deep-dive](step-06-storage-accounts-deep-dive.md) _(Step 07 lifecycle content merged into Step 06)_
 ➡️ **Next:** [Step 09 — Azure Files (NFS & SMB)](step-09-azure-files.md)

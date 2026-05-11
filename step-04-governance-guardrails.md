@@ -1,5 +1,8 @@
 # Step 04 — Guardrails, governance & audit
 
+> [!IMPORTANT]
+> **STATUS: LITE VERSION (per Emma, 11-May-2026).** Platforms team owns guardrails. Reduce to **awareness-only** coverage: how to *read* resource locks, how to query the Activity Log for "who did what when". Drop policy authoring, Defender for Cloud compliance walkthrough, and Resource Graph audit packs.
+
 _The "what stops me breaking production?" lab._ 🛡️ Builds the governance fluency the Preservation Team needs to operate inside DIA's landing zone safely — Azure Policy, resource locks, Activity Log audit, Defender for Cloud compliance, and the Resource Graph audit packs the team runs weekly.
 
 > [!NOTE]

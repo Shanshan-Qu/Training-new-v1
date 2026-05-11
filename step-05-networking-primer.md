@@ -107,7 +107,7 @@ When Rosetta can't connect to Oracle, your first read of the network is exactly 
 
 ## ⌨️ Activity 4 — Create a Private Endpoint to your storage account
 
-1. Open your test storage account from Step 01 → **Networking → Private endpoint connections → + Private endpoint**.
+1. Open a test storage account in your `rg-labs-foundations-<your-initials>` (create a small one if you don't have one yet) → **Networking → Private endpoint connections → + Private endpoint**.
 2. Subscription / RG / region: trial / labs RG / Australia East. Name: `pe-storage-labs`.
 3. Resource: storage account, target sub-resource: **blob**.
 4. Virtual network: `vnet-labs-net`. Subnet: `snet-pe`.

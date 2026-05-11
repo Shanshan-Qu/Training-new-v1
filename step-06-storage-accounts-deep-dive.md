@@ -202,4 +202,4 @@ You should see the production storage accounts (e.g. `stanlnznblobprdrosi01`, `s
 ---
 
 ⬅️ **Previous:** [Step 05 — Networking primer](step-05-networking-primer.md)
-➡️ **Next:** [Step 07 — Blob lifecycle management](step-07-blob-lifecycle.md)
+➡️ **Next:** [Step 08 — Cold tier retrieval & rehydration cost](step-08-cold-retrieval.md) _(Step 07 lifecycle content merged into this module)_

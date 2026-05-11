@@ -1,5 +1,8 @@
 # Step 07 — Blob lifecycle management
 
+> [!IMPORTANT]
+> **STATUS: MERGED into [Step 06 — Storage accounts deep-dive](step-06-storage-accounts-deep-dive.md) (per Emma, 11-May-2026).** Team is not using the **Archive tier** — drop all Archive content. Retain Hot/Cool/Cold transitions only, and deliver as a short add-on within the Step 06 session.
+
 _The "moving petabytes without lifting a finger" lab._ ♻️ Authors and reads lifecycle rules — the engine that automatically transitions Rosetta and WOD blobs between Hot, Cool, Cold, and Archive based on age and access pattern, without manual intervention.
 
 > [!NOTE]

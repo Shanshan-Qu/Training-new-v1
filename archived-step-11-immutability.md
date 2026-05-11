@@ -1,5 +1,8 @@
 # Step 11 — Immutability & legal hold
 
+> [!CAUTION]
+> **STATUS: DROPPED (per Emma, 11-May-2026).** DIA is not using immutability / legal hold. Session removed from the delivery plan. File retained for future reference only.
+
 _The "this blob shall not be deleted, by anyone, ever" lab._ ⚖️ Builds the WORM (write-once-read-many) policy fluency the team needs for compliance: time-based retention, legal holds, applying and verifying holds, and recognising what an audit needs.
 
 > [!NOTE]

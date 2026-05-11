@@ -1,5 +1,8 @@
 # Step 16 — WOD container operations
 
+> [!WARNING]
+> **STATUS: TBC (per Emma, 11-May-2026).** Pending confirmation from Emma whether WOD container ops (PODMAN, blobfuse2, NGINX) sits with the DP team. Do **not** schedule until confirmed.
+
 _The "web archive in containers" lab._ 🕸️ Builds working knowledge of the Web On-Demand stack: PODMAN containers running NGINX, pyweb, and OutbackCDX, with `blobfuse2` mounting `stanlnznblobprdwod01` for content access.
 
 > [!NOTE]
@@ -226,5 +229,5 @@ az network nic delete -g rg-labs-foundations-<your-initials> -n vm-wod-labVMNic
 
 ---
 
-⬅️ **Previous:** [Step 15 — Oracle on Azure (read-only ops)](step-15-oracle-on-azure.md)
+⬅️ **Previous:** [Step 14 — Application Gateway + WAF for operators](step-14-app-gateway-waf.md) _(Step 15 Oracle dropped)_
 ➡️ **Next:** [Step 17 — Azure Monitor: Logs, Metrics & Alerts](step-17-azure-monitor.md) (Phase 4 begins)

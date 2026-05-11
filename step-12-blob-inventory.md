@@ -175,5 +175,5 @@ Any tier with a >20% MoM change is worth flagging in the report.
 
 ---
 
-⬅️ **Previous:** [Step 11 — Immutability & legal hold](step-11-immutability.md)
-➡️ **Next:** [Step 13 — Rosetta architecture walkthrough](step-13-rosetta-architecture.md) (Phase 3 begins)
+⬅️ **Previous:** [Step 10 — Data protection posture](step-10-data-protection.md) _(Step 11 Immutability dropped)_
+➡️ **Next:** [Step 14 — Application Gateway + WAF for operators](step-14-app-gateway-waf.md) _(Phase 3 begins; Step 13 Rosetta architecture dropped)_

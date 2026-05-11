@@ -1,5 +1,8 @@
 # Step 13 — Rosetta architecture walkthrough (read-only)
 
+> [!CAUTION]
+> **STATUS: DROPPED (per Emma, 11-May-2026).** Rosetta architecture walkthrough not required. Session removed from the delivery plan. File retained for future reference only.
+
 _The "draw the picture from memory" lab._ 🏛️ Builds the operator's mental model of Rosetta on DSR: Application Gateway, App VMs, Index VMs, Oracle, file shares, blob storage, and how they connect. No deploys — recognising and reading.
 
 > [!NOTE]

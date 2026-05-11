@@ -1,4 +1,12 @@
-# Step 17 — Azure Monitor: Logs, Metrics & Alerts
+# Step 17 — Operational Visibility & Alerts (Azure Monitor + Backup Center + Defender)
+
+> [!IMPORTANT]
+> **STATUS: EXPANDED & MERGED (per Emma, 11-May-2026).** This session now consolidates three previously separate topics into one shortened "Operational Visibility" session:
+> - **Azure Monitor** (Logs/Metrics/Alerts/KQL) — trimmed, core content only
+> - **Backup Center read-only ops** (was Step 20) — folded in as a section, pending ownership confirmation (DP vs Service Reliability)
+> - **Defender for Storage awareness** (was Step 21) — folded in as a short awareness slide
+>
+> Target duration: shorter than the original 180-min Monitor session. Drop KQL deep-dives the team already uses elsewhere.
 
 _The "I can find any log in 30 seconds AND get paged when things break" lab._ 🔎🔔 Phase 4 opens with the single most-used skill of your operations role: querying the Log Analytics workspace, reading platform metrics, and configuring alerts that page you when DSR misbehaves.
 

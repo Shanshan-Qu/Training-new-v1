@@ -1,4 +1,7 @@
-# Step 01 — Azure foundations
+# Step 01 — Azure foundations (ARCHIVED)
+
+> [!CAUTION]
+> **STATUS: DROPPED (per Emma, 11-May-2026).** Team has already completed AZ-900 online. Session removed from the delivery plan. The RG-creation lab step has been **moved into [Step 00 — Lab environment setup](step-00-lab-environment-setup.md)**. File retained for future reference only.
 
 _The "what is Azure made of, anyway?" lab._ 🧭 Builds the mental model every later lab depends on: tenant, subscription, resource group, region, RBAC, ARM, naming and tagging — all anchored to the DIA DSR landing zone you'll be operating.
 

@@ -169,4 +169,4 @@ Every result is a finding — escalate to whoever owns that storage account.
 ---
 
 ⬅️ **Previous:** [Step 09 — Azure Files (NFS & SMB)](step-09-azure-files.md)
-➡️ **Next:** [Step 11 — Immutability & legal hold](step-11-immutability.md)
+➡️ **Next:** [Step 12 — Blob inventory & capacity reporting](step-12-blob-inventory.md) _(Step 11 Immutability dropped — not in use at DIA)_

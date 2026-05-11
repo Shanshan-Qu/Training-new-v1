@@ -1,5 +1,8 @@
 # Step 21 — Defender for Storage (awareness)
 
+> [!IMPORTANT]
+> **STATUS: MERGED into [Step 17 — Operational Visibility & Alerts](step-17-azure-monitor.md) (per Emma, 11-May-2026).** Reduce to a single awareness slide inside Step 17 (what Defender watches → who to escalate to). Do not deliver as a standalone session.
+
 _The "what does Cloud Security expect from us?" lab._ 🛡️ Awareness-only walkthrough of Defender for Storage: what it watches, the alerts it raises, where they appear, and the escalation path. Phase 4 closes here.
 
 > [!NOTE]
