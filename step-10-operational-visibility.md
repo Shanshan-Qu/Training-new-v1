@@ -1,4 +1,4 @@
-# Step 11 — Operational Visibility & Alerts (Azure Monitor + Backup Center + Defender)
+# Step 10 — Operational Visibility & Alerts (Azure Monitor + Backup Center + Defender)
 
 > [!IMPORTANT]
 > **Operational Visibility consolidates three topics into one session:**
@@ -13,7 +13,7 @@ _The "I can find any log in 30 seconds AND get paged when things break" lab._ �
 > [!NOTE]
 > **Trainee duration:** 180 minutes
 > **Lab cost:** under NZD $1 — small workspace, free-tier ingestion volume, alerts are free for the first few rules.
-> **Prerequisites:** Steps 00–10 complete (this lab pulls together signals from every prior step).
+> **Prerequisites:** Steps 00–09 complete (this lab pulls together signals from every prior step).
 > **Pairs with:** Module 4 of the DIA training plan (Observability & Reporting).
 
 ---
@@ -31,7 +31,7 @@ By the end you can both find any signal across the DSR estate AND be notified au
 - The **Azure Monitor metrics** blade — platform metrics vs custom metrics, splitting, multi-resource charts.
 - **Metric alerts** vs **log (scheduled-query) alerts** — when to use which.
 - **Action groups** — email, SMS, Teams webhook, ITSM ticket.
-- How to pin saved queries and metric charts to dashboards (Step 12 builds on this).
+- How to pin saved queries and metric charts to dashboards (Step 11 builds on this).
 - The cost model — what makes a query expensive, what alerts cost.
 
 ## 💡 Jargon buster
@@ -72,7 +72,7 @@ About **4 hours** of optional pre-reading.
 - **Always scope by time first.** A query without `TimeGenerated > ago(...)` reads the whole retention window.
 - **Project early.** `| project a, b, c` after a `where` cuts data volume passed downstream.
 - **Functions vs saved queries** — functions are reusable templates, saved queries are one-shot.
-- **Workbooks (Step 12) consume KQL** — every query you save here becomes a dashboard tile later.
+- **Workbooks (Step 11) consume KQL** — every query you save here becomes a dashboard tile later.
 
 ## ⌨️ Activity 1 — Create a tiny lab workspace
 
@@ -84,7 +84,7 @@ About **4 hours** of optional pre-reading.
 
 ## ⌨️ Activity 2 — Wire a VM into the workspace
 
-Use the lab VM from Step 10 (or any small VM you have).
+Use the lab VM from Step 09 (or any small VM you have).
 
 1. VM → **Insights → Enable**. Pick your lab workspace.
 2. Wait ~5 min. Heartbeat starts flowing.
@@ -243,7 +243,7 @@ Logs and metrics are two different pipelines. **Metrics** are pre-aggregated, fr
 4. The chart appears. Change time range to **Last 24 hours**.
 5. Click **Apply splitting → API name** — now you see Read/Write/Delete broken out.
 6. Click **+ Add metric → Availability** (Avg). You now have a two-line chart.
-7. Click **Save to dashboard → Pin to dashboard**. You'll reuse this in Step 12 (Workbooks).
+7. Click **Save to dashboard → Pin to dashboard**. You'll reuse this in Step 11 (Workbooks).
 
 Repeat for a VM:
 
@@ -507,7 +507,7 @@ Assume the 10 GB/day breaks down as:
 4. Plan changes apply to **future** data only — historical data stays on whatever plan it was ingested under.
 
 > [!TIP]
-> Before changing any DSR table's plan, run a 30-day audit: "Which alerts query this table? Which workbook tiles? Which saved queries?" If the answer is "none in the last 90 days", it's a Basic Logs candidate. We do this audit hands-on in **Step 13 — Cost Management**.
+> Before changing any DSR table's plan, run a 30-day audit: "Which alerts query this table? Which workbook tiles? Which saved queries?" If the answer is "none in the last 90 days", it's a Basic Logs candidate. We do this audit hands-on in **Step 12 — Cost Management**.
 
 #### How to get the **real** DSR ingestion number
 
@@ -538,5 +538,5 @@ az monitor action-group delete -g rg-labs-foundations-<your-initials> -n ag-lab-
 
 ---
 
-⬅️ **Previous:** [Step 10 — WOD container operations](step-10-wod-container-ops.md)
-➡️ **Next:** [Step 12 — Azure Monitor Workbooks](step-12-workbooks.md)
+⬅️ **Previous:** [Step 09 — WOD container operations](step-09-wod-container-ops.md)
+➡️ **Next:** [Step 11 — Azure Monitor Workbooks](step-11-workbooks.md)

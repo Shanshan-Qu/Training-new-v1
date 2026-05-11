@@ -1,4 +1,4 @@
-# Step 10 — WOD container operations
+# Step 09 — WOD container operations
 
 > [!WARNING]
 > **STATUS: TBC.** Pending confirmation whether WOD container ops (PODMAN, blobfuse2, NGINX) sits with the DP team. Do **not** schedule until confirmed.
@@ -229,5 +229,5 @@ az network nic delete -g rg-labs-foundations-<your-initials> -n vm-wod-labVMNic
 
 ---
 
-⬅️ **Previous:** [Step 09 — Application Gateway + WAF for operators](step-09-app-gateway-waf.md)
-➡️ **Next:** [Step 11 — Operational Visibility & Alerts](step-11-operational-visibility.md) (Phase 4 begins)
+⬅️ **Previous:** [Step 08 — Blob inventory & capacity reporting](step-08-blob-inventory.md)
+➡️ **Next:** [Step 10 — Operational Visibility & Alerts](step-10-operational-visibility.md) (Phase 4 begins)

@@ -176,4 +176,4 @@ Any tier with a >20% MoM change is worth flagging in the report.
 ---
 
 ⬅️ **Previous:** [Step 07 — Data protection posture](step-07-data-protection.md)
-➡️ **Next:** [Step 09 — Application Gateway + WAF for operators](step-09-app-gateway-waf.md) _(Phase 3 begins)_
+➡️ **Next:** [Step 09 — WOD container operations](step-09-wod-container-ops.md) _(Phase 3 begins)_

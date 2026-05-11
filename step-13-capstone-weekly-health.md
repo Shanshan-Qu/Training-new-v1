@@ -1,4 +1,4 @@
-# Step 14 — Capstone: Weekly Health Report (co-design workshop)
+# Step 13 — Capstone: Weekly Health Report (co-design workshop)
 
 > [!IMPORTANT]
 > **STATUS: RESHAPED.** Run this as a **co-design workshop**: the DP team defines the KPIs, layout, and audience for the Weekly Health Report **live in the session**, then we build the Workbook against their spec. Pre-work: ask the team to bring 3–5 candidate KPIs.
@@ -7,8 +7,8 @@ _The "Friday morning one-pager" lab._ 🏆 Combines everything from Phase 1–4 
 
 > [!NOTE]
 > **Trainee duration:** 180 minutes (this is a build, not a walkthrough)
-> **Lab cost:** $0 — uses the Workbook from Step 12 and queries from Step 11.
-> **Prerequisites:** Steps 00–11 complete. The functions you saved in Step 11 and the Workbook from Step 12 are required inputs.
+> **Lab cost:** $0 — uses the Workbook from Step 11 and queries from Step 10.
+> **Prerequisites:** Steps 00–10 complete. The functions you saved in Step 10 and the Workbook from Step 11 are required inputs.
 > **Pairs with:** Module 4 + Module 5 of the DIA training plan (Observability + Reporting). **This is a Capstone — output is a real deliverable, not a lab artefact.**
 
 ---
@@ -37,8 +37,8 @@ Your team publishes a Weekly Health Report every Friday at 9 AM NZT. The audienc
 
 ## 📚 Prepare in advance
 
-- Re-read Step 12 (Workbooks). You'll be in the Workbook editor for most of this lab.
-- Have your Step 11 saved functions ready (the `Anl1HeartbeatGaps`, `Anl2StorageErrors`, etc.).
+- Re-read Step 11 (Workbooks). You'll be in the Workbook editor for most of this lab.
+- Have your Step 10 saved functions ready (the `Anl1HeartbeatGaps`, `Anl2StorageErrors`, etc.).
 - Have the **DSR Application Operations runbook** open — Section 5 ("Weekly Health Report") is the audit trail of past reports and the source of truth for the metric set.
 
 ## 🧱 Foundational principles
@@ -234,5 +234,5 @@ This is the actual Friday morning ritual. The lab simulates it once.
 
 ---
 
-⬅️ **Previous:** [Step 13 — Cost Management for an application owner](step-13-cost-management.md)
-➡️ **Next:** [Step 15 — Capstone: Monthly Cost Report](step-15-capstone-monthly-cost.md)
+⬅️ **Previous:** [Step 12 — Cost Management for an application owner](step-12-cost-management.md)
+➡️ **Next:** [Step 14 — Capstone: Monthly Cost Report](step-14-capstone-monthly-cost.md)

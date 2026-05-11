@@ -1,18 +1,18 @@
-# Step 16 — Capstone: Incident triage tabletop
+# Step 15 — Capstone: Incident triage tabletop
 
-_The "did everything you learned actually stick?" lab._ 🏆 The final Capstone — four scenarios run as a tabletop exercise. No new content, just the ability to navigate the tools you've built across all 22 prior steps under realistic time pressure.
+_The "did everything you learned actually stick?" lab._ 🏆 The final Capstone — four scenarios run as a tabletop exercise. No new content, just the ability to navigate the tools you've built across all prior steps under realistic time pressure.
 
 > [!NOTE]
 > **Trainee duration:** 180 minutes (four scenarios × ~45 min each)
 > **Lab cost:** $0 — read-only across the existing estate.
-> **Prerequisites:** Steps 00–14 complete. Confidence in KQL, the Workbooks, and Backup Center.
+> **Prerequisites:** Steps 00–13 complete. Confidence in KQL, the Workbooks, and Backup Center.
 > **Pairs with:** Module 3 + Module 4 of the DIA training plan (Application Operations + Observability). **Closes the programme.**
 
 ---
 
 ## 📖 Session overview
 
-You've spent 22 steps absorbing content. This Capstone tests whether it sticks under pressure. Four scenarios, run at the whiteboard with the actual Azure portals open, simulated as real incidents. Each scenario:
+You've spent the prior steps absorbing content. This Capstone tests whether it sticks under pressure. Four scenarios, run at the whiteboard with the actual Azure portals open, simulated as real incidents. Each scenario:
 
 1. The **trigger** (a Teams ping, a paged alert, a user complaint).
 2. **Triage** — first 10 minutes of read-only investigation.
@@ -41,8 +41,8 @@ The goal is fluency, not completeness. You won't fix anything; you'll know exact
 
 ## 📚 Prepare in advance
 
-- Have the **Weekly Health Workbook** (Step 14) open in one tab.
-- Have **Backup Center** (Step 11) open in another.
+- Have the **Weekly Health Workbook** (Step 13) open in one tab.
+- Have **Backup Center** (Step 10) open in another.
 - Have the **DSR Application Operations runbook** open in a third.
 - Whiteboard or shared notes doc for the tabletop facilitator.
 
@@ -86,18 +86,52 @@ Page Cloud Platform if any of: same VM fails twice in a row; 3+ VMs fail same ni
 
 ---
 
-## 🎯 Scenario 2 — AGW backend goes red
+## 🎯 Scenario 2 — AGW backend goes red ("Rosetta is down")
+
+> [!NOTE]
+> **AGW awareness primer.** Application Gateway and its WAF are owned by the **Service Reliability / Platforms team**, not Digital Preservation. The DP team's job is **read-only triage**: confirm the symptom, locate the right signal, escalate with data. The primer below is the minimum knowledge to run this scenario — if you want deeper, [the Microsoft Learn AGW intro](https://learn.microsoft.com/training/modules/intro-to-azure-application-gateway/) covers it in 30 minutes.
+>
+> **Request flow:** User → AGW **Listener** (frontend IP:port) → **WAF** (OWASP rules) → **Rule** → **Backend pool** (Rosetta VMs) → **HTTP setting** + **Probe** (`/healthz`).
+>
+> **What can go red:**
+> - **Backend pool unhealthy** — probe failing on one or more Rosetta VMs (most common).
+> - **WAF blocking legitimate traffic** — a managed rule false-positives on a Rosetta admin path.
+> - **Listener / certificate problem** — TLS cert expired or Key Vault access broken (Cloud Networking owns the rotation).
+>
+> **Two KQL tables you need:**
+> - `ApplicationGatewayAccessLog` — every request: `clientIP_s`, `requestUri_s`, `httpStatus_d`, `backendStatusCode_d`, `responseLatency_d`.
+> - `ApplicationGatewayFirewallLog` — every WAF action: `ruleId_s`, `action_s` (`Blocked` / `Detected`), `message_s`.
 
 > **Trigger (14:12 NZT, Tuesday):** User report — "Rosetta UI is throwing 502 Bad Gateway."
 
 ### What you actually do
 
-1. Open AGW resource → **Backend health**. Identify which backend pool is unhealthy.
-2. Workbook tile: AGW unhealthy backends over time. Is this just now, or trending?
-3. KQL: `AzureDiagnostics | where ResourceType == "APPLICATIONGATEWAYS" | where Category == "ApplicationGatewayAccessLog" | where TimeGenerated > ago(30m) | summarize count() by backendStatusCode_d`. Confirm scale of the 502 wave.
-4. Check the affected VMs: heartbeat? CPU? Disk? Recent restart?
-5. NSG / route changes in last 24h (Activity Log)?
-6. **Decide:** AGW config issue → Cloud Networking. Backend VM issue → Cloud Platform + you read VM logs. App-tier issue → app team but you raise.
+1. Open the production AGW resource in the portal → **Backend health**. Identify which backend pool is unhealthy and which member VMs are red. *(Read-only — do not attempt to edit anything.)*
+2. Weekly Health Workbook tile: AGW unhealthy backends over time. Is this just now, or trending?
+3. KQL — confirm the scale of the 502 wave:
+
+   ```kql
+   AzureDiagnostics
+   | where ResourceType == "APPLICATIONGATEWAYS"
+   | where Category == "ApplicationGatewayAccessLog"
+   | where TimeGenerated > ago(30m)
+   | summarize count() by backendStatusCode_d, httpStatus_d
+   ```
+
+4. KQL — check for a sudden WAF block spike (false-positive scenario):
+
+   ```kql
+   AzureDiagnostics
+   | where ResourceType == "APPLICATIONGATEWAYS"
+   | where Category == "ApplicationGatewayFirewallLog"
+   | where TimeGenerated > ago(30m)
+   | summarize blocked = countif(action_s == "Blocked") by ruleId_s
+   | top 10 by blocked desc
+   ```
+
+5. Check the affected VMs: heartbeat? CPU? Disk? Recent restart?
+6. NSG / route changes in last 24 h (Activity Log)?
+7. **Decide who to escalate to** — you don't fix any of this yourself.
 
 ### Communication
 
@@ -113,7 +147,13 @@ Next step: VM-level checks; will update by 14:30.
 
 ### Escalation criteria
 
-VMs are down → Cloud Platform. Probe path returns 5xx but VM seems alive → application-tier owner. Pattern across multiple AGW listeners → Cloud Networking.
+| Symptom | Escalate to |
+|---|---|
+| Backend VMs down / not heartbeating | DIA Cloud Platform |
+| VMs alive, probe failing on `/healthz` | Rosetta application owner |
+| Sudden WAF block spike on a known-good Rosetta path | DIA Cloud Networking (WAF false-positive tuning) |
+| Pattern across multiple AGW listeners | DIA Cloud Networking |
+| TLS certificate expired / Key Vault access broken | DIA Cloud Networking |
 
 ### Debrief discussion
 
@@ -228,7 +268,7 @@ Alternate the trainee leading each scenario to spread the practice.
 
 ## 🎓 Programme close
 
-You've completed the 23-step Foundation programme. From here:
+You've completed the Foundation programme. From here:
 
 - Pair with a teammate on a real production incident (shadow first, lead second).
 - Pick up one open runbook gap and fill it.
@@ -239,5 +279,5 @@ Ka pai.
 
 ---
 
-⬅️ **Previous:** [Step 15 — Capstone: Monthly Cost Report](step-15-capstone-monthly-cost.md)
+⬅️ **Previous:** [Step 14 — Capstone: Monthly Cost Report](step-14-capstone-monthly-cost.md)
 ➡️ **Next:** _Programme complete._ Move on to advanced specialisation (your choice — security, FinOps, automation, application engineering)._

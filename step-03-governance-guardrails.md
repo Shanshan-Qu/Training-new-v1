@@ -97,7 +97,7 @@ Every change writes who (`caller`), what (`operationName`), when (`eventTimestam
 
 In production, this is how DIA Cloud Governance proves "no one outside the Platform team modified the storage accounts last quarter."
 
-You can also query it via KQL once shipped to Log Analytics (you'll do this in Step 11):
+You can also query it via KQL once shipped to Log Analytics (you'll do this in Step 10):
 
 ```kql
 AzureActivity

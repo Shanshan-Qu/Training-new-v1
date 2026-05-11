@@ -45,22 +45,21 @@ The plan was revised on 11-May-2026 to align with the DP team's actual scope. Mo
 ### Phase 3 — Applications
 | # | Module | Notes |
 |---|---|---|
-| 09 | [Application Gateway + WAF for operators](step-09-app-gateway-waf.md) | Trimmed — Rosetta-down triage only (Service Reliability owns the rest) |
-| 10 | [WOD container operations](step-10-wod-container-ops.md) | **TBC** — confirm scope before scheduling |
+| 09 | [WOD container operations](step-09-wod-container-ops.md) | **TBC** — confirm scope before scheduling |
 
 ### Phase 4 — Observability & Cost
 | # | Module | Notes |
 |---|---|---|
-| 11 | [Operational Visibility & Alerts](step-11-operational-visibility.md) | Azure Monitor + Backup Center + Defender for Storage awareness, consolidated |
-| 12 | [Azure Monitor Workbooks](step-12-workbooks.md) | |
-| 13 | [Cost Management for an application owner](step-13-cost-management.md) | |
+| 10 | [Operational Visibility & Alerts](step-10-operational-visibility.md) | Azure Monitor + Backup Center + Defender for Storage awareness, consolidated |
+| 11 | [Azure Monitor Workbooks](step-11-workbooks.md) | |
+| 12 | [Cost Management for an application owner](step-12-cost-management.md) | |
 
 ### Phase 5 — Capstones
 | # | Module | Notes |
 |---|---|---|
-| 14 | [Capstone: Weekly Health Report](step-14-capstone-weekly-health.md) | Co-design workshop — team defines KPIs live |
-| 15 | [Capstone: Monthly Cost Report](step-15-capstone-monthly-cost.md) | |
-| 16 | [Capstone: Incident triage tabletop](step-16-capstone-incident-triage.md) | |
+| 13 | [Capstone: Weekly Health Report](step-13-capstone-weekly-health.md) | Co-design workshop — team defines KPIs live |
+| 14 | [Capstone: Monthly Cost Report](step-14-capstone-monthly-cost.md) | |
+| 15 | [Capstone: Incident triage tabletop](step-15-capstone-incident-triage.md) | AGW "Rosetta-down" triage folded into Scenario 2 |
 
 ---
 

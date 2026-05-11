@@ -1,18 +1,18 @@
-# Step 12 — Azure Monitor Workbooks
+# Step 11 — Azure Monitor Workbooks
 
 _The "one-pager that updates itself" lab._ 📈 Builds the parameterised dashboards your team will run weekly: backup health, storage capacity, AGW backend status, all on a single canvas you can share by URL.
 
 > [!NOTE]
 > **Trainee duration:** 90 minutes
-> **Lab cost:** $0 — Workbooks are free, you reuse the workspace from Step 11.
-> **Prerequisites:** Step 11 complete; the saved KQL functions you built there.
+> **Lab cost:** $0 — Workbooks are free, you reuse the workspace from Step 10.
+> **Prerequisites:** Step 10 complete; the saved KQL functions you built there.
 > **Pairs with:** Module 4 of the DIA training plan (Observability & Reporting).
 
 ---
 
 ## 📖 Session overview
 
-A Workbook is a sharable, parameterised report built from KQL queries. DSR uses one Workbook per concern — "DSR Health Daily", "ANL Storage Capacity", "Backup Compliance" — and a curated subset is pinned to dashboards. This lab walks you through authoring one from scratch, parameterising it (time range, environment dropdown), wiring tiles to the queries you saved in Step 11, and sharing it with your team.
+A Workbook is a sharable, parameterised report built from KQL queries. DSR uses one Workbook per concern — "DSR Health Daily", "ANL Storage Capacity", "Backup Compliance" — and a curated subset is pinned to dashboards. This lab walks you through authoring one from scratch, parameterising it (time range, environment dropdown), wiring tiles to the queries you saved in Step 10, and sharing it with your team.
 
 **What you'll learn**
 - The Workbook anatomy: **parameters → queries → visualisations**.
@@ -147,7 +147,7 @@ This is how DSR keeps Workbooks reproducible across environments.
 ## 🦾 Now your turn!
 
 1. Add a parameter `Environment` with options `prd`, `tst`, `dev` (drop-down). Wire one query to filter by `tags.environment == "{Environment}"`.
-2. Build a Workbook called **ANL Backup Daily** with three tiles: backup job count last 24h, failures last 24h, oldest restore point per protected resource. (Some queries return empty until you do Step 11; that's fine.)
+2. Build a Workbook called **ANL Backup Daily** with three tiles: backup job count last 24h, failures last 24h, oldest restore point per protected resource. (Some queries return empty until you do Step 10; that's fine.)
 3. Find a Microsoft-published gallery Workbook (e.g. Azure Backup) — use it as a template, save a copy, customise.
 4. Pin three tiles to a single dashboard and screenshot the result.
 
@@ -173,5 +173,5 @@ This is how DSR keeps Workbooks reproducible across environments.
 
 ---
 
-⬅️ **Previous:** [Step 11 — Operational Visibility & Alerts](step-11-operational-visibility.md)
-➡️ **Next:** [Step 13 — Cost Management for an application owner](step-13-cost-management.md)
+⬅️ **Previous:** [Step 10 — Operational Visibility & Alerts](step-10-operational-visibility.md)
+➡️ **Next:** [Step 12 — Cost Management for an application owner](step-12-cost-management.md)
