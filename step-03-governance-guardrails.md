@@ -1,31 +1,29 @@
-# Step 03 — Guardrails, governance & audit
-
-> [!IMPORTANT]
-> **STATUS: LITE VERSION (per Emma, 11-May-2026).** Platforms team owns guardrails. Reduce to **awareness-only** coverage: how to *read* resource locks, how to query the Activity Log for "who did what when". Drop policy authoring, Defender for Cloud compliance walkthrough, and Resource Graph audit packs.
-
-_The "what stops me breaking production?" lab._ 🛡️ Builds the governance fluency the Preservation Team needs to operate inside DIA's landing zone safely — Azure Policy, resource locks, Activity Log audit, Defender for Cloud compliance, and the Resource Graph audit packs the team runs weekly.
+# Step 03 — Guardrails, governance & audit (lite)
 
 > [!NOTE]
-> **Trainee duration:** 90 minutes
+> **This is the lite version (per Emma, 11-May-2026).** Platforms team owns guardrails at DIA. Scope is **awareness-only**: read existing resource locks, query the Activity Log for "who did what when", recognise when a policy has blocked a deployment. Policy authoring, Defender for Cloud compliance, and weekly Resource Graph audit packs are **out of scope** for the DP team.
+
+_The "what stops me breaking production?" lab._ 🛡️ Awareness-only coverage of the guardrails Platforms applies to the DSR landing zone, and the two operations the DP team actually performs: read the Activity Log, apply/remove a resource lock.
+
+> [!NOTE]
+> **Trainee duration:** 45 minutes
 > **Lab cost:** under NZD $0.50 — only one resource for lock testing.
 > **Prerequisites:** Steps 00–02 (subscription, portal navigation, identity).
-> **Pairs with:** Module 1 of the DIA training plan (Foundations) — addresses the "Visibility, governance & audit" feedback that made governance a first-class topic.
+> **Pairs with:** Module 1 of the DIA training plan (Foundations).
 
 ---
 
 ## 📖 Session overview
 
-This session covers the guardrails Azure and DIA put in place so that mistakes don't escalate into outages. You'll learn what **Azure Policy** is and how to **read** existing policies (DIA's Cloud Governance team owns authoring). You'll learn how to inventory subscriptions, resources, and access for audit. You'll learn how to use the **Activity Log** to answer "who did what when" — and how to apply **resource locks** to protect resources from accidental delete.
+Azure and DIA put guardrails in place so that mistakes don't escalate into outages. The Preservation Team does **not** author these guardrails — Cloud Governance and Platforms do — but you do need to recognise them when they bite, and you do need two specific skills: **reading the Activity Log** ("who did what when") and **applying a resource lock** to protect something you own.
 
-The most important takeaway: **the Preservation Team reads governance signals; other DIA teams act on them.** This lab makes that boundary clear and gives you the queries you'll actually run.
+The most important takeaway: **the Preservation Team reads governance signals; other DIA teams act on them.**
 
 **What you'll learn**
-- The four governance pillars in Azure: **Policy**, **RBAC**, **Resource Locks**, **Defender for Cloud** — and who owns each at DIA.
-- How to **read** existing Azure Policy assignments and compliance state without authoring policies.
-- How to use **Resource Graph** to inventory resources and access for audit.
+- The four governance pillars in Azure: **Policy**, **RBAC**, **Resource Locks**, **Defender for Cloud** — and who owns each at DIA (awareness only).
+- How to recognise the `RequestDisallowedByPolicy` error and where to escalate.
 - How to read the **Activity Log** to answer "who did what when".
 - How to apply and remove **resource locks** (`CanNotDelete`, `ReadOnly`).
-- How to read the **Microsoft Defender for Cloud** compliance dashboard.
 - The escalation path when a guardrail blocks something you legitimately need to do.
 
 ## 💡 Jargon buster
@@ -33,23 +31,18 @@ The most important takeaway: **the Preservation Team reads governance signals; o
 | Term | Plain meaning |
 |---|---|
 | **Azure Policy** | Auto-enforce rules: "all storage accounts must use ZRS", "no resources without `app_name` tag". Either denies a deployment or audits it. |
-| **Initiative** | A bundle of policies (e.g. Microsoft cloud security benchmark = ~200 policies). |
 | **Effect** | What a policy does: `Deny`, `Audit`, `Append`, `Modify`, `DeployIfNotExists`. |
 | **Resource lock** | `CanNotDelete` blocks delete; `ReadOnly` blocks delete + modify. Applies to all callers including Owners. |
 | **Activity Log** | Every Azure control-plane operation (create/update/delete) — who, what, when. 90-day retention by default. |
-| **MDC** | Microsoft Defender for Cloud — posture & threat detection across Azure. |
-| **Compliance score** | % of policy controls passing in MDC's regulatory compliance view. |
-| **Audit pack** | A saved set of Resource Graph / KQL queries you re-run on a schedule. |
 
 ## 📚 Prepare in advance — Microsoft Learn
 
 | Module | Why it matters for ANL |
 |---|---|
 | [Describe Azure governance and compliance features](https://learn.microsoft.com/training/modules/describe-features-tools-azure-for-governance-compliance/) | The big-picture map: Policy, Locks, Cost Mgmt, Defender. |
-| [Build a cloud governance strategy on Azure](https://learn.microsoft.com/training/modules/build-cloud-governance-strategy-azure/) | Why governance exists and how it fits real-world ops. |
 | [Manage resource locks](https://learn.microsoft.com/azure/azure-resource-manager/management/lock-resources) (article) | Hands-on with the CLI/portal lock commands. |
 
-About **2 hours** of optional pre-reading.
+About **45 minutes** of optional pre-reading.
 
 ## 🧱 Foundational primer
 
@@ -70,7 +63,7 @@ About **2 hours** of optional pre-reading.
 - "All Recovery Services Vaults must use ZRS."
 - "Deploy diagnostic settings to Log Analytics for every storage account."
 
-If a deployment fails with **`RequestDisallowedByPolicy`**, the error names the policy assignment — that's your starting point.
+If a deployment fails with **`RequestDisallowedByPolicy`**, the error names the policy assignment — that's your starting point. **Don't try to "fix" the policy; escalate to Cloud Governance.**
 
 ### Activity Log = the audit trail
 
@@ -87,7 +80,7 @@ Every change writes who (`caller`), what (`operationName`), when (`eventTimestam
 
 ---
 
-## ⌨️ Activity 1 — Browse Azure Policy assignments
+## ⌨️ Activity 1 — Browse Azure Policy assignments (read only)
 
 1. Portal → search **Policy** → open it.
 2. Left blade → **Compliance**.
@@ -97,42 +90,7 @@ Every change writes who (`caller`), what (`operationName`), when (`eventTimestam
 > [!IMPORTANT]
 > Don't change anything here. The Preservation Team is not the policy owner. Read-only inspection only.
 
-## ⌨️ Activity 2 — Inventory resources with Resource Graph
-
-The audit pattern: "show me everything tagged with our app, where it sits, and what tags are missing."
-
-```kql
-Resources
-| where tags['app_name'] == 'anl' or tags['purpose'] == 'dsr-training'
-| project name, type, resourceGroup, subscriptionId, location, env=tags['env']
-| order by type asc
-```
-
-Run in **Resource Graph Explorer**. ✅ Every resource scoped to your app, in one screen.
-
-Bonus: find resources missing the `env` tag:
-
-```kql
-Resources
-| where tags['app_name'] == 'anl'
-| where isempty(tostring(tags['env']))
-| project name, type, resourceGroup
-```
-
-## ⌨️ Activity 3 — Audit role assignments with Resource Graph
-
-```kql
-AuthorizationResources
-| where type == "microsoft.authorization/roleassignments"
-| extend principalId = tostring(properties.principalId),
-         roleDefId = tostring(properties.roleDefinitionId),
-         scope = tostring(properties.scope)
-| project principalId, roleDefId, scope
-```
-
-Combine with `IdentityResources` to resolve principal IDs to display names (full query in the Appendix).
-
-## ⌨️ Activity 4 — Read the Activity Log
+## ⌨️ Activity 2 — Read the Activity Log
 
 1. Portal → your subscription → **Activity log**.
 2. Filter: time = last 7 days, **Operation = Write Storage Account** (or any operation).
@@ -151,7 +109,7 @@ AzureActivity
 | order by TimeGenerated desc
 ```
 
-## ⌨️ Activity 5 — Apply a resource lock
+## ⌨️ Activity 3 — Apply a resource lock
 
 ```bash
 RG=rg-labs-foundations-<your-initials>
@@ -181,77 +139,11 @@ az group delete -n $RG --yes --no-wait
 
 In production, the WOD storage account `stanlnznblobprdwod01` has a `CanNotDelete` lock applied because of legal-hold compliance. (Immutability policies themselves are owned by Cloud Governance and out of scope for this training.)
 
-## ⌨️ Activity 6 — Read the Defender for Cloud compliance dashboard
-
-1. Portal → search **Microsoft Defender for Cloud** → **Regulatory compliance**.
-2. You'll see compliance against standards (e.g. **NZ ISM**, **ISO 27001**, **CIS Benchmark**).
-3. Click any control → see which resources fail and the recommended fix.
-4. Note the overall **secure score** at the top.
-
-> [!IMPORTANT]
-> The Preservation Team **reads** this dashboard for awareness. Acting on findings is owned by **DIA Cloud Security** — escalate via your normal incident channel. Do not "fix" findings yourself in production.
-
-## ⌨️ Activity 7 — Watch a policy block something
-
-In a sub with a "all resources must be tagged" policy, try to deploy a storage account without tags:
-
-```bash
-az storage account create \
-  -n sttest$RANDOM \
-  -g $RG \
-  -l australiaeast --sku Standard_LRS
-```
-
-If the policy is assigned, this fails with **`RequestDisallowedByPolicy`**. The error names the policy assignment.
-
-✅ This is the typical "why did my deploy fail?" experience. The fix: add the required tags. Try again with `--tags app_name=training env=lab purpose=dsr-training`.
-
-## ⌨️ Activity 8 — Build your weekly audit pack
-
-Save these as **saved queries** in Resource Graph Explorer:
-
-1. **Untagged resources** in your application:
-
-   ```kql
-   Resources
-   | where tags['app_name'] == 'anl'
-   | where isempty(tostring(tags['env'])) or isempty(tostring(tags['org_name']))
-   | project name, type, resourceGroup, missingTags = pack('env', tags['env'], 'org_name', tags['org_name'])
-   ```
-
-2. **High-privilege role assignments** at subscription scope (Owner / User Access Administrator):
-
-   ```kql
-   AuthorizationResources
-   | where type == "microsoft.authorization/roleassignments"
-   | extend scope = tostring(properties.scope), roleDefId = tostring(properties.roleDefinitionId)
-   | where scope startswith "/subscriptions/"
-   | where scope !contains "/resourcegroups/"
-   ```
-
-3. **Storage accounts without locks** in production resource groups:
-
-   ```kql
-   Resources
-   | where type == "microsoft.storage/storageaccounts"
-   | where resourceGroup contains "prd"
-   | join kind=leftouter (
-       resourcecontainers
-       | where type == "microsoft.authorization/locks"
-     ) on $left.id == $right.id
-   | where isempty(name1)
-   | project name, resourceGroup, subscriptionId
-   ```
-
-These three queries are your weekly governance health check.
-
 ## 🦾 Now your turn!
 
-1. Find one Azure Policy assignment that targets storage accounts. Read its **definition JSON** and explain in plain English what it does.
+1. Find one Azure Policy assignment that targets storage accounts. Read its **definition JSON** and explain in plain English what it does — no changes.
 2. Apply a `ReadOnly` lock to a test storage account, then try to upload a blob — capture the error message.
-3. Run the **untagged resources** query against your training subscription. Fix any untagged resources by adding tags via CLI.
-4. Open Defender for Cloud → pick one **High** severity recommendation against your training resources → write the escalation note you'd send to Cloud Security (don't act on it).
-5. Find the Activity Log entry for any change you made today. Confirm `caller` matches your account.
+3. Find the Activity Log entry for any change you made today. Confirm `caller` matches your account.
 
 ## ✅ Success checklist
 
@@ -259,53 +151,31 @@ These three queries are your weekly governance health check.
 - [ ] You can read an existing Azure Policy assignment without changing it.
 - [ ] You've applied and removed both `CanNotDelete` and `ReadOnly` locks.
 - [ ] You've used the Activity Log to find who did what.
-- [ ] You've run the three weekly audit-pack queries.
-- [ ] You've read the Defender for Cloud regulatory compliance dashboard.
 - [ ] You understand the boundary: **Preservation reads, others act**.
 - [ ] You've **deleted** any lab locks and resource groups.
 
 ## 📚 Self-serve refresher
 
 - [Azure Policy effects](https://learn.microsoft.com/azure/governance/policy/concepts/effects) — Deny vs Audit vs Modify vs DeployIfNotExists.
-- [Resource Graph sample queries — governance](https://learn.microsoft.com/azure/governance/resource-graph/samples/starter#governance) — copy-paste audit templates.
 - [Activity Log schema](https://learn.microsoft.com/azure/azure-monitor/essentials/activity-log-schema) — the exact field names for KQL.
-- [Defender for Cloud overview](https://learn.microsoft.com/azure/defender-for-cloud/defender-for-cloud-introduction) — what the secure score actually means.
 
 ## 🚨 Escalation paths
 
 | You see | Escalate to |
 |---|---|
-| Policy unexpectedly denies a legitimate deploy | DIA Cloud Governance |
-| MDC High severity on DSR storage | DIA Cloud Security |
+| Policy unexpectedly denies a legitimate deploy (`RequestDisallowedByPolicy`) | DIA Cloud Governance |
 | Lock missing where one is required (e.g. WOD) | DIA Platform + log incident |
 | Activity Log shows unauthorised change | DIA Cloud Security + your team lead |
+| Defender for Cloud alert on DSR storage | DIA Cloud Security (you do **not** investigate) |
 
 ## 💰 Cost note
 
-Under NZD $0.50 — locks, policies, Activity Log, MDC dashboard reading and Resource Graph queries are all free; one resource group with no resources costs nothing.
+Under NZD $0.50 — locks, policies, Activity Log are all free; one resource group with no resources costs nothing.
 
 ```bash
 # Cleanup
 az lock delete --name protect-from-delete --resource-group rg-labs-foundations-<your-initials> 2>/dev/null
 az group delete -n rg-labs-foundations-<your-initials> --yes --no-wait
-```
-
-## 📎 Appendix — Full role-assignment audit query
-
-```kql
-AuthorizationResources
-| where type == "microsoft.authorization/roleassignments"
-| extend principalId = tostring(properties.principalId)
-| extend roleDefId = tostring(properties.roleDefinitionId)
-| extend scope = tostring(properties.scope)
-| join kind=leftouter (
-    AuthorizationResources
-    | where type == "microsoft.authorization/roledefinitions"
-    | extend roleDefId = tostring(id)
-    | project roleDefId, roleName=tostring(properties.roleName)
-) on roleDefId
-| project principalId, roleName, scope
-| order by scope asc
 ```
 
 ---
