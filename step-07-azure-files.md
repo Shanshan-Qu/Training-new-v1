@@ -1,4 +1,4 @@
-# Step 09 — Azure Files (NFS & SMB)
+# Step 07 — Azure Files (NFS & SMB)
 
 > [!IMPORTANT]
 > **STATUS: TRIMMED (per Emma, 11-May-2026).** Team is already familiar with POSIX vs ACL and SMB/NFS basics. Cut the generic protocol primer and the permissions theory. Keep only DSR-specific items: `stanlnznfileprdrosi01/02` configuration, mount troubleshooting, throttling/IOPS limits, performance-tier read.
@@ -8,7 +8,7 @@ _The "shared filesystems for Rosetta" lab._ 📁 Builds the working knowledge of
 > [!NOTE]
 > **Trainee duration:** 120 minutes
 > **Lab cost:** under NZD $5 — one Premium FileStorage account (NFS or SMB) for the duration of the lab. **Delete promptly after.**
-> **Prerequisites:** Steps 01–05 complete. A Linux VM you can SSH to (or a small Cloud Shell mount).
+> **Prerequisites:** Steps 00–04 complete. A Linux VM you can SSH to (or a small Cloud Shell mount).
 > **Pairs with:** Module 2 of the DIA training plan (Storage).
 
 ---
@@ -155,7 +155,7 @@ AzureMetrics
 | order by TimeGenerated desc
 ```
 
-Throttling spikes correlate to deposit batches or backup runs — often expected, but the workbook in Step 18 will surface them.
+Throttling spikes correlate to deposit batches or backup runs — often expected, but the workbook in Step 13 will surface them.
 
 ## ⌨️ Activity 6 — Read POSIX permissions
 
@@ -213,5 +213,5 @@ az storage account delete -g rg-labs-foundations-<your-initials> -n <your accoun
 
 ---
 
-⬅️ **Previous:** [Step 08 — Cold tier retrieval & rehydration cost](step-08-cold-retrieval.md)
-➡️ **Next:** [Step 10 — Data protection posture](step-10-data-protection.md)
+⬅️ **Previous:** [Step 06 — Cold tier retrieval & rehydration cost](step-06-cold-retrieval.md)
+➡️ **Next:** [Step 08 — Data protection posture](step-08-data-protection.md)

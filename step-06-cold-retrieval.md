@@ -1,11 +1,11 @@
-# Step 08 — Cold tier retrieval & rehydration cost
+# Step 06 — Cold tier retrieval & rehydration cost
 
 _The "why was last month's bill so high?" lab._ 💸 Builds the retrieval-economics intuition the team needs: per-GB read costs at Cold and Archive, rehydration priorities, billing surprises, and how to communicate a retrieval plan to leadership before it happens.
 
 > [!NOTE]
 > **Trainee duration:** 75 minutes
 > **Lab cost:** under NZD $0.50 — a few small Cold-tier blobs and a single rehydration.
-> **Prerequisites:** Steps 05 + 06 complete.
+> **Prerequisites:** Steps 04 + 06 complete.
 > **Pairs with:** Module 2 of the DIA training plan (Storage).
 
 ---
@@ -172,5 +172,5 @@ Use this to triage "why did the bill spike last Thursday?" tickets. The answer i
 
 ---
 
-⬅️ **Previous:** [Step 06 — Storage accounts deep-dive](step-06-storage-accounts-deep-dive.md) _(Step 07 lifecycle content merged into Step 06)_
-➡️ **Next:** [Step 09 — Azure Files (NFS & SMB)](step-09-azure-files.md)
+⬅️ **Previous:** [Step 05 — Storage accounts deep-dive](step-05-storage-accounts-deep-dive.md)
+➡️ **Next:** [Step 07 — Azure Files (NFS & SMB)](step-07-azure-files.md)

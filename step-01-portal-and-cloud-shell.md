@@ -1,4 +1,4 @@
-# Step 02 — Portal & Cloud Shell tour
+# Step 01 — Portal & Cloud Shell tour
 
 _The "find anything in 30 seconds" lab._ 🧭 Builds Portal fluency: search, pinning, JSON view, Resource Graph queries, and Cloud Shell — the everyday tools you'll use to operate the DSR landing zone.
 
@@ -194,4 +194,4 @@ resources
 ---
 
 ⬅️ **Previous:** [Step 00 — Lab environment setup](step-00-lab-environment-setup.md)
-➡️ **Next:** [Step 03 — Identity & access for the operator](step-03-identity-and-access.md)
+➡️ **Next:** [Step 02 — Identity & access for the operator](step-02-identity-and-access.md)

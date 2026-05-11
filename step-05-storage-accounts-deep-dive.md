@@ -1,11 +1,11 @@
-# Step 06 — Storage accounts deep-dive
+# Step 05 — Storage accounts deep-dive
 
 _The "this is the heart of your day job" lab._ 💾 Builds deep working knowledge of Azure storage accounts: kinds, redundancy, endpoints, performance tiers, firewall, and how to read every property of `stanlnznblobprdrosi01` and friends.
 
 > [!NOTE]
 > **Trainee duration:** 90 minutes
 > **Lab cost:** under NZD $0.50 — two tiny storage accounts and a few KB of blob data.
-> **Prerequisites:** Steps 01–04 complete.
+> **Prerequisites:** Steps 00–03 complete.
 > **Pairs with:** Module 2 of the DIA training plan (Storage) — addresses Emma's "storage focus throughout" feedback.
 
 ---
@@ -17,7 +17,7 @@ The Preservation Team owns the day-to-day operations of the storage accounts tha
 **What you'll learn**
 - The five **storage account kinds** and which one DSR uses (and why).
 - Every **redundancy option** (LRS, ZRS, GRS, GZRS, RA-GRS, RA-GZRS) — what each protects against and what it costs.
-- **Performance tiers** — Standard vs Premium, Hot vs Cool vs Cold vs Archive (we'll cover transitions in Step 07).
+- **Performance tiers** — Standard vs Premium, Hot vs Cool vs Cold vs Archive (we'll cover transitions in Step 05).
 - **Endpoints** — public, private, and the role of `privatelink.blob.core.windows.net`.
 - **Storage firewall** rules — public network access, IP allowlists, and the "selected networks" pattern DSR uses.
 - How to read every property of a storage account from Portal, JSON view, and Resource Graph.
@@ -43,7 +43,7 @@ The Preservation Team owns the day-to-day operations of the storage accounts tha
 | [Azure Storage fundamentals](https://learn.microsoft.com/training/modules/azure-storage-fundamentals/) | The model behind every account in DSR. |
 | [Choose a redundancy option](https://learn.microsoft.com/azure/storage/common/storage-redundancy) | Understand why DSR uses ZRS in NZ North. |
 | [Configure storage account network security](https://learn.microsoft.com/training/modules/secure-azure-storage-account/) | The firewall pattern protecting Rosetta data. |
-| [Performance tiers and access tiers](https://learn.microsoft.com/azure/storage/blobs/access-tiers-overview) | Foundation for Steps 06 & 07 on lifecycle and retrieval. |
+| [Performance tiers and access tiers](https://learn.microsoft.com/azure/storage/blobs/access-tiers-overview) | Foundation for Steps 05 & 07 on lifecycle and retrieval. |
 
 About **2 hours** of optional pre-reading.
 
@@ -55,7 +55,7 @@ About **2 hours** of optional pre-reading.
 - **Cool and Cold tiers have minimum retention durations**: Cool = 30 days, Cold = 90 days. Move a blob out before the minimum and you're billed for the full minimum at that tier's rate.
 - **Storage accounts have multiple endpoints** (blob, file, queue, table, dfs, web). Each can have its own private endpoint.
 - **Firewall is whitelist-style.** Default = "Disabled" or "Allow from selected networks". Public access is rare in DSR — Private Endpoints are the pattern.
-- **Naming is fixed and global.** Account name = lowercase, 3–24 chars, must be globally unique across all of Azure.
+- **Naming is fixed and global.** Account name = lowercase, 3–17 chars, must be globally unique across all of Azure.
 
 ## ⌨️ Activity 1 — Inspect a real DSR-style storage account from Resource Graph
 
@@ -106,7 +106,7 @@ Open the new account and visit each of these blades; the goal is recognition, no
 | **Networking** | Public network access, firewall, private endpoints, virtual networks. |
 | **Data protection** | Soft delete, versioning, change feed, point-in-time restore. |
 | **Encryption** | Microsoft-managed keys vs Customer-managed keys (DSR uses CMK in Key Vault for prod). |
-| **Lifecycle management** | Rules to transition / delete blobs (we'll author one in Step 07). |
+| **Lifecycle management** | Rules to transition / delete blobs (we'll author one in Step 05). |
 | **Storage browser** | Built-in blob/file explorer in the portal. |
 | **Diagnostic settings (under Monitoring)** | Logs and metrics destinations — Log Analytics workspace for DSR. |
 
@@ -197,9 +197,9 @@ You should see the production storage accounts (e.g. `stanlnznblobprdrosi01`, `s
 - Tiny test blob (a few KB): negligible.
 - Total this lab: well under $0.50.
 
-**Cleanup:** keep the storage account; it's reused in Steps 06–11. Delete it when you finish Phase 2.
+**Cleanup:** keep the storage account; it's reused in Steps 05–09. Delete it when you finish Phase 2.
 
 ---
 
-⬅️ **Previous:** [Step 05 — Networking primer](step-05-networking-primer.md)
-➡️ **Next:** [Step 08 — Cold tier retrieval & rehydration cost](step-08-cold-retrieval.md) _(Step 07 lifecycle content merged into this module)_
+⬅️ **Previous:** [Step 04 — Networking primer](step-04-networking-primer.md)
+➡️ **Next:** [Step 06 — Cold tier retrieval & rehydration cost](step-06-cold-retrieval.md)

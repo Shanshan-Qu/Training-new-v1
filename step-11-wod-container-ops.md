@@ -1,4 +1,4 @@
-# Step 16 — WOD container operations
+# Step 11 — WOD container operations
 
 > [!WARNING]
 > **STATUS: TBC (per Emma, 11-May-2026).** Pending confirmation from Emma whether WOD container ops (PODMAN, blobfuse2, NGINX) sits with the DP team. Do **not** schedule until confirmed.
@@ -8,7 +8,7 @@ _The "web archive in containers" lab._ 🕸️ Builds working knowledge of the W
 > [!NOTE]
 > **Trainee duration:** 90 minutes
 > **Lab cost:** under NZD $0.50 — a small Linux VM with PODMAN.
-> **Prerequisites:** Steps 01–05, 08 complete; basic Linux comfort.
+> **Prerequisites:** Steps 00–04, 06 complete; basic Linux comfort.
 > **Pairs with:** Module 3 of the DIA training plan (Application Operations).
 
 ---
@@ -80,7 +80,7 @@ blobfuse2 --version # confirm >= 2.0
 
 ## ⌨️ Activity 3 — Mount your test storage account via blobfuse2
 
-Use the storage account from Step 06.
+Use the storage account from Step 05.
 
 ```bash
 # Create config
@@ -106,7 +106,7 @@ blobfuse2 mount ~/wod --config-file=~/blobfuse2.yaml --read-only
 ls ~/wod
 ```
 
-You should see your test blob from Step 06's container `lab`. Treat the mount as read-only.
+You should see your test blob from Step 05's container `lab`. Treat the mount as read-only.
 
 > [!IMPORTANT]
 > Use **Managed Identity** auth (not account key). DSR uses MI exclusively — the VM has its MI granted Storage Blob Data Reader on the WOD storage account.
@@ -229,5 +229,5 @@ az network nic delete -g rg-labs-foundations-<your-initials> -n vm-wod-labVMNic
 
 ---
 
-⬅️ **Previous:** [Step 14 — Application Gateway + WAF for operators](step-14-app-gateway-waf.md) _(Step 15 Oracle dropped)_
-➡️ **Next:** [Step 17 — Azure Monitor: Logs, Metrics & Alerts](step-17-azure-monitor.md) (Phase 4 begins)
+⬅️ **Previous:** [Step 10 — Application Gateway + WAF for operators](step-10-app-gateway-waf.md)
+➡️ **Next:** [Step 12 — Operational Visibility & Alerts](step-12-operational-visibility.md) (Phase 4 begins)

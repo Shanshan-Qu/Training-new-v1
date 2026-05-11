@@ -1,4 +1,4 @@
-# Step 14 — Application Gateway + WAF for operators
+# Step 10 — Application Gateway + WAF for operators
 
 > [!IMPORTANT]
 > **STATUS: TRIMMED (per Emma, 11-May-2026).** App Gateway / WAF is mostly owned by **Service Reliability / Platforms team**, not Digital Preservation. Reduce to a focused **"Rosetta-down triage" mini-section**: backend-health read, where to escalate, how to read a blocked-request entry. Drop AGW deployment, listener/rule authoring, and certificate rotation deep-dive.
@@ -8,7 +8,7 @@ _The "front door of Rosetta" lab._ 🚪 Builds operator-level fluency in Applica
 > [!NOTE]
 > **Trainee duration:** 120 minutes
 > **Lab cost:** under NZD $5 — a small AGW v2 + WAF for an hour. **Delete promptly after.**
-> **Prerequisites:** Steps 01–04, 12 complete.
+> **Prerequisites:** Steps 00–03, 09 complete.
 > **Pairs with:** Module 3 of the DIA training plan (Application Operations).
 
 ---
@@ -64,7 +64,7 @@ About **2 hours** of optional pre-reading.
 1. Portal → **Application gateways → + Create**.
 2. RG: `rg-labs-foundations-<your-initials>`. Region: Australia East.
 3. Tier: **WAF V2**. Autoscale: minimum 1, max 2.
-4. Virtual network: `vnet-labs-net` (from Step 05). Subnet: needs to be its own — create one called `snet-agw` if it doesn't exist (CIDR `10.99.3.0/24`).
+4. Virtual network: `vnet-labs-net` (from Step 04). Subnet: needs to be its own — create one called `snet-agw` if it doesn't exist (CIDR `10.99.3.0/24`).
 5. Frontend → Public IP. Create new.
 6. Backend → For now, "Don't add a target" — we'll add a public FQDN as a test.
 7. Configuration → Listener: HTTP:80 (no cert needed for the lab). HTTP setting: HTTP:80.
@@ -163,7 +163,7 @@ When users say Rosetta is down, walk this checklist:
 | 3. Recent firewall blocks? | KQL on FirewallLog | Sudden spike in `Blocked`. |
 | 4. Backend latency? | KQL on AccessLog | `responseLatency_d` distribution. |
 | 5. Backend VM heartbeat? | KQL on Heartbeat | Computer name matches Rosetta VMs. |
-| 6. Storage / Oracle reachable? | Storage / DB metrics | Check next steps in Step 15. |
+| 6. Storage / Oracle reachable? | Storage / DB metrics | Escalate to the Database team. |
 
 You don't fix anything — you escalate. But you escalate with the right data.
 
@@ -202,5 +202,5 @@ az network public-ip delete -g rg-labs-foundations-<your-initials> -n <your AGW 
 
 ---
 
-⬅️ **Previous:** [Step 12 — Blob inventory & capacity reporting](step-12-blob-inventory.md) _(Step 13 Rosetta architecture dropped)_
-➡️ **Next:** [Step 16 — WOD container operations](step-16-wod-container-ops.md) _(Step 15 Oracle dropped; Step 16 TBC)_
+⬅️ **Previous:** [Step 09 — Blob inventory & capacity reporting](step-09-blob-inventory.md)
+➡️ **Next:** [Step 11 — WOD container operations](step-11-wod-container-ops.md) _(Step 11 scope is TBC — confirm with Emma)_

@@ -1,11 +1,11 @@
-# Step 10 — Data protection posture
+# Step 08 — Data protection posture
 
 _The "what stops accidental deletion" lab._ 🛡️ Builds the recoverability mental model: snapshots, soft delete, versioning, point-in-time restore, change feed — and how to *prove* a storage account is properly protected.
 
 > [!NOTE]
 > **Trainee duration:** 90 minutes
 > **Lab cost:** under NZD $0.50 — reuses your test storage account.
-> **Prerequisites:** Steps 05 + 06 complete.
+> **Prerequisites:** Steps 04 + 06 complete.
 > **Pairs with:** Module 2 of the DIA training plan (Storage). **Note:** backup *configuration* is owned by DIA Platform Team, but the Preservation Team owns *posture awareness* — you'll be asked "is X protected?" and need to be able to read the answer.
 
 ---
@@ -19,7 +19,7 @@ DSR runs a multi-layer data protection model. Some layers (Recovery Services Vau
 - How each one helps recovery — and what each one **does not** protect against.
 - How to verify a storage account is protected (one Resource Graph query for the audit team).
 - How to recover a deleted blob using soft delete or versioning.
-- The interaction with lifecycle rules (versions cost money — you've seen this in Step 07).
+- The interaction with lifecycle rules (versions cost money — you've seen this in Step 05).
 
 ## 💡 Jargon buster
 
@@ -77,7 +77,7 @@ You'll see every storage account's protection state in one view. In DSR, the pro
 
 ## ⌨️ Activity 3 — Recover a soft-deleted blob
 
-1. Container `lab` → click your test blob from Step 06 → **Delete** (single blob).
+1. Container `lab` → click your test blob from Step 05 → **Delete** (single blob).
 2. Top of the Containers list → toggle **Show deleted blobs**.
 3. The blob appears with status **Deleted, X days remaining**. Right-click → **Undelete**.
 4. Blob is restored.
@@ -107,7 +107,7 @@ az storage blob list \
   --account-name $SA \
   --container-name '$blobchangefeed' \
   --auth-mode login \
-  --query "[].name" -o tsv | head -10
+  --query "[].name" -o tsv | head -08
 ```
 
 Each segment is an Avro file you can stream or download. WOD's audit pipeline reads these to know what changed since last run.
@@ -168,5 +168,5 @@ Every result is a finding — escalate to whoever owns that storage account.
 
 ---
 
-⬅️ **Previous:** [Step 09 — Azure Files (NFS & SMB)](step-09-azure-files.md)
-➡️ **Next:** [Step 12 — Blob inventory & capacity reporting](step-12-blob-inventory.md) _(Step 11 Immutability dropped — not in use at DIA)_
+⬅️ **Previous:** [Step 07 — Azure Files (NFS & SMB)](step-07-azure-files.md)
+➡️ **Next:** [Step 09 — Blob inventory & capacity reporting](step-09-blob-inventory.md)

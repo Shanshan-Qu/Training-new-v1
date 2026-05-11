@@ -1,4 +1,4 @@
-# Step 22 — Capstone: Weekly Health Report (co-design workshop)
+# Step 15 — Capstone: Weekly Health Report (co-design workshop)
 
 > [!IMPORTANT]
 > **STATUS: RESHAPED (per Emma, 11-May-2026).** Run this as a **co-design workshop**: the DP team defines the KPIs, layout, and audience for the Weekly Health Report **live in the session**, then we build the Workbook against their spec. Pre-work: ask the team to bring 3–5 candidate KPIs.
@@ -7,8 +7,8 @@ _The "Friday morning one-pager" lab._ 🏆 Combines everything from Phase 1–4 
 
 > [!NOTE]
 > **Trainee duration:** 180 minutes (this is a build, not a walkthrough)
-> **Lab cost:** $0 — uses the Workbook from Step 18 and queries from Step 17.
-> **Prerequisites:** Steps 01–20 complete. The functions you saved in Step 17 and the Workbook from Step 18 are required inputs.
+> **Lab cost:** $0 — uses the Workbook from Step 13 and queries from Step 12.
+> **Prerequisites:** Steps 00–12 complete. The functions you saved in Step 12 and the Workbook from Step 13 are required inputs.
 > **Pairs with:** Module 4 + Module 5 of the DIA training plan (Observability + Reporting). **This is a Capstone — output is a real deliverable, not a lab artefact.**
 
 ---
@@ -37,8 +37,8 @@ Your team publishes a Weekly Health Report every Friday at 9 AM NZT. The audienc
 
 ## 📚 Prepare in advance
 
-- Re-read Step 18 (Workbooks). You'll be in the Workbook editor for most of this lab.
-- Have your Step 17 saved functions ready (the `Anl1HeartbeatGaps`, `Anl2StorageErrors`, etc.).
+- Re-read Step 13 (Workbooks). You'll be in the Workbook editor for most of this lab.
+- Have your Step 12 saved functions ready (the `Anl1HeartbeatGaps`, `Anl2StorageErrors`, etc.).
 - Have the **DSR Application Operations runbook** open — Section 5 ("Weekly Health Report") is the audit trail of past reports and the source of truth for the metric set.
 
 ## 🧱 Foundational principles
@@ -207,7 +207,7 @@ This is the actual Friday morning ritual. The lab simulates it once.
 
 ## 🦾 Now your turn!
 
-1. Add a fourth KPI tile for **Storage capacity growth this week** (delta GiB from Step 12's inventory).
+1. Add a fourth KPI tile for **Storage capacity growth this week** (delta GiB from Step 09's inventory).
 2. Build a parameter `Tier` so the report can be filtered to a single Rosetta tier.
 3. Set the dashboard to refresh every 1 hour automatically.
 4. Add a "Last 4 weeks of backup compliance" trend tile to spot drift.
@@ -234,5 +234,5 @@ This is the actual Friday morning ritual. The lab simulates it once.
 
 ---
 
-⬅️ **Previous:** [Step 19 — Cost Management for an application owner](step-19-cost-management.md) _(Steps 20 & 21 merged into Step 17)_
-➡️ **Next:** [Step 23 — Capstone: Monthly Cost Report](step-23-capstone-monthly-cost.md)
+⬅️ **Previous:** [Step 14 — Cost Management for an application owner](step-14-cost-management.md)
+➡️ **Next:** [Step 16 — Capstone: Monthly Cost Report](step-16-capstone-monthly-cost.md)

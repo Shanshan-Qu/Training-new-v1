@@ -1,4 +1,4 @@
-# Step 04 — Guardrails, governance & audit
+# Step 03 — Guardrails, governance & audit
 
 > [!IMPORTANT]
 > **STATUS: LITE VERSION (per Emma, 11-May-2026).** Platforms team owns guardrails. Reduce to **awareness-only** coverage: how to *read* resource locks, how to query the Activity Log for "who did what when". Drop policy authoring, Defender for Cloud compliance walkthrough, and Resource Graph audit packs.
@@ -8,7 +8,7 @@ _The "what stops me breaking production?" lab._ 🛡️ Builds the governance fl
 > [!NOTE]
 > **Trainee duration:** 90 minutes
 > **Lab cost:** under NZD $0.50 — only one resource for lock testing.
-> **Prerequisites:** Steps 01–03 (subscription, portal navigation, identity).
+> **Prerequisites:** Steps 00–02 (subscription, portal navigation, identity).
 > **Pairs with:** Module 1 of the DIA training plan (Foundations) — addresses the "Visibility, governance & audit" feedback that made governance a first-class topic.
 
 ---
@@ -58,7 +58,7 @@ About **2 hours** of optional pre-reading.
 | Pillar | What it does | Owner at DIA |
 |---|---|---|
 | **Azure Policy** | Auto-enforce or audit rules | Cloud Governance |
-| **RBAC** (Step 03) | Who can do what | Cloud Governance + Platform |
+| **RBAC** (Step 02) | Who can do what | Cloud Governance + Platform |
 | **Resource Locks** | Prevent accidental delete/modify | Resource owner — your team can apply |
 | **Microsoft Defender for Cloud** | Posture & threat detection | Cloud Security |
 
@@ -140,7 +140,7 @@ Combine with `IdentityResources` to resolve principal IDs to display names (full
 
 In production, this is how DIA Cloud Governance proves "no one outside the Platform team modified the storage accounts last quarter."
 
-You can also query it via KQL once shipped to Log Analytics (you'll do this in Step 17):
+You can also query it via KQL once shipped to Log Analytics (you'll do this in Step 12):
 
 ```kql
 AzureActivity
@@ -179,7 +179,7 @@ az lock delete --name protect-from-delete --resource-group $RG
 az group delete -n $RG --yes --no-wait
 ```
 
-In production, the WOD storage account `stanlnznblobprdwod01` has a `CanNotDelete` lock applied because of legal-hold compliance. You'll verify that in Step 11.
+In production, the WOD storage account `stanlnznblobprdwod01` has a `CanNotDelete` lock applied because of legal-hold compliance. (Immutability policies themselves are owned by Cloud Governance and out of scope for this training.)
 
 ## ⌨️ Activity 6 — Read the Defender for Cloud compliance dashboard
 
@@ -310,5 +310,5 @@ AuthorizationResources
 
 ---
 
-⬅️ **Previous:** [Step 03 — Identity & access for the operator](step-03-identity-and-access.md)
-➡️ **Next:** [Step 05 — Networking primer (read-only view)](step-05-networking-primer.md)
+⬅️ **Previous:** [Step 02 — Identity & access for the operator](step-02-identity-and-access.md)
+➡️ **Next:** [Step 04 — Networking primer (read-only view)](step-04-networking-primer.md)

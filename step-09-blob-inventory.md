@@ -1,11 +1,11 @@
-# Step 12 — Blob inventory & capacity reporting
+# Step 09 — Blob inventory & capacity reporting
 
 _The "where did all the storage go?" lab._ 📊 Sets up Blob Inventory — the weekly CSV that powers DSR's capacity-by-tier reporting, the Monthly Cost Report, and any "how much is at Cold tier?" question from leadership.
 
 > [!NOTE]
 > **Trainee duration:** 90 minutes
 > **Lab cost:** under NZD $0.50 — one inventory rule and the resulting CSV.
-> **Prerequisites:** Steps 05 + 06 complete.
+> **Prerequisites:** Steps 04 + 06 complete.
 > **Pairs with:** Module 2 + Module 5 of the DIA training plan (Storage / Reporting). **Closes Phase 2** — you'll use the inventory CSVs in Phase 4 (Workbooks) and Phase 5 (Capstones).
 
 ---
@@ -175,5 +175,5 @@ Any tier with a >20% MoM change is worth flagging in the report.
 
 ---
 
-⬅️ **Previous:** [Step 10 — Data protection posture](step-10-data-protection.md) _(Step 11 Immutability dropped)_
-➡️ **Next:** [Step 14 — Application Gateway + WAF for operators](step-14-app-gateway-waf.md) _(Phase 3 begins; Step 13 Rosetta architecture dropped)_
+⬅️ **Previous:** [Step 08 — Data protection posture](step-08-data-protection.md)
+➡️ **Next:** [Step 10 — Application Gateway + WAF for operators](step-10-app-gateway-waf.md) _(Phase 3 begins)_

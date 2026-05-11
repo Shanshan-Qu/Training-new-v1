@@ -23,67 +23,55 @@ Starts at zero Azure knowledge; finishes at "I can operate our preservation syst
 
 ## 🗺️ Curriculum
 
-> [!IMPORTANT]
-> **Plan revised 11-May-2026** based on Emma's feedback. Several modules have been **dropped**, **trimmed**, or **merged** to better match the DP team's actual scope. See the Status column below; open each module file for delivery notes.
+The plan was revised on 11-May-2026 to align with the DP team's actual scope (per Emma's feedback). Modules outside DP ownership — AZ-900-level foundations, immutability, Rosetta architecture, Oracle administration — have been removed; closely related observability topics have been consolidated.
 
-### Foundations
-| # | Module | Status |
+### Phase 1 — Foundations
+| # | Module | Notes |
 |---|---|---|
-| 01 | ~~Azure foundations~~ | **DROPPED** — AZ-900 already done (file archived: [archived-step-01](archived-step-01-azure-foundations.md)) |
-| 02 | [Portal & Cloud Shell tour](step-02-portal-and-cloud-shell.md) | Active |
-| 03 | [Identity & access for the operator](step-03-identity-and-access.md) | Active |
-| 04 | [Guardrails, governance & audit](step-04-governance-guardrails.md) | **Lite version** — awareness only (Platforms owns) |
-| 05 | [Networking primer (read-only view)](step-05-networking-primer.md) | Active |
+| 00 | [Lab environment setup](step-00-lab-environment-setup.md) | Sandbox subscription + personal RG (`rg-labs-foundations-<initials>`) |
+| 01 | [Portal & Cloud Shell tour](step-01-portal-and-cloud-shell.md) | |
+| 02 | [Identity & access for the operator](step-02-identity-and-access.md) | |
+| 03 | [Guardrails, governance & audit](step-03-governance-guardrails.md) | Lite — awareness only (Platforms team owns) |
+| 04 | [Networking primer (read-only view)](step-04-networking-primer.md) | |
 
-### Storage
-| # | Module | Status |
+### Phase 2 — Storage
+| # | Module | Notes |
 |---|---|---|
-| 06 | [Storage accounts deep-dive](step-06-storage-accounts-deep-dive.md) | **Expanded** — absorbs Step 07 lifecycle content |
-| 07 | ~~Blob lifecycle management~~ | **Merged into Step 06** — Archive tier dropped ([merged-step-07](merged-step-07-blob-lifecycle.md)) |
-| 08 | [Cold tier retrieval & rehydration cost](step-08-cold-retrieval.md) | Active |
-| 09 | [Azure Files (NFS & SMB)](step-09-azure-files.md) | **Trimmed** — team already familiar |
-| 10 | [Data protection posture](step-10-data-protection.md) | Active |
-| 11 | ~~Immutability & legal hold~~ | **DROPPED** — not in use at DIA ([archived-step-11](archived-step-11-immutability.md)) |
-| 12 | [Blob inventory & capacity reporting](step-12-blob-inventory.md) | Active |
+| 05 | [Storage accounts deep-dive](step-05-storage-accounts-deep-dive.md) | Includes Hot/Cool/Cold lifecycle (Archive tier excluded — not used at DIA) |
+| 06 | [Cold tier retrieval & rehydration cost](step-06-cold-retrieval.md) | |
+| 07 | [Azure Files (NFS & SMB)](step-07-azure-files.md) | Trimmed — DSR-specific items only |
+| 08 | [Data protection posture](step-08-data-protection.md) | |
+| 09 | [Blob inventory & capacity reporting](step-09-blob-inventory.md) | |
 
-### Applications
-| # | Module | Status |
+### Phase 3 — Applications
+| # | Module | Notes |
 |---|---|---|
-| 13 | ~~Rosetta architecture walkthrough~~ | **DROPPED** — not required ([archived-step-13](archived-step-13-rosetta-architecture.md)) |
-| 14 | [Application Gateway + WAF for operators](step-14-app-gateway-waf.md) | **Trimmed** — Rosetta-down triage only (Service Reliability owns) |
-| 15 | ~~Oracle on Azure~~ | **DROPPED** — not required ([archived-step-15](archived-step-15-oracle-on-azure.md)) |
-| 16 | [WOD container operations](step-16-wod-container-ops.md) | **TBC** — confirm scope with Emma |
+| 10 | [Application Gateway + WAF for operators](step-10-app-gateway-waf.md) | Trimmed — Rosetta-down triage only (Service Reliability owns the rest) |
+| 11 | [WOD container operations](step-11-wod-container-ops.md) | **TBC** — confirm scope with Emma before scheduling |
 
-### Observability & Cost
-| # | Module | Status |
+### Phase 4 — Observability & Cost
+| # | Module | Notes |
 |---|---|---|
-| 17 | [Operational Visibility & Alerts](step-17-azure-monitor.md) | **Expanded & merged** — Azure Monitor + Backup Center + Defender awareness |
-| 18 | [Azure Monitor Workbooks](step-18-workbooks.md) | Active |
-| 19 | [Cost Management for an application owner](step-19-cost-management.md) | Active |
+| 12 | [Operational Visibility & Alerts](step-12-operational-visibility.md) | Azure Monitor + Backup Center + Defender for Storage awareness, consolidated |
+| 13 | [Azure Monitor Workbooks](step-13-workbooks.md) | |
+| 14 | [Cost Management for an application owner](step-14-cost-management.md) | |
 
-### Read-only operations
-| # | Module | Status |
+### Phase 5 — Capstones
+| # | Module | Notes |
 |---|---|---|
-| 20 | ~~Backup Center read-only operations~~ | **Merged into Step 17** — ownership TBC (may belong to Service Reliability) ([merged-step-20](merged-step-20-backup-center.md)) |
-| 21 | ~~Defender for Storage (awareness)~~ | **Merged into Step 17** — single awareness slide ([merged-step-21](merged-step-21-defender-storage.md)) |
-
-### Capstones
-| # | Module | Status |
-|---|---|---|
-| 22 | [Capstone: Weekly Health Report](step-22-capstone-weekly-health.md) | **Reshaped** — co-design workshop (team defines KPIs live) |
-| 23 | [Capstone: Monthly Cost Report](step-23-capstone-monthly-cost.md) | Active |
-| 24 | [Capstone: Incident triage tabletop](step-24-capstone-incident-triage.md) | Active |
+| 15 | [Capstone: Weekly Health Report](step-15-capstone-weekly-health.md) | Co-design workshop — team defines KPIs live |
+| 16 | [Capstone: Monthly Cost Report](step-16-capstone-monthly-cost.md) | |
+| 17 | [Capstone: Incident triage tabletop](step-17-capstone-incident-triage.md) | |
 
 ---
 
 ## 🚦 How to start
 
 1. **Set up your sandbox** — follow [Step 00 — Lab environment setup](step-00-lab-environment-setup.md). Don't skip this; every later lab assumes it. **Your resource group name must include your initials** to avoid collisions in the shared sandbox subscription.
-2. Work through the **Foundations** stream (Modules 02–05) first — every later lab assumes it.
-3. Follow stream order: Storage → Applications → Observability & Cost → Capstones.
-4. Each module is self-contained markdown — usable for live sessions, self-paced study, or reference for new starters.
+2. Work through the phases in order: **Foundations → Storage → Applications → Observability & Cost → Capstones**.
+3. Each module is self-contained markdown — usable for live sessions, self-paced study, or reference for new starters.
 
-Recommended pacing: **2 modules per week over ~12 weeks**.
+Recommended pacing: **2 modules per week over ~9 weeks**.
 
 ---
 

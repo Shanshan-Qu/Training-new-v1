@@ -1,4 +1,4 @@
-# Step 03 — Identity & access for the operator
+# Step 02 — Identity & access for the operator
 
 _The "who can do what" lab._ 🔐 Builds the access mindset Preservation needs: how RBAC works, the difference between user, service principal, and managed identity, and how to audit access in DSR — without ever needing to grant or change permissions.
 
@@ -179,5 +179,5 @@ az ad sp delete --id $(az ad sp list --display-name "sp-lab-readonly-<your-initi
 
 ---
 
-⬅️ **Previous:** [Step 02 — Portal & Cloud Shell tour](step-02-portal-and-cloud-shell.md)
-➡️ **Next:** [Step 04 — Guardrails, governance & audit](step-04-governance-guardrails.md)
+⬅️ **Previous:** [Step 01 — Portal & Cloud Shell tour](step-01-portal-and-cloud-shell.md)
+➡️ **Next:** [Step 03 — Guardrails, governance & audit](step-03-governance-guardrails.md)

@@ -1,12 +1,12 @@
-# Step 19 — Cost Management for an application owner
+# Step 14 — Cost Management for an application owner
 
 _The "where is the money going?" lab._ 💰 Builds the muscle for Monthly Cost Reporting: saved views, scheduled exports, anomaly alerts, and the tag hygiene that makes the whole thing possible.
 
 > [!NOTE]
 > **Trainee duration:** 90 minutes
 > **Lab cost:** $0 — Cost Management is free.
-> **Prerequisites:** Steps 01–11 complete (you've created enough resources to see real cost data).
-> **Pairs with:** Module 5 of the DIA training plan (Reporting). Feeds directly into the Phase 5 Capstone (Step 23 — Monthly Cost Report).
+> **Prerequisites:** Steps 00–11 complete (you've created enough resources to see real cost data).
+> **Pairs with:** Module 5 of the DIA training plan (Reporting). Feeds directly into the Phase 5 Capstone (Step 16 — Monthly Cost Report).
 
 ---
 
@@ -95,7 +95,7 @@ This is the view you'll eyeball weekly. Sudden movement = something to investiga
 4. Save.
 5. Wait ~24h, then check the container — files appear at `anl/<year>/<month>/<filename>.csv`.
 
-This is the source for the Capstone (Step 23) — you point a Workbook at this container.
+This is the source for the Capstone (Step 16) — you point a Workbook at this container.
 
 ## ⌨️ Activity 6 — Set a budget with alerts
 
@@ -147,7 +147,7 @@ These are the resources that show as "(Untagged)" in your environment view. Send
 ## 📚 Self-serve refresher
 
 - [Cost analysis common scenarios](https://learn.microsoft.com/azure/cost-management-billing/costs/cost-analysis-common-uses) — pattern bank.
-- [Cost Management API](https://learn.microsoft.com/rest/api/cost-management/) — for automation in Step 23's Capstone.
+- [Cost Management API](https://learn.microsoft.com/rest/api/cost-management/) — for automation in Step 16's Capstone.
 
 ## 💰 Cost note
 
@@ -157,5 +157,5 @@ These are the resources that show as "(Untagged)" in your environment view. Send
 
 ---
 
-⬅️ **Previous:** [Step 18 — Azure Monitor Workbooks](step-18-workbooks.md)
-➡️ **Next:** [Step 22 — Capstone: Weekly Health Report](step-22-capstone-weekly-health.md) _(Steps 20 Backup Center and 21 Defender for Storage merged into Step 17)_
+⬅️ **Previous:** [Step 13 — Azure Monitor Workbooks](step-13-workbooks.md)
+➡️ **Next:** [Step 15 — Capstone: Weekly Health Report](step-15-capstone-weekly-health.md)
