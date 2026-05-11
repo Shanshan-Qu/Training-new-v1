@@ -323,11 +323,15 @@ Cost: ~NZD $1.50/month per rule (5-min frequency). Production DSR runs ~6 of the
 
 Different beast: alerts on **control-plane events** like "someone deleted a storage account".
 
+> [!IMPORTANT]
+> **Shared sandbox — scope this to your own RG, not the subscription.** A subscription-scoped "Delete Storage Account" alert in the shared training sandbox would fire for every other trainee's cleanup, paging the whole cohort. Always set **Scope = your `rg-labs-foundations-<initials>` resource group** for any Activity Log alert you create in this lab. In production DSR the equivalent rule *is* subscription-scoped — different blast radius, different intent.
+
 1. Portal → **Monitor → Alerts → + Create → Alert rule**.
-2. **Scope:** subscription level.
+2. **Scope:** your `rg-labs-foundations-<initials>` resource group (**not** the subscription).
 3. **Condition → See all signals → Activity Log → Administrative → Delete Storage Account**.
 4. Action: `LabOnCall`. Severity: **0 — Critical**.
-5. Save.
+5. Name: `alert-stg-delete-lab-<your-initials>`.
+6. Save.
 
 This is a free signal — no metric, no log query — but covers the worst kinds of "who deleted prod?" events.
 

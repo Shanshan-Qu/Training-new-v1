@@ -8,6 +8,9 @@ _The "where is the money going?" lab._ 💰 Builds the muscle for Monthly Cost R
 > **Prerequisites:** Steps 00–09 complete (you've created enough resources to see real cost data).
 > **Pairs with:** Module 5 of the DIA training plan (Reporting). Feeds directly into the Phase 5 Capstone (Step 14 — Monthly Cost Report).
 
+> [!IMPORTANT]
+> **Shared-sandbox callout.** Cost Management **exports**, **budgets**, and **anomaly alerts** are scoped to the *subscription*, and their names must be unique across the cohort. Always suffix every name in this lab with `-<your-initials>` (e.g. `anl-daily-export-sq`, `anl-monthly-budget-sq`). Saved views are private to you and don't need a suffix.
+
 ---
 
 ## 📖 Session overview
@@ -90,7 +93,7 @@ This is the view you'll eyeball weekly. Sudden movement = something to investiga
 ## ⌨️ Activity 5 — Schedule a CSV export
 
 1. Cost Management → **Exports → + Add**.
-2. Name: `anl-daily-export`. Frequency: Daily. Date: Month-to-date costs.
+2. Name: `anl-daily-export-<your-initials>` (subscription-scoped — must be unique across the cohort). Frequency: Daily. Date: Month-to-date costs.
 3. Storage account: pick a storage account you own. Container: `cost-exports`. Folder: `anl/`.
 4. Save.
 5. Wait ~24h, then check the container — files appear at `anl/<year>/<month>/<filename>.csv`.
@@ -100,9 +103,9 @@ This is the source for the Capstone (Step 14) — you point a Workbook at this c
 ## ⌨️ Activity 6 — Set a budget with alerts
 
 1. Cost Management → **Budgets → + Add**.
-2. Name: `anl-monthly-budget`. Scope: subscription. Filter: `Tag: app_name = anl`.
+2. Name: `anl-monthly-budget-<your-initials>` (subscription-scoped — must be unique across the cohort). Scope: subscription. Filter: `Tag: app_name = anl`.
 3. Amount: a sensible monthly target (talk to your manager — it's a real conversation).
-4. Alerts at 80%, 90%, 100%. Recipient: your team's distribution list (or your own email for the lab).
+4. Alerts at 80%, 90%, 100%. Recipient: **your own email only** for the lab (do not send to the team DL — every trainee creating one would spam the list).
 5. Save.
 
 If ANL spend hits 80% of the monthly budget, your team gets an email. Standard practice in DSR.
@@ -110,7 +113,7 @@ If ANL spend hits 80% of the monthly budget, your team gets an email. Standard p
 ## ⌨️ Activity 7 — Anomaly alert
 
 1. Cost Management → **Cost alerts → + Add → Anomaly alert**.
-2. Scope: subscription. Filter: `Tag: app_name = anl`.
+2. Name: `anl-anomaly-<your-initials>` (subscription-scoped — must be unique across the cohort). Scope: subscription. Filter: `Tag: app_name = anl`.
 3. Recipient: your email.
 4. Save.
 
