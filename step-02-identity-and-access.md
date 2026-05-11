@@ -3,7 +3,7 @@
 _The "who can do what" lab._ 🔐 Builds the access mindset Preservation needs: how RBAC works, the difference between user, service principal, and managed identity, and how to audit access in DSR — without ever needing to grant or change permissions.
 
 > [!NOTE]
-> **Trainee duration:** 75 minutes
+> **Trainee duration:** 90 minutes
 > **Lab cost:** under NZD $0.50 — only a small test storage account is reused.
 > **Prerequisites:** Steps 00 + 01 complete; a test storage account in your `rg-labs-foundations-<your-initials>`.
 > **Pairs with:** Module 1 of the DIA training plan (Foundations) — addresses the "RBAC visibility for audit" requirement.
