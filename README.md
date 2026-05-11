@@ -26,12 +26,12 @@ The plan was revised on 11-May-2026 to align with the DP team's actual scope. Mo
 ### Phase 1 — Foundations
 | # | Module | Lab time |
 |---|---|---|
-| 00 | [Lab environment setup](step-00-lab-environment-setup.md) | 30–45 min |
+| 00 | [Lab environment setup](step-00-lab-environment-setup.md) | 60 min |
 | 01 | [Portal & Cloud Shell tour](step-01-portal-and-cloud-shell.md) | 60 min |
 | 02 | [Identity & access for the operator](step-02-identity-and-access.md) | 90 min |
 | 03 | [Guardrails, governance & audit](step-03-governance-guardrails.md) | 60 min |
 | 04 | [Networking primer (read-only view)](step-04-networking-primer.md) | 90 min |
-| | **Phase 1 subtotal** | **~5 h 30 min** |
+| | **Phase 1 subtotal** | **~6 h** |
 
 ### Phase 2 — Storage
 | # | Module | Lab time |
@@ -57,6 +57,10 @@ The plan was revised on 11-May-2026 to align with the DP team's actual scope. Mo
 | | **Phase 4 subtotal** | **~6 h** |
 
 ### Phase 5 — Capstones
+
+> [!WARNING]
+> **Phase 5 is on hold.** The three Capstones depend on real signals from a DSR non-production environment (Workbooks, cost data, incident triage against live AGW / Backup Center / Defender alerts). Hold scheduling until the customer has a non-prod environment available for trainees to test against. Until then, treat the content below as a draft — the queries and Workbook structure are ready, only the data source is missing.
+
 | # | Module | Lab time |
 |---|---|---|
 | 13 | [Capstone: Weekly Health Report](step-13-capstone-weekly-health.md) | 180 min |
@@ -64,7 +68,7 @@ The plan was revised on 11-May-2026 to align with the DP team's actual scope. Mo
 | 15 | [Capstone: Incident triage tabletop](step-15-capstone-incident-triage.md) | 180 min |
 | | **Phase 5 subtotal** | **~9 h** |
 
-**Total hands-on lab time: ~28 hours** across 15 modules (excluding pre-reading and Step 00 setup).
+**Total hands-on lab time: ~28.5 hours** across 15 modules (excluding pre-reading and Step 00 setup). **Phase 5 (~9 h) is on hold pending DSR non-prod environment availability** — see warning above.
 
 ---
 

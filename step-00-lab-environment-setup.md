@@ -1,6 +1,6 @@
 # Step 00 — Lab environment setup (your DIA sandbox)
 
-_Read this once, before you start the training. 30–45 minutes._ ✈️
+_Read this once, before you start the training. ~60 minutes._ ✈️
 
 Every lab in this curriculum is hands-on. To run them safely the Preservation Team uses a **shared DIA-issued sandbox subscription** — separate from production DSR — where each trainee owns their own resource group. This page walks you through getting access and verifying it works.
 
