@@ -54,7 +54,7 @@ By the end you can both find any signal across the DSR estate AND be notified au
 
 ## 📚 Prepare in advance — Microsoft Learn
 
-| Module | Why it matters for ANL |
+| Module | Why it matters for ALNZ |
 |---|---|
 | [Get started with Log Analytics queries](https://learn.microsoft.com/azure/azure-monitor/logs/get-started-queries) | The core mental model — same dialect as Resource Graph and App Insights. |
 | [Analyze monitoring data with KQL (path)](https://learn.microsoft.com/training/paths/analyze-monitoring-data-with-kql/) | Practical query patterns for ops. |
@@ -66,7 +66,7 @@ About **4 hours** of optional pre-reading.
 
 ## 🧱 Foundational primer
 
-- **A workspace is per-region, per-subscription** in concept. DSR runs one workspace per environment (`law-anl-nzn-prd`, `law-anl-nzn-tst`, etc.).
+- **A workspace is per-region, per-subscription** in concept. DSR runs one workspace per environment (`law-alnz-nzn-prd`, `law-alnz-nzn-tst`, etc.).
 - **Diagnostic Settings are how data gets in.** No setting = no data. Audit early.
 - **AzureDiagnostics is a wide table** — different resource types put different columns. Always filter by `ResourceType` and `Category`.
 - **Always scope by time first.** A query without `TimeGenerated > ago(...)` reads the whole retention window.
@@ -165,7 +165,7 @@ Functions let you call your query like a table.
 
 1. In Logs view, write your favourite query.
 2. **Save → Save as function**.
-3. Name: `OurFailedBlobOps_v1`. Category: `anl`.
+3. Name: `OurFailedBlobOps_v1`. Category: `alnz`.
 4. Save. Now you can call:
 
 ```kql
@@ -173,7 +173,7 @@ OurFailedBlobOps_v1
 | where TimeGenerated > ago(1h)
 ```
 
-DSR's runbooks reference saved functions like `AnlBackupHealth`, `AnlStorageThrottle` — every operator can call them without retyping.
+DSR's runbooks reference saved functions like `AlnzBackupHealth`, `AlnzStorageThrottle` — every operator can call them without retyping.
 
 ## ⌨️ Activity 6 — The five queries you'll run weekly
 
@@ -213,7 +213,7 @@ Syslog
 AzureMetrics
 | where TimeGenerated > ago(7d)
 | where MetricName == "Transactions"
-| where Resource startswith "STANLNZN"
+| where Resource startswith "STALNZNZN"
 | summarize total = sum(Total) by Resource, bin(TimeGenerated, 1d)
 | render columnchart
 ```
@@ -252,7 +252,7 @@ Repeat for a VM:
 3. Add `Disk Read Operations/Sec` + `Disk Write Operations/Sec` as a third chart.
 
 > [!TIP]
-> The metrics blade has a **Multi-resource** mode — pick all `STANLNZN*` accounts at once and chart Transactions across all of them on one canvas. This is exactly the view you want during a "is it just one account or all of them?" incident.
+> The metrics blade has a **Multi-resource** mode — pick all `STALNZNZN*` accounts at once and chart Transactions across all of them on one canvas. This is exactly the view you want during a "is it just one account or all of them?" incident.
 
 ## ⌨️ Activity 9 — Create a metric alert (storage availability)
 
@@ -287,9 +287,9 @@ Action groups define **what happens** when an alert fires. They're reusable acro
 5. Create. Test it: **Test action group → Email** → confirm you receive the test mail.
 
 In production DSR runs at least three action groups:
-- `ag-anl-prd-critical` — pages on-call (SMS + Teams + ITSM ticket).
-- `ag-anl-prd-warning` — Teams + email only.
-- `ag-anl-prd-cost` — email to FinOps mailbox for budget alerts.
+- `ag-alnz-prd-critical` — pages on-call (SMS + Teams + ITSM ticket).
+- `ag-alnz-prd-warning` — Teams + email only.
+- `ag-alnz-prd-cost` — email to FinOps mailbox for budget alerts.
 
 Now go back to your alert rule from Activity 9 and attach `LabOnCall`.
 
@@ -357,7 +357,7 @@ Backup Center is the single pane across every Recovery Services Vault and Backup
    - **Backup instances** — how many items are protected (VMs, file shares, SQL, blobs).
    - **Jobs (last 24h)** — green = succeeded, red = failed, amber = in-progress.
    - **Alerts** — any active backup alerts (failed restore, soft-delete disabled, policy drift).
-3. **Backup instances** blade → filter Datasource type = **Azure File Share** → confirm `stanlnznfileprdrosi01/02` shares are listed and **Last backup status = Completed**.
+3. **Backup instances** blade → filter Datasource type = **Azure File Share** → confirm `stalnznznfileprdrosi01/02` shares are listed and **Last backup status = Completed**.
 4. **Backup jobs** blade → filter Status = **Failed**, last 7 days. Any rows are escalations to DIA Platform.
 5. **Backup policies** blade → read-only walk-through. Note retention, schedule, frequency. Don't edit anything.
 6. **Vaults** blade → click any vault → **Properties → Soft delete** — confirm enabled. (Vault-level soft delete is separate from blob soft delete from Step 07.)
@@ -432,7 +432,7 @@ Every DSR production subscription should show `pricingTier = Standard`. Anything
 ## 🦾 Now your turn!
 
 1. Write the KQL for "show every storage account in the workspace, with its 95th-percentile blob op latency over the last 24 hours, sorted descending".
-2. Save your "five weekly queries" as functions named `Anl1HeartbeatGaps`, `Anl2StorageErrors`, etc. (Use a consistent prefix.)
+2. Save your "five weekly queries" as functions named `Alnz1HeartbeatGaps`, `Alnz2StorageErrors`, etc. (Use a consistent prefix.)
 3. Find the **Log Analytics ingestion alerts** feature — set up an alert when daily ingestion exceeds 5 GB.
 4. Read the existing DSR runbook section for "AGW backend unhealthy" — what's the saved function name? Run it for the last hour.
 5. **Build a metric alert** for "VM CPU > 90% for 10 minutes" on your lab VM, using `LabOnCall`.

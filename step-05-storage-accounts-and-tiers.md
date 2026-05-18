@@ -214,7 +214,7 @@ You've just paid for ~29 days of Cool storage on a blob that existed for seconds
 ```kql
 StorageBlobLogs
 | where TimeGenerated > ago(7d)
-| where AccountName == "stanlnznblobprdrosi01"
+| where AccountName == "stalnznznblobprdrosi01"
 | where OperationName in ("GetBlob","ReadFile")
 | summarize bytes_read_gb = sum(ResponseBodySize) / 1024.0 / 1024.0 / 1024.0
             by bin(TimeGenerated, 1h)
@@ -228,7 +228,7 @@ Use this to triage "why did the bill spike last Thursday?" tickets.
 ```kql
 resources
 | where type == "microsoft.storage/storageaccounts"
-| where name has "stanlnzn"
+| where name has "stalnznzn"
 | project name,
           redundancy = sku.name,
           publicAccess = properties.publicNetworkAccess,
@@ -237,7 +237,7 @@ resources
 | order by resourceGroup, name
 ```
 
-You should see `stanlnznblobprdrosi01`, `stanlnznfileprdrosi01`, `stanlnznblobprdwod01` with `publicAccess = Disabled` and `redundancy = Standard_ZRS`.
+You should see `stalnznznblobprdrosi01`, `stalnznznfileprdrosi01`, `stalnznznblobprdwod01` with `publicAccess = Disabled` and `redundancy = Standard_ZRS`.
 
 ## 🦾 Now your turn!
 

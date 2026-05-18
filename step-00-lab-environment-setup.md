@@ -5,7 +5,7 @@ _Read this once, before you start the training. ~60 minutes._ ✈️
 Every lab in this curriculum is hands-on. To run them safely the Preservation Team uses a **shared DIA-issued sandbox subscription** — separate from production DSR — where each trainee owns their own resource group. This page walks you through getting access and verifying it works.
 
 > [!IMPORTANT]
-> **Do NOT use the production DSR subscription (`dsr-anl-prd`) for any lab.** All labs run in the shared training sandbox below, and every trainee operates inside **their own resource group** (named with their initials) so deployments never collide.
+> **Do NOT use the production DSR subscription (`dsr-alnz-prd`) for any lab.** All labs run in the shared training sandbox below, and every trainee operates inside **their own resource group** (named with their initials) so deployments never collide.
 
 ---
 
@@ -79,7 +79,7 @@ Some later labs (e.g. AGW + WAF, WOD) are easier when you can *look at* the prod
 
 Email your team lead or DIA Core Support requesting:
 
-> **Reader** role on the `dsr-anl-dev` and `dsr-anl-uat` subscriptions for the duration of the training (~9 weeks).
+> **Reader** role on the `dsr-alnz-dev` and `dsr-alnz-uat` subscriptions for the duration of the training (~9 weeks).
 
 If access doesn't arrive in time, those labs include screenshots and KQL/CLI snippets you can run against your own training resources instead.
 

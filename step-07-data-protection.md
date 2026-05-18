@@ -35,7 +35,7 @@ DSR runs a multi-layer data protection model. Some layers (Recovery Services Vau
 
 ## 📚 Prepare in advance — Microsoft Learn
 
-| Module | Why it matters for ANL |
+| Module | Why it matters for ALNZ |
 |---|---|
 | [Data protection overview for Blob Storage](https://learn.microsoft.com/azure/storage/blobs/data-protection-overview) | The exact protection layers DSR uses. |
 | [Point-in-time restore for block blobs](https://learn.microsoft.com/azure/storage/blobs/point-in-time-restore-overview) | The "roll back the account" feature. |

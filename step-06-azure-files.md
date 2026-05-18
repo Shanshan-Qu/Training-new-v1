@@ -1,24 +1,24 @@
 # Step 06 — Azure Files for DSR (operational view)
 
 > [!NOTE]
-> **Trimmed lab.** The team already knows SMB/NFS protocols, POSIX permissions, ACLs, and how to mount a share. This lab covers only the DSR-specific operations: reading `stanlnznfileprdrosi01/02` configuration, throttling diagnostics, and the mount-troubleshooting runbook.
+> **Trimmed lab.** The team already knows SMB/NFS protocols, POSIX permissions, ACLs, and how to mount a share. This lab covers only the DSR-specific operations: reading `stalnznznfileprdrosi01/02` configuration, throttling diagnostics, and the mount-troubleshooting runbook.
 
 _The "shared filesystems for Rosetta" lab._ 📁 Operational view of Azure Files as DSR runs it.
 
 > [!NOTE]
 > **Trainee duration:** 60 minutes
 > **Lab cost:** $0 — read-only against production + a metrics chart on the lab storage account from Step 05.
-> **Prerequisites:** Steps 00–05 complete. Reader on the DSR production subscription. The production Azure Files storage accounts (`stanlnznfileprdrosi01` and `stanlnznfileprdrosi02`) must already be provisioned and accessible — this lab is read-only against them and does **not** cover provisioning a new FileStorage account or share.
+> **Prerequisites:** Steps 00–05 complete. Reader on the DSR production subscription. The production Azure Files storage accounts (`stalnznznfileprdrosi01` and `stalnznznfileprdrosi02`) must already be provisioned and accessible — this lab is read-only against them and does **not** cover provisioning a new FileStorage account or share.
 > **Pairs with:** Module 2 of the DIA training plan (Storage).
 
 ---
 
 ## 📖 Session overview
 
-Rosetta uses Azure Files for shared deposit / IE staging directories. Two file shares live on dedicated FileStorage accounts (`stanlnznfileprdrosi01` and `02`). Your team needs to be able to: **read share configuration**, **diagnose throttling**, **work the mount-troubleshooting runbook**, and **confirm soft-delete posture**. Protocol theory, POSIX permissions, and provisioning a Premium share from scratch are **out of scope** — already in your day-job toolkit.
+Rosetta uses Azure Files for shared deposit / IE staging directories. Two file shares live on dedicated FileStorage accounts (`stalnznznfileprdrosi01` and `02`). Your team needs to be able to: **read share configuration**, **diagnose throttling**, **work the mount-troubleshooting runbook**, and **confirm soft-delete posture**. Protocol theory, POSIX permissions, and provisioning a Premium share from scratch are **out of scope** — already in your day-job toolkit.
 
 **What you'll learn**
-- How to read `stanlnznfileprdrosi01/02` config from Resource Graph.
+- How to read `stalnznznfileprdrosi01/02` config from Resource Graph.
 - The Azure Files metrics that matter: `Transactions` (with `SuccessThrottlingError`) and `SuccessE2ELatency`.
 - The KQL query for "is Rosetta slow because the share is being throttled?"
 - The mount-troubleshooting runbook (4 common failure modes).
@@ -28,7 +28,7 @@ Rosetta uses Azure Files for shared deposit / IE staging directories. Two file s
 
 | Term | Plain meaning |
 |---|---|
-| **FileStorage account kind** | The specialised storage account kind that hosts Premium file shares. DSR's `stanlnznfileprd*` accounts. |
+| **FileStorage account kind** | The specialised storage account kind that hosts Premium file shares. DSR's `stalnznznfileprd*` accounts. |
 | **Provisioned size** | On Premium, you pre-pay X GiB; **IOPS scale with size** (baseline = `3000 + 4 × GiB`). |
 | **Throttling** | Exceeding provisioned IOPS / throughput. Shows as latency spikes and `SuccessThrottlingError` on the `Transactions` metric. |
 | **Soft delete** | Recover deleted shares / files within a retention window. DSR = 14 days on production. |
@@ -59,7 +59,7 @@ Resource Graph Explorer:
 resources
 | where type == "microsoft.storage/storageaccounts"
 | where kind == "FileStorage"
-| where name has "stanlnznfileprd"
+| where name has "stalnznznfileprd"
 | project name,
           sku = sku.name,
           location, resourceGroup, subscriptionId
@@ -72,7 +72,7 @@ Then the shares inside:
 ```kql
 resources
 | where type == "microsoft.storage/storageaccounts/fileservices/shares"
-| where name has "stanlnznfileprd"
+| where name has "stalnznznfileprd"
 | project name,
           shareQuota = properties.shareQuota,
           enabledProtocols = properties.enabledProtocols,
@@ -97,7 +97,7 @@ Pick one of the production file storage accounts in the portal (you have Reader)
 
 ```kql
 AzureMetrics
-| where Resource has "stanlnznfileprd"
+| where Resource has "stalnznznfileprd"
 | where MetricName == "Transactions"
 | where parse_json(Properties).ResponseType == "SuccessThrottlingError"
 | summarize throttled = sum(Total) by Resource, bin(TimeGenerated, 5m)
@@ -122,7 +122,7 @@ Memorise this table — it's the first thing you check on a "Rosetta can't reach
 ```kql
 resources
 | where type == "microsoft.storage/storageaccounts/fileservices"
-| where id has "stanlnznfileprd"
+| where id has "stalnznznfileprd"
 | project id,
           shareDeleteRetentionEnabled = properties.shareDeleteRetentionPolicy.enabled,
           retentionDays = properties.shareDeleteRetentionPolicy.days
@@ -132,13 +132,13 @@ Expect `enabled = true`, `days = 14` on every production file service. If not, t
 
 ## 🦾 Now your turn!
 
-1. Pick a 30-day window in `AzureMetrics`. Plot throttled transactions for `stanlnznfileprdrosi01` and `stanlnznfileprdrosi02`. Are the spikes correlated (shared workload) or independent (per-share workload)?
+1. Pick a 30-day window in `AzureMetrics`. Plot throttled transactions for `stalnznznfileprdrosi01` and `stalnznznfileprdrosi02`. Are the spikes correlated (shared workload) or independent (per-share workload)?
 2. From Resource Graph, write a query that flags any FileStorage account in DSR where soft-delete is **not** set to 14 days.
 3. Write a one-paragraph escalation note for "Rosetta team reports share is slow at 14:00 daily" — what you'd put in the ticket, which metrics, who you'd cc.
 
 ## ✅ Success checklist
 
-- [ ] You can read `stanlnznfileprdrosi01/02` config from Resource Graph without help.
+- [ ] You can read `stalnznznfileprdrosi01/02` config from Resource Graph without help.
 - [ ] You can pull up throttling metrics for a production file share in under a minute.
 - [ ] You can recite the 4-row mount-troubleshooting table from memory.
 - [ ] You can verify soft-delete posture across all DSR file accounts in one KQL query.

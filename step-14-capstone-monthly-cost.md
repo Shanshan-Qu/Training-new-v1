@@ -14,7 +14,7 @@ _The "where did the money go this month?" lab._ 🏆 Builds the second team-owne
 
 The Monthly Cost Report answers four questions, in order:
 
-1. What did ANL cost this month?
+1. What did ALNZ cost this month?
 2. How does that compare to last month and budget?
 3. What were the top three movers (positive and negative)?
 4. What's the action plan for any anomaly?
@@ -22,7 +22,7 @@ The Monthly Cost Report answers four questions, in order:
 This lab walks the build: ingest the daily cost CSV from Step 12 into a Workbook table, join with the latest blob inventory for capacity context, render the four canonical views, write the narrative, publish. By the end you have a repeatable monthly cycle.
 
 **What you'll build**
-- A **Workbook** named `ANL — Monthly Cost Report`.
+- A **Workbook** named `ALNZ — Monthly Cost Report`.
 - **Four core views**: total + MoM, by service, by tier, by storage account.
 - A **top-3 movers** computation (ranked deltas).
 - A **narrative section** for the analyst's commentary (~5 bullets).
@@ -42,14 +42,14 @@ This lab walks the build: ingest the daily cost CSV from Step 12 into a Workbook
 
 - Re-read Step 12 (Cost Management) — particularly the saved-view names and export schedule.
 - Have the **previous month's report** open if one exists. The format is tracked in the SharePoint reports library.
-- Check the latest blob inventory CSV for each ANL storage account is in the `inventory` container.
+- Check the latest blob inventory CSV for each ALNZ storage account is in the `inventory` container.
 
 ## 🧱 Foundational principles
 
 - **One source per question.** Cost data → Cost Management export. Capacity context → Blob Inventory. Don't cross-source for the same number.
 - **Always show MoM.** A standalone monthly number is meaningless.
 - **Narrative > tables.** Numbers in the appendix; conclusions on page 1.
-- **Cite the methodology.** Footnote: "Costs include the `app_name=anl` tag at PRD scope; excludes shared platform services."
+- **Cite the methodology.** Footnote: "Costs include the `app_name=alnz` tag at PRD scope; excludes shared platform services."
 - **Reproducible.** Anyone on the team should be able to regenerate this month's report from the JSON template + the data sources.
 
 ## ⌨️ Activity 1 — Verify your data sources are flowing
@@ -57,7 +57,7 @@ This lab walks the build: ingest the daily cost CSV from Step 12 into a Workbook
 ```bash
 # Check cost export is landing
 az storage blob list --account-name <export-account> --container-name cost-exports \
-  --prefix anl/ --output table | head
+  --prefix alnz/ --output table | head
 
 # Check latest blob inventory is recent (per storage account)
 az storage blob list --account-name <storage-account> --container-name inventory \
@@ -72,28 +72,28 @@ Both should show files within the last 7 days. If not, fix the upstream pipeline
 2. Top-of-canvas markdown:
 
 ```markdown
-# ANL — Monthly Cost Report
+# ALNZ — Monthly Cost Report
 **Period:** {Month:label}  |  **Owner:** _Name + email_
-**Methodology:** PRD subscription scope; tag `app_name=anl`. Excludes shared platform services. Costs in NZD.
+**Methodology:** PRD subscription scope; tag `app_name=alnz`. Excludes shared platform services. Costs in NZD.
 ```
 
 3. **Add → Add parameters**:
    - `Month` parameter — type "Date range", default "This month". Locked granularity = month.
-   - `Subscription` parameter — type "Subscription". Single-select. Default = ANL prd.
+   - `Subscription` parameter — type "Subscription". Single-select. Default = ALNZ prd.
 
-4. Save: `ANL — Monthly Cost Report`.
+4. Save: `ALNZ — Monthly Cost Report`.
 
 ## ⌨️ Activity 3 — KPI row: total + MoM
 
-Cost Management API has a built-in "Cost details" data source — but the most reliable pattern is to query the exported CSVs in the storage account. DSR ingests them via Data Factory into `AnlCost_CL`. If your environment doesn't have that ingestion, fall back to Cost Management API directly via the Workbook's Costs data source.
+Cost Management API has a built-in "Cost details" data source — but the most reliable pattern is to query the exported CSVs in the storage account. DSR ingests them via Data Factory into `AlnzCost_CL`. If your environment doesn't have that ingestion, fall back to Cost Management API directly via the Workbook's Costs data source.
 
 ```kql
 // Total this period and previous period
-let curr = AnlCost_CL
+let curr = AlnzCost_CL
             | where Date_t >= startofmonth({Month:start})
             | where Date_t < startofmonth({Month:end})
             | summarize total_now = sum(CostInBillingCurrency_d);
-let prev = AnlCost_CL
+let prev = AlnzCost_CL
             | where Date_t >= startofmonth(datetime_add('month', -1, {Month:start}))
             | where Date_t < startofmonth({Month:start})
             | summarize total_prev = sum(CostInBillingCurrency_d);
@@ -106,7 +106,7 @@ Render as Tiles: "This month $", "Last month $", "MoM %".
 ## ⌨️ Activity 4 — View 1: by service
 
 ```kql
-AnlCost_CL
+AlnzCost_CL
 | where Date_t >= startofmonth({Month:start})
 | where Date_t < startofmonth({Month:end})
 | summarize cost = sum(CostInBillingCurrency_d) by ServiceName_s
@@ -121,7 +121,7 @@ Render as Grid + Pie.
 Join cost lines to the tag values.
 
 ```kql
-AnlCost_CL
+AlnzCost_CL
 | where Date_t >= startofmonth({Month:start})
 | where Date_t < startofmonth({Month:end})
 | extend tier = tostring(Tags_s["tier"])
@@ -134,7 +134,7 @@ Render as Grid + Pie. Untagged rows show as "" — that's a tag-hygiene action i
 ## ⌨️ Activity 6 — View 3: by storage account, with capacity context
 
 ```kql
-let cost = AnlCost_CL
+let cost = AlnzCost_CL
             | where Date_t >= startofmonth({Month:start})
             | where Date_t < startofmonth({Month:end})
             | where ServiceName_s == "Storage"
@@ -153,11 +153,11 @@ Now leadership can see "this account costs X/month and holds Y TB — i.e. Z $/T
 ## ⌨️ Activity 7 — Top 3 movers
 
 ```kql
-let curr = AnlCost_CL
+let curr = AlnzCost_CL
             | where Date_t >= startofmonth({Month:start})
             | where Date_t < startofmonth({Month:end})
             | summarize cost_now = sum(CostInBillingCurrency_d) by ResourceId_s;
-let prev = AnlCost_CL
+let prev = AlnzCost_CL
             | where Date_t >= startofmonth(datetime_add('month', -1, {Month:start}))
             | where Date_t < startofmonth({Month:start})
             | summarize cost_prev = sum(CostInBillingCurrency_d) by ResourceId_s;
@@ -196,7 +196,7 @@ Pull from the inventory CSVs (Step 08):
 ```kql
 StorageBlobInventory_CL
 | where TimeGenerated > ago(7d)
-| where AccountName_s in (<your ANL accounts>)
+| where AccountName_s in (<your ALNZ accounts>)
 | summarize totalGB = sum(Content_Length_d)/pow(1024,3) by AccessTier_s
 | extend monthlyCost_NZD = case(
     AccessTier_s == "Hot",  totalGB * 0.022,    // ZRS Hot per GiB (indicative, AUE)
@@ -211,7 +211,7 @@ This is the answer to "should we move more to Cool or Cold?". Confirm prices in 
 ## ⌨️ Activity 10 — Publish
 
 1. Print Workbook to PDF (US Letter landscape).
-2. Filename: `ANL-MonthlyCost-YYYY-MM.pdf`.
+2. Filename: `ALNZ-MonthlyCost-YYYY-MM.pdf`.
 3. Upload to SharePoint reports library.
 4. Email short summary + PDF link to distribution group on the **first business day of the following month**.
 5. Commit Workbook JSON to Git.

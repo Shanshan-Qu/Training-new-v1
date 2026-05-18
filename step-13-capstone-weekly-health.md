@@ -18,7 +18,7 @@ _The "Friday morning one-pager" lab._ 🏆 Combines everything from Phase 1–4 
 Your team publishes a Weekly Health Report every Friday at 9 AM NZT. The audience is the Preservation Team Lead, Cloud Platform peers, and the Application Owners. The format is a one-pager: traffic light per tier (green/amber/red), one chart, three callouts, link to the underlying Workbook for detail. This lab walks the **build** end-to-end: define the metric set, write the queries, render in a Workbook, apply a consistent style, share by URL. By the end of the lab you have a working report committed to your team's GitHub.
 
 **What you'll build**
-- A **Workbook** named `ANL — Weekly Health Report`.
+- A **Workbook** named `ALNZ — Weekly Health Report`.
 - **Five core tiles**: VM heartbeat, AGW backend health, Storage 5xx, Backup compliance, Defender alerts.
 - **One headline trend chart** (e.g. AGW request volume over 7 days).
 - **Three KPI tiles** with traffic-light thresholds.
@@ -38,7 +38,7 @@ Your team publishes a Weekly Health Report every Friday at 9 AM NZT. The audienc
 ## 📚 Prepare in advance
 
 - Re-read Step 11 (Workbooks). You'll be in the Workbook editor for most of this lab.
-- Have your Step 10 saved functions ready (the `Anl1HeartbeatGaps`, `Anl2StorageErrors`, etc.).
+- Have your Step 10 saved functions ready (the `Alnz1HeartbeatGaps`, `Alnz2StorageErrors`, etc.).
 - Have the **DSR Application Operations runbook** open — Section 5 ("Weekly Health Report") is the audit trail of past reports and the source of truth for the metric set.
 
 ## 🧱 Foundational principles
@@ -55,7 +55,7 @@ Your team publishes a Weekly Health Report every Friday at 9 AM NZT. The audienc
 2. Top of canvas → **Add → Add text** (markdown):
 
 ```markdown
-# ANL — Weekly Health Report
+# ALNZ — Weekly Health Report
 **Reporting period:** {TimeRange:label}  |  **Owner:** _Set this week's owner name_
 ```
 
@@ -63,7 +63,7 @@ Your team publishes a Weekly Health Report every Friday at 9 AM NZT. The audienc
    - `TimeRange`, default Last 7 days.
    - `Environment`, dropdown values `prd, tst, dev`, default `prd`.
 
-4. Save. Name: `ANL — Weekly Health Report`. Subscription/RG: your prod Log Analytics workspace's RG.
+4. Save. Name: `ALNZ — Weekly Health Report`. Subscription/RG: your prod Log Analytics workspace's RG.
 
 ## ⌨️ Activity 2 — KPI tile row (3 tiles)
 
@@ -169,18 +169,18 @@ Open each KPI tile → Tile settings → **Render preferences** → set threshol
 ## ⌨️ Activity 7 — Pin a one-glance dashboard
 
 1. From the Workbook, pin the three KPI tiles + the trend chart to a new dashboard.
-2. Dashboard name: `ANL Weekly Health (latest)`.
+2. Dashboard name: `ALNZ Weekly Health (latest)`.
 3. Share with the Preservation Team distribution group (Reader on the workspace required).
 
 ## ⌨️ Activity 8 — Export to JSON, commit to Git
 
 1. Workbook → Edit → **Advanced editor → JSON**.
-2. Copy. Save to `~/anl-workbooks/anl-weekly-health.json`.
+2. Copy. Save to `~/alnz-workbooks/alnz-weekly-health.json`.
 3. Commit:
 
 ```bash
-cd ~/anl-workbooks
-git add anl-weekly-health.json
+cd ~/alnz-workbooks
+git add alnz-weekly-health.json
 git commit -m "Capstone: Weekly Health Report v1"
 git push
 ```
@@ -190,7 +190,7 @@ Now any teammate can deploy the same Workbook into their workspace via the Advan
 ## ⌨️ Activity 9 — Generate a PDF (optional, for stakeholder email)
 
 1. Workbook → Print (browser print → Save as PDF, US Letter landscape).
-2. Filename convention: `ANL-WeeklyHealth-YYYY-MM-DD.pdf`.
+2. Filename convention: `ALNZ-WeeklyHealth-YYYY-MM-DD.pdf`.
 3. Save to the team SharePoint folder.
 
 ## ⌨️ Activity 10 — Run through the report end-to-end

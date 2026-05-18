@@ -58,7 +58,7 @@ The goal is fluency, not completeness. You won't fix anything; you'll know exact
 
 ## 🎯 Scenario 1 — Snapshot job failed overnight
 
-> **Trigger (08:55 NZT, Friday):** Backup Center email alert: "ANL — Backup job failed for `vm-rosi-prd-03`."
+> **Trigger (08:55 NZT, Friday):** Backup Center email alert: "ALNZ — Backup job failed for `vm-rosi-prd-03`."
 
 ### What you actually do
 
@@ -73,7 +73,7 @@ The goal is fluency, not completeness. You won't fix anything; you'll know exact
 ### Communication
 
 In your Team's "DSR Ops" Teams channel:
-> 🔵 ANL Ops: `vm-rosi-prd-03` overnight backup failed (`<error code>`). Last successful: `<timestamp>`. Auto-retry next cycle. Monitoring.
+> 🔵 ALNZ Ops: `vm-rosi-prd-03` overnight backup failed (`<error code>`). Last successful: `<timestamp>`. Auto-retry next cycle. Monitoring.
 
 ### Escalation criteria
 
@@ -136,7 +136,7 @@ Page Cloud Platform if any of: same VM fails twice in a row; 3+ VMs fail same ni
 ### Communication
 
 ```
-Subject: ANL — Rosetta 502s — investigating
+Subject: ALNZ — Rosetta 502s — investigating
 
 Status: investigating
 Started: 14:12 NZT
@@ -164,7 +164,7 @@ Next step: VM-level checks; will update by 14:30.
 
 ## 🎯 Scenario 3 — Cold-tier retrieval cost spike
 
-> **Trigger (Monday 09:00):** Cost Management anomaly alert — "ANL daily cost up 43% on Sunday."
+> **Trigger (Monday 09:00):** Cost Management anomaly alert — "ALNZ daily cost up 43% on Sunday."
 
 ### What you actually do
 
@@ -178,8 +178,8 @@ Next step: VM-level checks; will update by 14:30.
 ### Communication
 
 ```
-ANL — Cost spike Sunday (≈+43% / +NZD $X)
-Cause: Cold-tier blob retrieval volume on `stanlnznblobprdwod01`.
+ALNZ — Cost spike Sunday (≈+43% / +NZD $X)
+Cause: Cold-tier blob retrieval volume on `stalnznznblobprdwod01`.
 Top URIs: <list 5>.
 Next: confirming with the curator team whether this was a planned export.
 ```
@@ -211,11 +211,11 @@ Curator confirms unplanned → Cloud Security investigation (Defender alerts? An
 ### Communication
 
 ```
-Subject: ANL — Legal hold removal request — <container>
+Subject: ALNZ — Legal hold removal request — <container>
 
 Originator: <name, role>
 Request received: <timestamp>
-Container: <stanlnznblobprdwod01:archived-2018>
+Container: <stalnznznblobprdwod01:archived-2018>
 Hold tag(s): <list>
 Time-based retention: <set / not set / locked / unlocked>
 Approval verification: <pending / received / cited>

@@ -38,7 +38,7 @@ Your team will mostly hold Reader-level access in DSR. Knowing how access works 
 
 ## 📚 Prepare in advance — Microsoft Learn
 
-| Module | Why it matters for ANL |
+| Module | Why it matters for ALNZ |
 |---|---|
 | [Configure role-based access control (RBAC)](https://learn.microsoft.com/training/modules/secure-azure-resources-with-rbac/) | The core access model in DSR. |
 | [Microsoft Entra built-in roles](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles) | The role catalogue — bookmark this. |
@@ -108,7 +108,7 @@ Managed Identity is preferred over SP because it removes the secret management b
 2. Under **System assigned** → toggle Status to **On** → Save. (This creates a managed identity for the storage account itself — unusual for storage but a quick demo.)
 3. After a few seconds, the storage account has an Object ID. That's its identity.
 
-In DSR production, the **Rosetta VMs** have system-assigned MIs and use them to read from `stanlnznblobprdrosi01` — no secrets, no rotation, no leaks.
+In DSR production, the **Rosetta VMs** have system-assigned MIs and use them to read from `stalnznznblobprdrosi01` — no secrets, no rotation, no leaks.
 
 ## ⌨️ Activity 5 — Read the Activity Log
 
@@ -137,7 +137,7 @@ authorizationresources
 3. Save the query → name it `Audit — RBAC on lab RG`.
 4. Pin to dashboard.
 
-In production, the same query (with a different scope filter) gives DIA's audit team a one-click "who has access to ANL production?" report.
+In production, the same query (with a different scope filter) gives DIA's audit team a one-click "who has access to ALNZ production?" report.
 
 ## ⌨️ Activity 7 — Clean up the SP
 

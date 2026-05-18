@@ -37,7 +37,7 @@ The most important takeaway: **the Preservation Team reads governance signals; o
 
 ## 📚 Prepare in advance — Microsoft Learn
 
-| Module | Why it matters for ANL |
+| Module | Why it matters for ALNZ |
 |---|---|
 | [Describe Azure governance and compliance features](https://learn.microsoft.com/training/modules/describe-features-tools-azure-for-governance-compliance/) | The big-picture map: Policy, Locks, Cost Mgmt. |
 | [Manage resource locks](https://learn.microsoft.com/azure/azure-resource-manager/management/lock-resources) (article) | Hands-on with the CLI/portal lock commands. |
@@ -139,7 +139,7 @@ az lock delete --name protect-from-delete --resource-group $RG
 az group delete -n $RG --yes --no-wait
 ```
 
-In production, the WOD storage account `stanlnznblobprdwod01` has a `CanNotDelete` lock applied because of legal-hold compliance. (Immutability policies themselves are owned by Cloud Governance and out of scope for this training.)
+In production, the WOD storage account `stalnznznblobprdwod01` has a `CanNotDelete` lock applied because of legal-hold compliance. (Immutability policies themselves are owned by Cloud Governance and out of scope for this training.)
 
 ## 🦾 Now your turn!
 

@@ -35,7 +35,7 @@ The Azure portal is large. Without the right shortcuts, finding a specific resou
 
 ## 📚 Prepare in advance — Microsoft Learn
 
-| Module | Why it matters for ANL |
+| Module | Why it matters for ALNZ |
 |---|---|
 | [Tour the Azure portal](https://learn.microsoft.com/training/modules/tour-azure-portal/) | The team's daily home base. |
 | [Introduction to Azure Cloud Shell](https://learn.microsoft.com/azure/cloud-shell/overview) | No-install access for ad-hoc commands. |

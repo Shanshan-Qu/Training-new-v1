@@ -12,7 +12,7 @@ _The "one-pager that updates itself" lab._ 📈 Builds the parameterised dashboa
 
 ## 📖 Session overview
 
-A Workbook is a sharable, parameterised report built from KQL queries. DSR uses one Workbook per concern — "DSR Health Daily", "ANL Storage Capacity", "Backup Compliance" — and a curated subset is pinned to dashboards. This lab walks you through authoring one from scratch, parameterising it (time range, environment dropdown), wiring tiles to the queries you saved in Step 10, and sharing it with your team.
+A Workbook is a sharable, parameterised report built from KQL queries. DSR uses one Workbook per concern — "DSR Health Daily", "ALNZ Storage Capacity", "Backup Compliance" — and a curated subset is pinned to dashboards. This lab walks you through authoring one from scratch, parameterising it (time range, environment dropdown), wiring tiles to the queries you saved in Step 10, and sharing it with your team.
 
 **What you'll learn**
 - The Workbook anatomy: **parameters → queries → visualisations**.
@@ -35,7 +35,7 @@ A Workbook is a sharable, parameterised report built from KQL queries. DSR uses 
 
 ## 📚 Prepare in advance — Microsoft Learn
 
-| Module | Why it matters for ANL |
+| Module | Why it matters for ALNZ |
 |---|---|
 | [Visualize data with Azure Monitor Workbooks](https://learn.microsoft.com/training/modules/visualize-data-workbooks/) | The official tour. |
 | [Workbook parameters](https://learn.microsoft.com/azure/azure-monitor/visualize/workbooks-parameters) | The most useful single doc — every parameter type. |
@@ -55,7 +55,7 @@ About **1.5 hours** of optional pre-reading.
 ## ⌨️ Activity 1 — Create your first Workbook
 
 1. Workspace → **Workbooks → + New**.
-2. Click the empty canvas → **Add → Add text**. Type "ANL Health — Lab Edition".
+2. Click the empty canvas → **Add → Add text**. Type "ALNZ Health — Lab Edition".
 3. **Add → Add parameters**. Add:
    - Time Range, name `TimeRange`, default Last 24 hours.
    - Resource picker, name `Storage`, type `Microsoft.Storage/storageAccounts`, multi-select.
@@ -69,7 +69,7 @@ Heartbeat
 ```
 
 5. Visualisation: Grid. Run query. You see your VMs.
-6. Save (top-left). Name: `Lab — ANL Health`. Subscription/RG: your lab RG.
+6. Save (top-left). Name: `Lab — ALNZ Health`. Subscription/RG: your lab RG.
 
 ## ⌨️ Activity 2 — Add a chart tile
 
@@ -139,7 +139,7 @@ DSR has a "DSR Operations" dashboard with tiles from ~6 Workbooks. This is how t
 ## ⌨️ Activity 7 — Export to template (Git-friendly)
 
 1. **Edit → Advanced editor**. You see the JSON.
-2. Copy the JSON. Save to `~/anl-workbooks/anl-health.json` (or commit to your repo).
+2. Copy the JSON. Save to `~/alnz-workbooks/alnz-health.json` (or commit to your repo).
 3. To redeploy on a fresh sub: portal → **Workbooks → + New → Advanced editor → Paste JSON → Run**.
 
 This is how DSR keeps Workbooks reproducible across environments.
@@ -147,7 +147,7 @@ This is how DSR keeps Workbooks reproducible across environments.
 ## 🦾 Now your turn!
 
 1. Add a parameter `Environment` with options `prd`, `tst`, `dev` (drop-down). Wire one query to filter by `tags.environment == "{Environment}"`.
-2. Build a Workbook called **ANL Backup Daily** with three tiles: backup job count last 24h, failures last 24h, oldest restore point per protected resource. (Some queries return empty until you do Step 10; that's fine.)
+2. Build a Workbook called **ALNZ Backup Daily** with three tiles: backup job count last 24h, failures last 24h, oldest restore point per protected resource. (Some queries return empty until you do Step 10; that's fine.)
 3. Find a Microsoft-published gallery Workbook (e.g. Azure Backup) — use it as a template, save a copy, customise.
 4. Pin three tiles to a single dashboard and screenshot the result.
 

@@ -31,7 +31,7 @@ In DSR, networking is owned by DIA Cloud Networking — your team won't configur
 | **NIC** | Network Interface Card. Every VM has one or more NICs that attach it to a subnet. |
 | **NSG** | Network Security Group. A stateful firewall attached to a subnet or NIC. |
 | **Private Endpoint (PE)** | A private IP in your VNet that talks to an Azure PaaS service (e.g. a storage account) — keeps traffic off the public internet. |
-| **Private DNS Zone** | DNS records that resolve PaaS service hostnames (e.g. `stanlnznblobprdrosi01.blob.core.windows.net`) to the private IP of a Private Endpoint. |
+| **Private DNS Zone** | DNS records that resolve PaaS service hostnames (e.g. `stalnznznblobprdrosi01.blob.core.windows.net`) to the private IP of a Private Endpoint. |
 | **Hub-Spoke** | A topology where shared services (firewall, ExpressRoute, DNS) live in a Hub VNet, and apps live in Spoke VNets that peer to the Hub. |
 | **ExpressRoute** | A dedicated, private circuit between DIA's on-premises network and Azure (no internet involved). |
 | **Azure Firewall** | A managed network firewall for the Hub VNet. DSR uses it for outbound DNAT/SNAT. |
@@ -39,7 +39,7 @@ In DSR, networking is owned by DIA Cloud Networking — your team won't configur
 
 ## 📚 Prepare in advance — Microsoft Learn
 
-| Module | Why it matters for ANL |
+| Module | Why it matters for ALNZ |
 |---|---|
 | [Introduction to Azure Virtual Networks](https://learn.microsoft.com/training/modules/introduction-to-azure-virtual-networks/) | Foundational — every other module assumes this. |
 | [Secure your virtual network with Azure Firewall and NSGs](https://learn.microsoft.com/training/modules/introduction-azure-firewall/) | DSR uses both. |
@@ -54,7 +54,7 @@ About **2 hours** of optional pre-reading.
 - **NSG rules are processed in priority order** (lowest first), and the first match wins. Default rules at the bottom allow VNet-internal and deny inbound from internet.
 - **Private Endpoints are the security pattern** for PaaS in DSR. The storage account has its public endpoint blocked; only Private Endpoints from approved subnets can reach it.
 - **DNS is the most common cause of "it doesn't work".** Private DNS zones must be linked to the right VNet for hostnames to resolve to private IPs. Without it, name resolution still goes to the public IP — which is firewalled — and the request fails.
-- **Hub-Spoke separates concerns.** The Hub holds shared firewall, gateway, DNS. Spokes hold workloads. ANL is a spoke.
+- **Hub-Spoke separates concerns.** The Hub holds shared firewall, gateway, DNS. Spokes hold workloads. ALNZ is a spoke.
 - **You cannot change the network in DSR.** Period. But you can read every rule, route, and connection — and that's how you triage.
 - **Read-only ≠ powerless.** A Network Watcher Connection Troubleshooter test costs nothing and can prove a problem is/isn't network-related.
 
@@ -117,7 +117,7 @@ When Rosetta can't connect to Oracle, your first read of the network is exactly 
 7. Once created, open the Private Endpoint resource → **Overview**. Note the private IP (something like `10.99.2.4`).
 8. Open the Private DNS Zone (find it under Resource groups → look for `privatelink.blob.core.windows.net`) → see the auto-created A record pointing your storage account name to that private IP.
 
-This is how DSR's Rosetta VMs reach `stanlnznblobprdrosi01` — through a private endpoint, with private DNS resolving the public hostname to a private IP.
+This is how DSR's Rosetta VMs reach `stalnznznblobprdrosi01` — through a private endpoint, with private DNS resolving the public hostname to a private IP.
 
 ## ⌨️ Activity 5 — Lock down the storage account public endpoint
 
@@ -131,7 +131,7 @@ Now that we have a private endpoint, we can disable public access.
 
 1. Search → **Network Watcher → Connection troubleshoot**.
 2. Source: pick any VM (you may not have one in the sandbox yet — if not, run this against the real DSR DEV/UAT estate where you have Reader on a VM).
-3. Destination: `stanlnznblobprdrosi01.blob.core.windows.net` (or your test storage account's URL), port 443.
+3. Destination: `stalnznznblobprdrosi01.blob.core.windows.net` (or your test storage account's URL), port 443.
 4. **Check** — Network Watcher will show the path, latency, and whether any NSG / firewall rule blocks it.
 
 In DSR you'll have read access to Network Watcher in your subscriptions. Use it to **prove** a problem is or isn't a network problem before calling Cloud Networking.
@@ -156,7 +156,7 @@ In DSR you'll have read access to Network Watcher in your subscriptions. Use it 
                       │ VNet peering      │ VNet peering
                       ▼                   ▼
         ┌────────────────────┐   ┌────────────────────┐
-        │ ANL Spoke (PRD)    │   │ ANL Spoke (UAT/DEV)│
+        │ ALNZ Spoke (PRD)    │   │ ALNZ Spoke (UAT/DEV)│
         │  snet-app-prd      │   │  snet-app-uat etc. │
         │  snet-ora-prd      │   │                    │
         │  snet-pe-prd       │   │                    │

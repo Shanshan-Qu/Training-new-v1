@@ -9,13 +9,13 @@ _The "where is the money going?" lab._ 💰 Builds the muscle for Monthly Cost R
 > **Pairs with:** Module 5 of the DIA training plan (Reporting). Feeds directly into the Phase 5 Capstone (Step 14 — Monthly Cost Report).
 
 > [!IMPORTANT]
-> **Shared-sandbox callout.** Cost Management **exports**, **budgets**, and **anomaly alerts** are scoped to the *subscription*, and their names must be unique across the cohort. Always suffix every name in this lab with `-<your-initials>` (e.g. `anl-daily-export-sq`, `anl-monthly-budget-sq`). Saved views are private to you and don't need a suffix.
+> **Shared-sandbox callout.** Cost Management **exports**, **budgets**, and **anomaly alerts** are scoped to the *subscription*, and their names must be unique across the cohort. Always suffix every name in this lab with `-<your-initials>` (e.g. `alnz-daily-export-sq`, `alnz-monthly-budget-sq`). Saved views are private to you and don't need a suffix.
 
 ---
 
 ## 📖 Session overview
 
-The Preservation Team owns the Monthly Cost Report for ANL. Cost Management is the tool. This lab teaches the saved-view pattern (one view per dimension that matters), scheduled CSV exports (the same data the Capstone consumes), and the anomaly alerts that prevent the next "why did blob cost double?" surprise. Tag hygiene gets attention too — without `app_name=anl`, none of this works.
+The Preservation Team owns the Monthly Cost Report for ALNZ. Cost Management is the tool. This lab teaches the saved-view pattern (one view per dimension that matters), scheduled CSV exports (the same data the Capstone consumes), and the anomaly alerts that prevent the next "why did blob cost double?" surprise. Tag hygiene gets attention too — without `app_name=alnz`, none of this works.
 
 **What you'll learn**
 - The Cost Management hierarchy: **billing scope → subscription → resource group → resource → tag**.
@@ -39,7 +39,7 @@ The Preservation Team owns the Monthly Cost Report for ANL. Cost Management is t
 
 ## 📚 Prepare in advance — Microsoft Learn
 
-| Module | Why it matters for ANL |
+| Module | Why it matters for ALNZ |
 |---|---|
 | [Describe Azure Cost Management](https://learn.microsoft.com/training/modules/describe-cost-management-azure/) | The basics. |
 | [Optimize costs with Cost Management](https://learn.microsoft.com/azure/cost-management-billing/costs/cost-mgt-best-practices) | The patterns DSR follows. |
@@ -51,7 +51,7 @@ About **1.5 hours** of optional pre-reading.
 
 - **Cost Management lags 24–48h.** Don't expect today's cost in real time.
 - **Tag inheritance is opt-in.** A tag on the RG does *not* automatically apply to child resources unless Policy enforces it.
-- **`app_name=anl` is the magic key.** Filtering all DSR cost on this tag is the canonical "what does ANL cost?" answer.
+- **`app_name=alnz` is the magic key.** Filtering all DSR cost on this tag is the canonical "what does ALNZ cost?" answer.
 - **Scope matters.** A saved view at sub scope sees everything; at RG scope, just that RG. The Monthly Report uses sub scope filtered by tag.
 - **Exports are append-mode** — daily files, organised by year/month/day in the destination container.
 - **Anomaly alerts are free** but only run at sub or RG scope.
@@ -62,58 +62,58 @@ About **1.5 hours** of optional pre-reading.
 2. Default view: Accumulated cost month-to-date by service.
 3. Note the warning if your sub is new — first 24h of data may not be available.
 
-## ⌨️ Activity 2 — Build a saved view "ANL by service"
+## ⌨️ Activity 2 — Build a saved view "ALNZ by service"
 
 1. Cost analysis → **+ New view**.
-2. Filters: `Tag : app_name = anl`.
+2. Filters: `Tag : app_name = alnz`.
 3. Group by: Service name.
 4. Granularity: Daily.
 5. Time range: Last 30 days.
-6. Save view: name `ANL — Spend by service`. Private (only you see it). Save.
+6. Save view: name `ALNZ — Spend by service`. Private (only you see it). Save.
 
 You can now load this view from any browser as one click.
 
-## ⌨️ Activity 3 — Build a saved view "ANL by environment"
+## ⌨️ Activity 3 — Build a saved view "ALNZ by environment"
 
 1. **+ New view** (clone of #1).
 2. Group by: Tag → `environment`.
-3. Save: `ANL — Spend by environment`.
+3. Save: `ALNZ — Spend by environment`.
 
 You'll see the prd/tst/dev split. If a resource has no `environment` tag, it appears under "(Untagged)" — that's a tag-hygiene action item.
 
-## ⌨️ Activity 4 — Build a saved view "ANL by storage account"
+## ⌨️ Activity 4 — Build a saved view "ALNZ by storage account"
 
 1. **+ New view**.
-2. Filters: `Tag: app_name = anl` AND `Service name: Storage`.
+2. Filters: `Tag: app_name = alnz` AND `Service name: Storage`.
 3. Group by: Resource.
-4. Save: `ANL — Storage spend`.
+4. Save: `ALNZ — Storage spend`.
 
 This is the view you'll eyeball weekly. Sudden movement = something to investigate.
 
 ## ⌨️ Activity 5 — Schedule a CSV export
 
 1. Cost Management → **Exports → + Add**.
-2. Name: `anl-daily-export-<your-initials>` (subscription-scoped — must be unique across the cohort). Frequency: Daily. Date: Month-to-date costs.
-3. Storage account: pick a storage account you own. Container: `cost-exports`. Folder: `anl/`.
+2. Name: `alnz-daily-export-<your-initials>` (subscription-scoped — must be unique across the cohort). Frequency: Daily. Date: Month-to-date costs.
+3. Storage account: pick a storage account you own. Container: `cost-exports`. Folder: `alnz/`.
 4. Save.
-5. Wait ~24h, then check the container — files appear at `anl/<year>/<month>/<filename>.csv`.
+5. Wait ~24h, then check the container — files appear at `alnz/<year>/<month>/<filename>.csv`.
 
 This is the source for the Capstone (Step 14) — you point a Workbook at this container.
 
 ## ⌨️ Activity 6 — Set a budget with alerts
 
 1. Cost Management → **Budgets → + Add**.
-2. Name: `anl-monthly-budget-<your-initials>` (subscription-scoped — must be unique across the cohort). Scope: subscription. Filter: `Tag: app_name = anl`.
+2. Name: `alnz-monthly-budget-<your-initials>` (subscription-scoped — must be unique across the cohort). Scope: subscription. Filter: `Tag: app_name = alnz`.
 3. Amount: a sensible monthly target (talk to your manager — it's a real conversation).
 4. Alerts at 80%, 90%, 100%. Recipient: **your own email only** for the lab (do not send to the team DL — every trainee creating one would spam the list).
 5. Save.
 
-If ANL spend hits 80% of the monthly budget, your team gets an email. Standard practice in DSR.
+If ALNZ spend hits 80% of the monthly budget, your team gets an email. Standard practice in DSR.
 
 ## ⌨️ Activity 7 — Anomaly alert
 
 1. Cost Management → **Cost alerts → + Add → Anomaly alert**.
-2. Name: `anl-anomaly-<your-initials>` (subscription-scoped — must be unique across the cohort). Scope: subscription. Filter: `Tag: app_name = anl`.
+2. Name: `alnz-anomaly-<your-initials>` (subscription-scoped — must be unique across the cohort). Scope: subscription. Filter: `Tag: app_name = alnz`.
 3. Recipient: your email.
 4. Save.
 
@@ -122,9 +122,9 @@ Cost Management trains a baseline on ~14 days of history and alerts when daily s
 ## ⌨️ Activity 8 — Tag hygiene audit
 
 ```kql
-// Resource Graph — every ANL resource missing the env tag
+// Resource Graph — every ALNZ resource missing the env tag
 resources
-| where tags.app_name == "anl"
+| where tags.app_name == "alnz"
 | where isempty(tags.environment) or tags.environment == ""
 | project name, type, resourceGroup, location
 ```
@@ -133,8 +133,8 @@ These are the resources that show as "(Untagged)" in your environment view. Send
 
 ## 🦾 Now your turn!
 
-1. Add a fourth saved view: "ANL — Cost by tier" (group by `tier` tag). What percentage is `tier=storage` vs `tier=web`?
-2. Set up a scheduled email of the "ANL — Spend by service" view to your manager every Monday morning.
+1. Add a fourth saved view: "ALNZ — Cost by tier" (group by `tier` tag). What percentage is `tier=storage` vs `tier=web`?
+2. Set up a scheduled email of the "ALNZ — Spend by service" view to your manager every Monday morning.
 3. From the export CSV, find the row with the highest daily cost. Is it expected (e.g., backup) or surprising (e.g., egress)?
 4. Open Cost Management at *RG* scope for the lab RG — confirm you see only that RG's spend.
 

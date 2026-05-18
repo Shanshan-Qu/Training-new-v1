@@ -3,7 +3,7 @@
 > [!WARNING]
 > **STATUS: TBC.** Pending confirmation whether WOD container ops (PODMAN, blobfuse2, NGINX) sits with the DP team. Do **not** schedule until confirmed.
 
-_The "web archive in containers" lab._ 🕸️ Builds working knowledge of the Web On-Demand stack: PODMAN containers running NGINX, pyweb, and OutbackCDX, with `blobfuse2` mounting `stanlnznblobprdwod01` for content access.
+_The "web archive in containers" lab._ 🕸️ Builds working knowledge of the Web On-Demand stack: PODMAN containers running NGINX, pyweb, and OutbackCDX, with `blobfuse2` mounting `stalnznznblobprdwod01` for content access.
 
 > [!NOTE]
 > **Trainee duration:** 90 minutes
@@ -41,7 +41,7 @@ WOD (Web On-Demand) is DIA's web-archive replay surface — visitors browse arch
 
 ## 📚 Prepare in advance — Microsoft Learn
 
-| Module | Why it matters for ANL |
+| Module | Why it matters for ALNZ |
 |---|---|
 | [Introduction to containers](https://learn.microsoft.com/training/modules/intro-to-containers/) | If you've never touched containers — start here. |
 | [blobfuse2 documentation](https://learn.microsoft.com/azure/storage/blobs/blobfuse2-what-is) | The mount used by WOD. |

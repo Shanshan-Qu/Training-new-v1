@@ -35,7 +35,7 @@ Storage Insights gives near-real-time metrics, but for *blob-level* reporting (c
 
 ## 📚 Prepare in advance — Microsoft Learn
 
-| Module | Why it matters for ANL |
+| Module | Why it matters for ALNZ |
 |---|---|
 | [Calculate blob count and total size with inventory](https://learn.microsoft.com/azure/storage/blobs/calculate-blob-count-size) | The exact pattern for the Monthly Cost Report. |
 | [Enable Azure Storage blob inventory reports](https://learn.microsoft.com/azure/storage/blobs/blob-inventory) | The reference for every field. |
@@ -101,7 +101,7 @@ When the inventory CSVs are ingested to a Log Analytics workspace (via a small L
 ```kql
 StorageBlobInventory_CL
 | where TimeGenerated > ago(7d)
-| where AccountName_s == "stanlnznblobprdwod01"
+| where AccountName_s == "stalnznznblobprdwod01"
 | summarize totalGB = sum(Content_Length_d) / pow(1024, 3) by AccessTier_s
 | order by totalGB desc
 ```
@@ -110,7 +110,7 @@ Or by month for trend:
 
 ```kql
 StorageBlobInventory_CL
-| where AccountName_s == "stanlnznblobprdwod01"
+| where AccountName_s == "stalnznznblobprdwod01"
 | extend month = startofmonth(TimeGenerated)
 | summarize totalGB = sum(Content_Length_d)/pow(1024,3) by month, AccessTier_s
 | render columnchart kind=stacked
